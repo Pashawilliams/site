@@ -1,0 +1,59 @@
+name: Telegram admin bot
+
+on:
+  workflow_dispatch:
+  schedule:
+    # fallback watchdog: every 30 min make sure the bot is alive
+    - cron: "*/30 * * * *"
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: telegram-bot
+  cancel-in-progress: false
+
+jobs:
+  bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Skip if another bot run is already active
+        id: guard
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          RUNNING=$(gh api "repos/${{ github.repository }}/actions/workflows/bot.yml/runs?status=in_progress&per_page=10" \
+            --jq '[.workflow_runs[] | select(.id != ${{ github.run_id }})] | length')
+          echo "running_others=$RUNNING"
+          if [ "$RUNNING" != "0" ]; then echo "skip=true" >> "$GITHUB_OUTPUT"; fi
+
+      - uses: actions/checkout@v4
+        if: steps.guard.outputs.skip != 'true'
+
+      - uses: actions/setup-python@v5
+        if: steps.guard.outputs.skip != 'true'
+        with:
+          python-version: "3.12"
+
+      - name: Run bot (exits after 5h20m)
+        if: steps.guard.outputs.skip != 'true'
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          ADMIN_ID: ${{ secrets.ADMIN_ID }}
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+          GH_REPO: ${{ github.repository }}
+          GH_BRANCH: main
+          SITE_URL: https://pashawilliams.github.io/site/
+          MAX_RUNTIME: "19200"
+          NOTIFY_START: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
+        run: python bot/bot.py
+
+      - name: Restart myself
+        if: always() && steps.guard.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          sleep 20
+          gh workflow run bot.yml --ref main || true

@@ -1,0 +1,480 @@
+{
+  "site": {
+    "name": "Eurotour",
+    "tagline": "Пасажирські перевезення Україна – Європа",
+    "maintenance": false,
+    "announcement": {
+      "enabled": false,
+      "text": "",
+      "link": ""
+    }
+  },
+  "contacts": {
+    "phone": "+380973452025",
+    "phone_display": "+380 97 345 20 25",
+    "telegram": "https://t.me/pereviznyk_support",
+    "whatsapp": "https://wa.me/380973452025",
+    "support_note": "Цілодобова підтримка по Україні та ЄС"
+  },
+  "hero": {
+    "title": "Комфортні поїздки Україна – Європа",
+    "subtitle": "Комфортні пасажирські перевезення Україна – Європа від Eurotour. Їздимо по всіх країнах, містах і адресах України та Європи. Сучасні автобуси, Wi-Fi, розетки та зручні крісла. Безпечно та надійно."
+  },
+  "advantages": [
+    "7 пасажирських місць",
+    "Wi-Fi",
+    "Зарядки для телефонів",
+    "Клімат-контроль",
+    "2 водії в рейсі",
+    "Чай / кава",
+    "Прямий рейс без пересадок",
+    "Пледи / подушки",
+    "Адреса → адреса",
+    "Без доплат"
+  ],
+  "routes": [
+    {
+      "from": "Київ",
+      "to": "Варшава",
+      "price": 4200,
+      "old_price": 5040,
+      "slug": "ads/kyyiv-varshava",
+      "visible": true
+    },
+    {
+      "from": "Варшава",
+      "to": "Київ",
+      "price": 4200,
+      "old_price": 5040,
+      "slug": "ads/varshava-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Варшава",
+      "price": 3100,
+      "old_price": 3720,
+      "slug": "ads/lviv-varshava",
+      "visible": true
+    },
+    {
+      "from": "Варшава",
+      "to": "Львів",
+      "price": 3100,
+      "old_price": 3720,
+      "slug": "ads/varshava-lviv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Краків",
+      "price": 4400,
+      "old_price": 5280,
+      "slug": "ads/kyyiv-krakiv",
+      "visible": true
+    },
+    {
+      "from": "Краків",
+      "to": "Київ",
+      "price": 4400,
+      "old_price": 5280,
+      "slug": "ads/krakiv-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Краків",
+      "price": 2900,
+      "old_price": 3480,
+      "slug": "ads/lviv-krakiv",
+      "visible": true
+    },
+    {
+      "from": "Краків",
+      "to": "Львів",
+      "price": 2900,
+      "old_price": 3480,
+      "slug": "ads/krakiv-lviv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Вроцлав",
+      "price": 4900,
+      "old_price": 5880,
+      "slug": "ads/kyyiv-vrotslav",
+      "visible": true
+    },
+    {
+      "from": "Вроцлав",
+      "to": "Київ",
+      "price": 4900,
+      "old_price": 5880,
+      "slug": "ads/vrotslav-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Вроцлав",
+      "price": 3400,
+      "old_price": 4080,
+      "slug": "ads/lviv-vrotslav",
+      "visible": true
+    },
+    {
+      "from": "Вроцлав",
+      "to": "Львів",
+      "price": 3400,
+      "old_price": 4080,
+      "slug": "ads/vrotslav-lviv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Берлін",
+      "price": 5200,
+      "old_price": 6240,
+      "slug": "ads/kyyiv-berlin",
+      "visible": true
+    },
+    {
+      "from": "Берлін",
+      "to": "Київ",
+      "price": 5200,
+      "old_price": 6240,
+      "slug": "ads/berlin-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Берлін",
+      "price": 4700,
+      "old_price": 5640,
+      "slug": "ads/lviv-berlin",
+      "visible": true
+    },
+    {
+      "from": "Берлін",
+      "to": "Львів",
+      "price": 4700,
+      "old_price": 5640,
+      "slug": "ads/berlin-lviv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Дрезден",
+      "price": 5200,
+      "old_price": 6240,
+      "slug": "ads/kyyiv-drezden",
+      "visible": true
+    },
+    {
+      "from": "Дрезден",
+      "to": "Київ",
+      "price": 5200,
+      "old_price": 6240,
+      "slug": "ads/drezden-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Прага",
+      "price": 5200,
+      "old_price": 6240,
+      "slug": "ads/kyyiv-praha",
+      "visible": true
+    },
+    {
+      "from": "Прага",
+      "to": "Київ",
+      "price": 5200,
+      "old_price": 6240,
+      "slug": "ads/praha-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Прага",
+      "price": 3900,
+      "old_price": 4680,
+      "slug": "ads/lviv-praha",
+      "visible": true
+    },
+    {
+      "from": "Прага",
+      "to": "Львів",
+      "price": 3900,
+      "old_price": 4680,
+      "slug": "ads/praha-lviv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Братислава",
+      "price": 4700,
+      "old_price": 5640,
+      "slug": "ads/kyyiv-bratyslava",
+      "visible": true
+    },
+    {
+      "from": "Братислава",
+      "to": "Київ",
+      "price": 4700,
+      "old_price": 5640,
+      "slug": "ads/bratyslava-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Братислава",
+      "price": 3400,
+      "old_price": 4080,
+      "slug": "ads/lviv-bratyslava",
+      "visible": true
+    },
+    {
+      "from": "Братислава",
+      "to": "Львів",
+      "price": 3400,
+      "old_price": 4080,
+      "slug": "ads/bratyslava-lviv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Будапешт",
+      "price": 5200,
+      "old_price": 6240,
+      "slug": "ads/kyyiv-budapesht",
+      "visible": true
+    },
+    {
+      "from": "Будапешт",
+      "to": "Київ",
+      "price": 5200,
+      "old_price": 6240,
+      "slug": "ads/budapesht-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Будапешт",
+      "price": 3600,
+      "old_price": 4320,
+      "slug": "ads/lviv-budapesht",
+      "visible": true
+    },
+    {
+      "from": "Будапешт",
+      "to": "Львів",
+      "price": 3600,
+      "old_price": 4320,
+      "slug": "ads/budapesht-lviv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Відень",
+      "price": 5200,
+      "old_price": 6240,
+      "slug": "ads/kyyiv-viden",
+      "visible": true
+    },
+    {
+      "from": "Відень",
+      "to": "Київ",
+      "price": 5200,
+      "old_price": 6240,
+      "slug": "ads/viden-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Відень",
+      "price": 3600,
+      "old_price": 4320,
+      "slug": "ads/lviv-viden",
+      "visible": true
+    },
+    {
+      "from": "Відень",
+      "to": "Львів",
+      "price": 3600,
+      "old_price": 4320,
+      "slug": "ads/viden-lviv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Бухарест",
+      "price": 4200,
+      "old_price": 5040,
+      "slug": "ads/kyyiv-buharest",
+      "visible": true
+    },
+    {
+      "from": "Бухарест",
+      "to": "Київ",
+      "price": 4200,
+      "old_price": 5040,
+      "slug": "ads/buharest-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Одеса",
+      "to": "Бухарест",
+      "price": 3100,
+      "old_price": 3720,
+      "slug": "ads/odesa-buharest",
+      "visible": true
+    },
+    {
+      "from": "Бухарест",
+      "to": "Одеса",
+      "price": 3100,
+      "old_price": 3720,
+      "slug": "ads/buharest-odesa",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Кишинів",
+      "price": 2900,
+      "old_price": 3480,
+      "slug": "ads/kyyiv-kyshyniv",
+      "visible": true
+    },
+    {
+      "from": "Кишинів",
+      "to": "Київ",
+      "price": 2900,
+      "old_price": 3480,
+      "slug": "ads/kyshyniv-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Одеса",
+      "to": "Кишинів",
+      "price": 1600,
+      "old_price": 1920,
+      "slug": "ads/odesa-kyshyniv",
+      "visible": true
+    },
+    {
+      "from": "Кишинів",
+      "to": "Одеса",
+      "price": 1600,
+      "old_price": 1920,
+      "slug": "ads/kyshyniv-odesa",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Мілан",
+      "price": 7300,
+      "old_price": 8760,
+      "slug": "ads/kyyiv-milan",
+      "visible": true
+    },
+    {
+      "from": "Мілан",
+      "to": "Київ",
+      "price": 7300,
+      "old_price": 8760,
+      "slug": "ads/milan-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Мілан",
+      "price": 6000,
+      "old_price": 7200,
+      "slug": "ads/lviv-milan",
+      "visible": true
+    },
+    {
+      "from": "Мілан",
+      "to": "Львів",
+      "price": 6000,
+      "old_price": 7200,
+      "slug": "ads/milan-lviv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Париж",
+      "price": 7800,
+      "old_price": 9360,
+      "slug": "ads/kyyiv-paryzh",
+      "visible": true
+    },
+    {
+      "from": "Париж",
+      "to": "Київ",
+      "price": 7800,
+      "old_price": 9360,
+      "slug": "ads/paryzh-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Амстердам",
+      "price": 6200,
+      "old_price": 7440,
+      "slug": "ads/lviv-amsterdam",
+      "visible": true
+    },
+    {
+      "from": "Амстердам",
+      "to": "Львів",
+      "price": 6200,
+      "old_price": 7440,
+      "slug": "ads/amsterdam-lviv",
+      "visible": true
+    }
+  ],
+  "reviews": [
+    {
+      "name": "Арсеній",
+      "date": "02.03.2025",
+      "text": "Дуже хотіли зробити сюрприз дочці на ювілей, вона зараз живе у Кракові. Тож замовили для всієї родини мікроавтобус, і не пожалкували! У нас було багато речей, всі помістились легко! Доїхали швидко, зовсім не втомились. Всі речі цілі, сервіс на висоті. Дякую за врятоване свято та сюрприз!",
+      "stars": 5
+    },
+    {
+      "name": "Володимир",
+      "date": "09.03.2025",
+      "text": "У справах бізнесу доводиться багато подорожувати, потрібен транспорт, що відповідає статусу. Вже не перший раз звертаюсь до цього сервісу, ніколи не підводять. Якщо у нас відрядження в офісі або конференція — не треба хвилюватися, менеджери самі все зроблять та спланують. Для зайнятих людей це справжній порятунок.",
+      "stars": 5
+    },
+    {
+      "name": "Олександр",
+      "date": "15.03.2025",
+      "text": "Їхали групою на змагання в Європу, треба було не просто доїхати швидко, але й організувати трансфер, перевезти реквізит. Дуже вдячні компанії за її підхід — все врахували, нарікань взагалі немає. Довгий маршрут пройшов просто непомітно та з комфортом.",
+      "stars": 5
+    }
+  ],
+  "faq": [
+    {
+      "q": "Які документи потрібні для виїзду за кордон?",
+      "a": "Потрібні внутрішній паспорт громадянина України, закордонний паспорт та, за необхідності, документ, що підтверджує право виїзду за кордон."
+    },
+    {
+      "q": "Як вивезти дитину за кордон?",
+      "a": "Треба мати документи, що ідентифікують дитину (свідоцтво про народження, паспорт), закордонний паспорт. Якщо дитина їде лише з одним з батьків — нотаріальний дозвіл другого з батьків на виїзд за кордон."
+    },
+    {
+      "q": "Як вивезти домашню тварину?",
+      "a": "Щоб вивезти домашнього улюбленця, потрібно мати його ветеринарний паспорт з відміткою про всі зроблені щеплення, документ, що підтверджує чипування та сертифікат здоров'я."
+    },
+    {
+      "q": "Які продукти та товари я можу перевозити?",
+      "a": "У кожної країни свій окремий список заборонених товарів або допустима їхня кількість. Але у більшості випадків дійсні обмеження на перевезення алкоголю та тютюну, а також заборона на перевезення м'яса, риби, молочних продуктів."
+    },
+    {
+      "q": "Як довго триває перетин кордону?",
+      "a": "Час перетину кордону залежить від вибраного пропускного пункту, сезону та завантаженості у конкретний час. Наші менеджери намагаються вибрати оптимальний час поїздки, щоб якомога швидше пройти перевірку."
+    }
+  ],
+  "updated_at": "2026-09-03T00:00:00Z"
+}
