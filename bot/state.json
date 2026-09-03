@@ -19,7 +19,7 @@
       "msg": "maintenance=False"
     }
   ],
-  "offset": 124880509,
+  "offset": 124880513,
   "admins": [],
   "chats": {
     "8a9ce5825cf638b9": {
@@ -52,9 +52,22 @@
       "name": "Перевірка",
       "page": "https://pashawilliams.github.io/site/",
       "last": "2026-09-03T11:55:34.811372",
-      "closed": false
+      "closed": true
+    },
+    "d4382056da1195bf": {
+      "msgs": [
+        {
+          "dir": "in",
+          "text": "Привет",
+          "ts": "2026-09-03T12:10:41.749Z"
+        }
+      ],
+      "name": "Курк",
+      "page": "https://pashawilliams.github.io/site/?v=1788437381",
+      "last": "2026-09-03T12:10:42.523258",
+      "closed": true
     }
   },
   "banned": [],
-  "bridge_since": "E6XbTXHZOAM2"
+  "bridge_since": "q5BqHl0qqdDZ"
 }
