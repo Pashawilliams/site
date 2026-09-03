@@ -1,0 +1,89 @@
+.wpcf7-not-valid-tip{
+    position: absolute;
+    font-size: 12px;
+    text-align: left;
+    width: 100%;
+    margin-top: -17px;
+    text-align: center;
+}
+.wpcf7 form.invalid .wpcf7-response-output, .wpcf7 form.unaccepted .wpcf7-response-output, .wpcf7 form.payment-required .wpcf7-response-output{
+    font-size: 14px;
+    color: #dc3232;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    margin-top: 10px;
+    border: none;
+    display: none;
+}
+.wpcf7-spinner{
+    position: absolute;
+}
+.wpcf7-response-output{
+
+}
+.wpcf7 form.sent .wpcf7-response-output {
+    border: none;
+    padding: none;
+    margin: 0;
+    color: #46b450;
+    font-size: 14px;
+    text-align: left;
+    margin-top: 10px;
+}
+
+.checkbox .wpcf7-list-item-label{
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 120%;
+    /* or 17px */
+    color: rgba(135, 142, 153, 0.57);
+}
+.checkbox label{
+    display: flex;
+    align-items: flex-start;
+}
+.checkbox input{
+    margin-right: 10px;
+    margin-top: 2px;
+}
+.wpcf7-spinner{
+    left: 0;
+}
+.wpcf7 form.sent .wpcf7-response-output{
+    padding-left: 0;
+    padding-right: 0;
+    text-align: left;
+}
+
+.wpcf7 form.sent .wpcf7-response-output{
+    display: none;
+}
+
+
+
+.route-list__element-hidden{
+    overflow: hidden;
+    transition: all ease 0.5s;
+}
+.booking-button-open{
+    display: none;
+}
+.booking-form__hidden-data{
+    display: none;
+}
+.direction-element {
+    text-decoration: none;
+    color: inherit;
+}
+.front-sec__subtitle{
+    color:#fff;
+    max-width:740px;
+    font-size:32px;
+    font-style:normal;
+    font-weight:400;
+    line-height:120%
+}
+.btnV2.search__input-btn {
+    width: 100%;
+}

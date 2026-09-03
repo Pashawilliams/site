@@ -1,0 +1,433 @@
+/**
+ * Navigation Submenu Styles
+ * Modern CSS for dropdown menus with best practices
+ */
+
+/* CSS Custom Properties for easy customization */
+:root {
+    --submenu-bg: #ffffff;
+    --submenu-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    --submenu-item-hover-bg: #f5f5f5;
+    --submenu-item-color: #333333;
+    --submenu-item-hover-color: #000000;
+    --submenu-border-radius: 12px;
+    --submenu-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --submenu-min-width: 240px;
+
+    /* Header styling */
+    --header-bg: rgba(255, 255, 255, 0.95);
+    --header-backdrop-blur: 10px;
+    --header-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+    /* Backdrop overlay */
+    --backdrop-bg: rgba(0, 0, 0, 0.3);
+    --backdrop-blur: 4px;
+}
+
+/* ========================================
+   HEADER IMPROVEMENTS
+   ======================================== */
+
+/* Enhanced header with backdrop blur and shadow */
+.header {
+    background: var(--header-bg) !important;
+    backdrop-filter: blur(var(--header-backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--header-backdrop-blur));
+    box-shadow: var(--header-shadow);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+/* Sticky header on scroll - more opaque */
+.header.scrolled {
+    background: rgba(255, 255, 255, 0.98) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* ========================================
+   BACKDROP OVERLAY FOR SUBMENU FOCUS
+   ======================================== */
+
+/* Backdrop overlay - hidden by default */
+.nav-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--backdrop-bg);
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 999;
+    /* Below header but above content */
+    pointer-events: none;
+}
+
+/* Show backdrop when submenu is open */
+.header__nav-list>.menu-item-has-children:hover~.nav-backdrop,
+.header__nav-list>.menu-item-has-children:focus-within~.nav-backdrop,
+body.submenu-open .nav-backdrop {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* ========================================
+   DESKTOP NAVIGATION SUBMENU STYLES
+   ======================================== */
+
+/* Parent menu item with submenu */
+.header__nav-list>.menu-item-has-children {
+    position: relative;
+}
+
+/* Submenu container - hidden by default */
+.header__nav-list .sub-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: var(--submenu-min-width);
+    max-width: min(92vw, 360px);
+    max-height: min(70vh, 480px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    background: var(--submenu-bg);
+    box-shadow: var(--submenu-shadow);
+    border-radius: var(--submenu-border-radius);
+    padding: 8px 0;
+    margin: 0;
+    /* Без зазора: иначе hover мигает между пунктом и меню */
+    margin-top: 0;
+    padding-top: 8px;
+    list-style: none;
+
+    /* Hidden state */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: var(--submenu-transition);
+
+    /* CRITICAL: High z-index to appear above banner and other content */
+    z-index: 10000;
+
+    /* Add subtle border */
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Невидимый мост на случай отступа у анимации */
+.header__nav-list > .menu-item-has-children > .sub-menu::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -12px;
+    height: 12px;
+}
+
+/* Show submenu on hover */
+.header__nav-list>.menu-item-has-children:hover>.sub-menu,
+.header__nav-list>.menu-item-has-children:focus-within>.sub-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Submenu items */
+.header__nav-list .sub-menu li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* Submenu links */
+.header__nav-list .sub-menu a {
+    display: block;
+    padding: 14px 24px;
+    color: var(--submenu-item-color);
+    text-decoration: none;
+    font-size: 15px;
+    line-height: 1.5;
+    transition: var(--submenu-transition);
+    white-space: normal;
+    position: relative;
+}
+
+/* Add subtle left border on hover */
+.header__nav-list .sub-menu a::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
+}
+
+/* Submenu link hover state */
+.header__nav-list .sub-menu a:hover,
+.header__nav-list .sub-menu a:focus {
+    background: var(--submenu-item-hover-bg);
+    color: var(--submenu-item-hover-color);
+    padding-left: 28px;
+}
+
+.header__nav-list .sub-menu a:hover::before,
+.header__nav-list .sub-menu a:focus::before {
+    transform: scaleY(1);
+}
+
+/* Add dropdown indicator to parent items */
+.header__nav-list>.menu-item-has-children>a::after {
+    content: '';
+    display: inline-block;
+    width: 0;
+    height: 0;
+    margin-left: 6px;
+    vertical-align: middle;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    transition: transform 0.3s ease;
+}
+
+/* Rotate indicator when submenu is open */
+.header__nav-list>.menu-item-has-children:hover>a::after,
+.header__nav-list>.menu-item-has-children:focus-within>a::after {
+    transform: rotate(180deg);
+}
+
+/* Nested submenus (if needed) */
+.header__nav-list .sub-menu .sub-menu {
+    top: 0;
+    left: 100%;
+    margin-left: 4px;
+    margin-top: 0;
+}
+
+.header__nav-list .sub-menu .menu-item-has-children:hover>.sub-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+/* ========================================
+   MOBILE NAVIGATION SUBMENU STYLES
+   ======================================== */
+
+@media only screen and (max-width: 985px) {
+
+    /* Мобильная панель: меню скроллится, контакты всегда внизу */
+    .header__mobile-active .header__mobile-wrapper {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        overflow: hidden;
+        padding-bottom: 0;
+        -webkit-overflow-scrolling: auto;
+    }
+
+    .header__mobile-active .header__mobile-nav {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding-right: 4px;
+        padding-bottom: 12px;
+    }
+
+    .header__mobile-active .header__mob-nav-ul {
+        padding-bottom: 8px;
+    }
+
+    .header__mobile-active .header__mobile-contacts {
+        flex: 0 0 auto;
+        margin-top: auto;
+        position: relative;
+        z-index: 5;
+        background: #fff;
+        padding: 16px 0 calc(16px + env(safe-area-inset-bottom, 0px));
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
+        box-shadow: 0 -8px 24px rgba(20, 12, 48, 0.08);
+    }
+
+    /* Reset desktop styles for mobile */
+    .header__mob-nav-ul .sub-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+        background: transparent;
+        padding: 0;
+        margin: 0;
+        border-radius: 0;
+        border: none;
+
+        /* Hidden by default on mobile */
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.35s ease;
+    }
+
+    /* Show submenu when parent is active/clicked — только .active (без focus-within, иначе баг открытия/закрытия) */
+    .header__mob-nav-ul .menu-item-has-children.active>.sub-menu {
+        max-height: none;
+        overflow: visible;
+        padding-top: 12px;
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+    }
+
+    /* Закрытая панель не должна «просвечивать» длинным списком маршрутов */
+    .header__mobile:not(.header__mobile-active) .header__mob-nav-ul .menu-item-has-children.active > .sub-menu {
+        max-height: 0;
+        overflow: hidden;
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-bottom: 0;
+    }
+
+    /* Mobile submenu items */
+    .header__mob-nav-ul .sub-menu li {
+        border-left: 2px solid rgba(102, 126, 234, 0.25);
+        margin-left: 8px;
+        margin-top: 2px;
+    }
+
+    /* Mobile submenu links */
+    .header__mob-nav-ul .sub-menu a {
+        padding: 0 12px;
+        font-size: 15px;
+        color: var(--submenu-item-color);
+        opacity: 0.9;
+        border-radius: 10px;
+        transition: background 0.2s ease, padding-left 0.2s ease;
+    }
+
+    .header__mob-nav-ul .sub-menu a::before {
+        display: none;
+        /* Remove left border on mobile */
+    }
+
+    .header__mob-nav-ul .sub-menu a:hover,
+    .header__mob-nav-ul .sub-menu a:focus {
+        background: var(--submenu-item-hover-bg);
+        opacity: 1;
+        padding-left: 18px;
+    }
+
+    /* Mobile dropdown indicator */
+    .header__mob-nav-ul>.menu-item-has-children>a {
+        position: relative;
+        padding-right: 32px;
+    }
+
+    .header__mob-nav-ul>.menu-item-has-children>a::after {
+        content: '';
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        border-top: 5px solid currentColor;
+        transition: transform 0.3s ease;
+    }
+
+    .header__mob-nav-ul>.menu-item-has-children.active>a::after {
+        transform: translateY(-50%) rotate(180deg);
+    }
+
+    /* Remove desktop hover indicator on mobile */
+    .header__mob-nav-ul .menu-item-has-children>a::after {
+        margin-left: 0;
+    }
+
+    /* No backdrop on mobile */
+    .nav-backdrop {
+        display: none;
+    }
+}
+
+/* ========================================
+   ACCESSIBILITY IMPROVEMENTS
+   ======================================== */
+
+/* Focus visible for keyboard navigation */
+.header__nav-list a:focus-visible,
+.header__mob-nav-ul a:focus-visible {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* Skip to content link for screen readers */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #000;
+    color: #fff;
+    padding: 8px;
+    text-decoration: none;
+    z-index: 100000;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
+/* ========================================
+   PERFORMANCE OPTIMIZATIONS
+   ======================================== */
+
+/* Use GPU acceleration for smooth animations */
+.header__nav-list .sub-menu,
+.header__mob-nav-ul .sub-menu,
+.nav-backdrop {
+    will-change: transform, opacity;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+
+    .header__nav-list .sub-menu,
+    .header__mob-nav-ul .sub-menu,
+    .header__nav-list a,
+    .header__mob-nav-ul a,
+    .nav-backdrop,
+    .header {
+        transition: none;
+    }
+}
+
+/* ========================================
+   WORDPRESS MENU CLASSES SUPPORT
+   ======================================== */
+
+/* Current menu item highlighting */
+.header__nav-list .current-menu-item>a,
+.header__nav-list .current-menu-ancestor>a {
+    font-weight: 600;
+}
+
+.header__nav-list .sub-menu .current-menu-item>a {
+    background: var(--submenu-item-hover-bg);
+    color: var(--submenu-item-hover-color);
+}
+
+.header__nav-list .sub-menu .current-menu-item>a::before {
+    transform: scaleY(1);
+}

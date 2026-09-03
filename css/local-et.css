@@ -1,0 +1,2132 @@
+/* Доп. стили окон оплаты — в стиле Eurotour */
+
+/* Горизонтальна анімація маршруту (мобільний блок) */
+@keyframes etDriveBusMobH {
+  0% {
+    left: 28px;
+    opacity: 0;
+    transform: translateY(-50%);
+  }
+  4% {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+  96% {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+  100% {
+    left: calc(100% - 52px);
+    opacity: 0;
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes etMobStopDot1 {
+  0%, 3%, 11%, 100% { opacity: 0; transform: scale(0.5); }
+  5%, 9% { opacity: 1; transform: scale(1); }
+}
+@keyframes etMobStopDot2 {
+  0%, 20%, 30%, 100% { opacity: 0; transform: scale(0.5); }
+  23%, 27% { opacity: 1; transform: scale(1); }
+}
+@keyframes etMobStopDot3 {
+  0%, 45%, 55%, 100% { opacity: 0; transform: scale(0.5); }
+  48%, 52% { opacity: 1; transform: scale(1); }
+}
+@keyframes etMobStopDot4 {
+  0%, 70%, 80%, 100% { opacity: 0; transform: scale(0.5); }
+  73%, 77% { opacity: 1; transform: scale(1); }
+}
+@keyframes etMobStopDot5 {
+  0%, 90%, 100% { opacity: 0; transform: scale(0.5); }
+  93%, 97% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes etMobStopLabel1 {
+  0%, 3%, 11%, 100% { opacity: 0; transform: translateY(4px); }
+  5%, 9% { opacity: 1; transform: translateY(0); }
+}
+@keyframes etMobStopLabel2 {
+  0%, 20%, 30%, 100% { opacity: 0; transform: translateY(4px); }
+  23%, 27% { opacity: 1; transform: translateY(0); }
+}
+@keyframes etMobStopLabel3 {
+  0%, 45%, 55%, 100% { opacity: 0; transform: translateY(4px); }
+  48%, 52% { opacity: 1; transform: translateY(0); }
+}
+@keyframes etMobStopLabel4 {
+  0%, 70%, 80%, 100% { opacity: 0; transform: translateY(4px); }
+  73%, 77% { opacity: 1; transform: translateY(0); }
+}
+@keyframes etMobStopLabel5 {
+  0%, 90%, 100% { opacity: 0; transform: translateY(4px); }
+  93%, 97% { opacity: 1; transform: translateY(0); }
+}
+
+.purchase-method__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 18px;
+}
+
+.purchase-method__btn {
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  min-height: 52px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 999px;
+  box-shadow: 0 10px 24px rgba(91, 46, 255, 0.22);
+}
+
+.purchase-method-popup .main-form__subtitle {
+  max-width: 28ch;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  line-height: 1.45;
+}
+
+.purchase-method-popup .main-form__title {
+  text-align: center;
+  line-height: 1.25;
+}
+
+.manager-contact__or {
+  margin: 20px 0 14px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: #6b7388;
+}
+.manager-contact__phones {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.manager-contact__phone-link {
+  display: block;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #f4f5f8;
+  border: 1px solid #e4e9f2;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: #130c5a;
+  text-decoration: none;
+  text-align: center;
+  white-space: nowrap;
+}
+.manager-contact__phone-link:hover,
+.manager-contact__phone-link:focus {
+  color: #241c73;
+  background: #eceef5;
+  text-decoration: none;
+}
+.manager-contact__msg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #f4f5f8;
+  border: 1px solid #e4e9f2;
+}
+.manager-contact__msg-link {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  overflow: hidden;
+  line-height: 0;
+  flex-shrink: 0;
+}
+.manager-contact__msg-link img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.manager-contact-form__error {
+  margin-top: 10px;
+  color: #e11;
+  font-size: 13px;
+}
+
+.card-payment-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.card-payment-form .inp-form__icon-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  color: #9ca9c1;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.card-payment-form .wpcf7-response-output,
+.purchase-method-popup .wpcf7-response-output {
+  margin-top: 12px;
+}
+
+@media (max-width: 640px) {
+  .card-payment-form__row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Блок скролу сторінки при попапі / моб. меню.
+   overflow тільки через JS (з відновленням scrollY), щоб фон не дьоргався. */
+html.et-popup-open,
+html.et-scroll-lock,
+html.et-popup-open body,
+html.et-scroll-lock body {
+  overscroll-behavior: none !important;
+}
+html.et-scroll-lock body {
+  touch-action: none !important;
+}
+html.et-scroll-lock .air-conteiner_active .main-form.air-popup_active,
+html.et-scroll-lock .header__mobile.header__mobile-active,
+html.et-scroll-lock .header__mobile-active .header__mobile-nav {
+  touch-action: pan-y !important;
+  overscroll-behavior: contain !important;
+}
+/* Хедер завжди привʼязаний до вікна, навіть коли body position:fixed */
+html.et-popup-open .header,
+html.et-scroll-lock .header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  transform: none !important;
+  -webkit-transform: none !important;
+}
+
+.booking-form__date,
+input[name="text-search-date"].inp-form__inp {
+  cursor: pointer;
+}
+
+/* Скинути будь-який старий глобальний блюр банера (включно з закешованим CSS) */
+.front-sec__banner-sec .front-sec__bg {
+  filter: none !important;
+  transform: none !important;
+}
+/* Банер ТІЛЬКИ головної (#main-search-route): фон + легкий блюр */
+#main-search-route .front-sec__banner-sec {
+  overflow: hidden;
+}
+@media only screen and (max-width: 768px) {
+  #main-search-route .front-sec__banner-sec {
+    border-radius: 40px 40px 0 0;
+    overflow: hidden;
+  }
+  #main-search-route .front-sec__banner-sec .front-sec__bg,
+  #main-search-route .front-sec__banner-sec-wrapepr {
+    border-radius: 40px 40px 0 0;
+  }
+}
+#main-search-route .front-sec__banner-sec .front-sec__bg {
+  border-radius: 40px 40px 0 0;
+  filter: blur(4px) !important;
+  transform: scale(1.05) !important;
+  transform-origin: center center;
+}
+@media only screen and (min-width: 769px) {
+  #main-search-route .front-sec__banner-sec,
+  #main-search-route .front-sec__banner-sec .front-sec__bg,
+  #main-search-route .front-sec__banner-sec-wrapepr {
+    border-radius: 40px;
+  }
+  #main-search-route .front-sec__banner-sec .front-sec__bg {
+    border-radius: 40px;
+  }
+}
+
+/* Головний банер: «скло» під підзаголовком */
+#main-search-route .front-sec__banner-sec-wrapepr .front-sec__subtitle {
+  display: block;
+  max-width: 640px;
+  margin-top: 4px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
+  color: #fff;
+  font-weight: 500;
+  line-height: 1.45;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+}
+@media (max-width: 768px) {
+  #main-search-route .front-sec__banner-sec-wrapepr .front-sec__subtitle {
+    max-width: 100%;
+    padding: 12px 14px;
+    font-size: 15px !important;
+    line-height: 1.4;
+  }
+}
+
+/* Станції / вокзали — лише міста (адреса → адреса) */
+.route-list__route-station,
+.direction-location-element__description,
+.direction-element__date-hint {
+  display: none !important;
+}
+
+/* Маршрут на сторінці рейсу: мобільна версія */
+@media (max-width: 768px) {
+  .route-list__element-top {
+    display: none !important;
+  }
+
+  .route-list__route-wrapper {
+    display: none !important;
+  }
+
+  .route-list__element-top-mob {
+    display: flex !important;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px 16px !important;
+    align-items: stretch !important;
+  }
+
+  .route-list__element-top-mob .direction-element__location {
+    width: 100%;
+  }
+
+  .route-list__element-top-mob .direction-location-element__description {
+    display: none !important;
+  }
+
+  .route-list__element-top-mob .direction-element__time {
+    width: 100%;
+    text-align: left !important;
+  }
+
+  .route-list__element-top-mob .direction-element__free-time-container {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    width: 100%;
+  }
+
+  .route-list__element-top-mob .route-list__time-date-wrapper--mobile {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start !important;
+    background: #fff;
+    border: 1px solid #e4e9f2;
+    border-radius: 12px;
+    padding: 12px 14px;
+    box-sizing: border-box;
+  }
+
+  .route-list__element-top-mob
+    .direction-element__free-time-container
+    > .route-list__time-date-wrapper--mobile:nth-child(1)::before {
+    content: "Відправлення";
+    display: block;
+    width: 100%;
+    margin-bottom: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #7a899f;
+  }
+
+  .route-list__element-top-mob
+    .direction-element__free-time-container
+    > .route-list__time-date-wrapper--mobile:nth-child(2)::before {
+    content: "Прибуття";
+    display: block;
+    width: 100%;
+    margin-bottom: 2px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #7a899f;
+  }
+
+  .route-list__element-top-mob .route-time-badge {
+    margin-bottom: 0 !important;
+    font-size: 15px !important;
+    padding: 6px 10px !important;
+  }
+
+  .route-list__element-top-mob .route-time-badge svg {
+    width: 16px !important;
+    height: 16px !important;
+    margin-right: 6px !important;
+  }
+
+  /* Горизонтальний маршрут: лінія, автобус, міста знизу */
+  .route-list__element-top-mob .direction-element__location {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 84px auto;
+    column-gap: 12px;
+    row-gap: 6px;
+    overflow: visible !important;
+    position: relative;
+    width: 100%;
+  }
+
+  .route-list__element-top-mob .direction-location-element {
+    display: contents !important;
+  }
+
+  .route-list__element-top-mob .direction-location-element:last-child::before {
+    display: none !important;
+    content: none !important;
+    height: 0 !important;
+    width: 0 !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element:first-child
+    .direction-location-element__icon-wrapper {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    position: relative !important;
+    width: 100% !important;
+    height: 84px !important;
+    background: transparent !important;
+    overflow: visible !important;
+    margin: 0 !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element:first-child
+    .direction-location-element__icon-wrapper::before {
+    content: "" !important;
+    position: absolute !important;
+    left: 28px !important;
+    right: 28px !important;
+    top: 52px !important;
+    height: 0 !important;
+    width: auto !important;
+    border: none !important;
+    border-top: 2px dotted #b0b0b0 !important;
+    background: none !important;
+    z-index: 0 !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element:first-child
+    .direction-location-element__icon-wrapper
+    > .direction-location-element__icon {
+    position: absolute !important;
+    left: 0 !important;
+    top: 52px !important;
+    transform: translateY(-50%) !important;
+    z-index: 2 !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element:last-child
+    .direction-location-element__icon-wrapper {
+    position: absolute !important;
+    right: 0 !important;
+    top: 26px !important;
+    width: 40px !important;
+    height: 40px !important;
+    z-index: 2 !important;
+    background: #ebf1fe !important;
+  }
+
+  .route-list__element-top-mob .moving-bus-icon-mob {
+    position: absolute !important;
+    top: 52px;
+    left: 28px;
+    width: 24px !important;
+    height: 24px !important;
+    transform: translateY(-50%);
+    animation: etDriveBusMobH 15s linear infinite !important;
+    will-change: left, opacity;
+    z-index: 3 !important;
+  }
+
+  .route-list__element-top-mob .direction-location-element__stops-mobile {
+    position: absolute !important;
+    left: 28px !important;
+    right: 28px !important;
+    top: 0 !important;
+    height: 48px !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: flex-end !important;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  .route-list__element-top-mob .direction-location-element__stop-mobile {
+    flex: 1 1 0;
+    min-width: 0;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 4px !important;
+  }
+
+  .route-list__element-top-mob .direction-location-element__stop-label-mobile {
+    order: 1;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    white-space: normal !important;
+    text-align: center;
+    max-width: 100%;
+    padding: 4px 5px !important;
+    letter-spacing: 0.02em;
+  }
+
+  .route-list__element-top-mob .direction-location-element__stop-dot-mobile {
+    order: 2;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element:first-child
+    .direction-location-element__info {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    width: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element:last-child
+    .direction-location-element__info {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    width: auto !important;
+    padding: 0 !important;
+    padding-top: 0 !important;
+    text-align: right !important;
+    justify-self: end;
+    position: relative !important;
+    z-index: 1 !important;
+  }
+
+  .route-list__element-top-mob .direction-location-element__city {
+    font-size: 18px !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element__stop-mobile
+    .direction-location-element__stop-dot-mobile {
+    animation: none !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element__stop-mobile
+    .direction-location-element__stop-label-mobile {
+    animation: none !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element__stop-mobile:nth-child(1)
+    .direction-location-element__stop-dot-mobile {
+    animation: etMobStopDot1 15s ease-in-out infinite !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element__stop-mobile:nth-child(2)
+    .direction-location-element__stop-dot-mobile {
+    animation: etMobStopDot2 15s ease-in-out infinite !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element__stop-mobile:nth-child(3)
+    .direction-location-element__stop-dot-mobile {
+    animation: etMobStopDot3 15s ease-in-out infinite !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element__stop-mobile:nth-child(4)
+    .direction-location-element__stop-dot-mobile {
+    animation: etMobStopDot4 15s ease-in-out infinite !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element__stop-mobile:nth-child(5)
+    .direction-location-element__stop-dot-mobile {
+    animation: etMobStopDot5 15s ease-in-out infinite !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element__stop-mobile:nth-child(1)
+    .direction-location-element__stop-label-mobile {
+    animation: etMobStopLabel1 15s ease-in-out infinite !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element__stop-mobile:nth-child(2)
+    .direction-location-element__stop-label-mobile {
+    animation: etMobStopLabel2 15s ease-in-out infinite !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element__stop-mobile:nth-child(3)
+    .direction-location-element__stop-label-mobile {
+    animation: etMobStopLabel3 15s ease-in-out infinite !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element__stop-mobile:nth-child(4)
+    .direction-location-element__stop-label-mobile {
+    animation: etMobStopLabel4 15s ease-in-out infinite !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element__stop-mobile:nth-child(5)
+    .direction-location-element__stop-label-mobile {
+    animation: etMobStopLabel5 15s ease-in-out infinite !important;
+  }
+
+  .route-list__element-top-mob
+    .direction-location-element__stop-mobile:nth-child(n + 6)
+    .direction-location-element__stop-dot-mobile,
+  .route-list__element-top-mob
+    .direction-location-element__stop-mobile:nth-child(n + 6)
+    .direction-location-element__stop-label-mobile {
+    animation: etMobStopDot3 15s ease-in-out infinite !important;
+  }
+
+  .route-list__element-hidden-info-wrapper {
+    width: 80% !important;
+    max-width: 80% !important;
+    padding: 12px 14px !important;
+    gap: 10px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box !important;
+  }
+
+  .route-list__element-hidden-info-element {
+    flex: 0 1 auto !important;
+  }
+}
+
+/* Планшет: якщо десктопний блок ще видимий — компактна колонка */
+@media (min-width: 769px) and (max-width: 985px) {
+  .route-list__route-wrapper {
+    width: 100% !important;
+    max-width: 100%;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .route-list__route-col1,
+  .route-list__route-col2 {
+    width: 100% !important;
+  }
+
+  .route-list__route-col-down {
+    display: none !important;
+  }
+
+  .route-list__route-col2 {
+    border-top: 1px solid #e4e9f2;
+    padding-top: 16px;
+  }
+
+  .route-list__route-header {
+    font-size: 14px !important;
+    margin-bottom: 8px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #60708d !important;
+  }
+
+  .route-list__route-city {
+    font-size: 24px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .route-list__route-wrapper .route-list__time-date-wrapper {
+    gap: 8px;
+  }
+
+  .route-list__route-wrapper .route-time-badge {
+    margin-bottom: 0 !important;
+    font-size: 15px !important;
+    padding: 6px 10px !important;
+  }
+
+  .route-list__route-wrapper .et-dep-note {
+    flex-basis: 100%;
+    font-size: 12px;
+    margin-top: 2px;
+  }
+}
+
+/* Інлайн-календар — лише обгортка дати, НЕ вся форма (інакше ламається overflow-y теми) */
+.booking-form__date-wrap {
+  position: relative;
+  width: 100%;
+}
+.booking-form__cal-panel {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  bottom: auto;
+  z-index: 30;
+  width: min(100%, 300px);
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(19, 12, 90, 0.18);
+  overflow: visible;
+}
+.booking-form__cal-panel.is-open {
+  display: block;
+}
+.booking-form__cal-panel .vanilla-calendar {
+  width: 100% !important;
+  min-height: 288px;
+  box-shadow: none !important;
+  border: none !important;
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+.booking-form__cal-panel .vanilla-calendar-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px;
+  padding: 0 8px;
+}
+.booking-form__cal-panel .vanilla-calendar-header__content,
+.booking-form__cal-panel .vanilla-calendar-month,
+.booking-form__cal-panel .vanilla-calendar-year {
+  color: #000 !important;
+  font-weight: 700;
+}
+.booking-form__cal-panel .vanilla-calendar-month,
+.booking-form__cal-panel .vanilla-calendar-year {
+  pointer-events: none !important;
+  cursor: default !important;
+}
+.booking-form__cal-panel .vanilla-calendar-arrow {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px;
+  flex-shrink: 0;
+  cursor: pointer !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  transform: none !important;
+}
+.booking-form__cal-panel .vanilla-calendar-arrow:before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 18px 18px !important;
+  opacity: 1 !important;
+}
+.booking-form__cal-panel .vanilla-calendar-arrow_prev,
+.booking-form__cal-panel .vanilla-calendar-arrow.vanilla-calendar-arrow_prev {
+  transform: none !important;
+}
+.booking-form__cal-panel .vanilla-calendar-arrow_prev:before,
+.booking-form__cal-panel .vanilla-calendar-arrow.vanilla-calendar-arrow_prev:before {
+  transform: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M15 6L9 12L15 18' stroke='%23000000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+}
+.booking-form__cal-panel .vanilla-calendar-arrow_next,
+.booking-form__cal-panel .vanilla-calendar-arrow.vanilla-calendar-arrow_next {
+  transform: none !important;
+}
+.booking-form__cal-panel .vanilla-calendar-arrow_next:before,
+.booking-form__cal-panel .vanilla-calendar-arrow.vanilla-calendar-arrow_next:before {
+  transform: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M9 6L15 12L9 18' stroke='%23000000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+}
+.booking-form__cal-panel .vanilla-calendar-arrow:not([disabled]):not(.is-arrow-disabled) {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  cursor: pointer !important;
+}
+.booking-form__cal-panel .vanilla-calendar-arrow.is-arrow-disabled,
+.booking-form__cal-panel .vanilla-calendar-arrow[disabled] {
+  opacity: 0.28 !important;
+  pointer-events: none !important;
+  cursor: default !important;
+}
+@media (max-width: 768px) {
+  .booking-form__cal-panel {
+    top: auto;
+    bottom: calc(100% + 6px);
+    width: 100%;
+  }
+  body > .booking-form__cal-panel {
+    bottom: auto;
+    width: 300px;
+  }
+  body > .booking-form__cal-panel.is-open {
+    display: block !important;
+  }
+  .booking-form__time-panel {
+    top: auto;
+    bottom: calc(100% + 6px);
+    width: 100%;
+  }
+}
+.booking-form__date-field,
+.booking-form__date-field .inp-form__inp-wrapper {
+  overflow: visible;
+}
+.booking-form__time,
+input[name="text-search-time"].inp-form__inp {
+  cursor: pointer;
+}
+.booking-form__time-wrap {
+  position: relative;
+  width: 100%;
+}
+.booking-form__time-panel {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  z-index: 30;
+  width: min(100%, 300px);
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(19, 12, 90, 0.18);
+  box-sizing: border-box;
+}
+.booking-form__time-panel.is-open {
+  display: flex;
+}
+.booking-form__time-option {
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f4f5f8;
+  color: #130c5a;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+.booking-form__time-option:hover,
+.booking-form__time-option:focus {
+  background: #ebeaf8;
+  outline: none;
+}
+.booking-form__time-option.is-active {
+  background: #130c5a;
+  color: #fff;
+}
+.booking-form__time-field,
+.booking-form__time-field .inp-form__inp-wrapper {
+  overflow: visible;
+}
+/* Неактивний оверлей не перехоплює кліки (футер Cookie тощо) */
+.air-conteiner:not(.air-conteiner_active) {
+  pointer-events: none !important;
+}
+.air-conteiner_active {
+  pointer-events: auto !important;
+}
+
+/* Мобільні попапи: менше екрана + заокруглення завжди (і під час анімації закриття),
+   інакше на мить спрацьовує border-radius:0 / height:100vh з теми */
+@media only screen and (max-width: 650px) {
+  .air-conteiner.air-conteiner_active {
+    padding: 24px 16px !important;
+    box-sizing: border-box !important;
+  }
+  .air-conteiner .popup-air.main-form {
+    left: 16px !important;
+    right: 16px !important;
+    top: 24px !important;
+    bottom: 24px !important;
+    width: auto !important;
+    max-width: none !important;
+    height: fit-content !important;
+    max-height: calc(100vh - 48px) !important;
+    max-height: calc(100dvh - 48px) !important;
+    margin: auto !important;
+    border-radius: 20px !important;
+    box-sizing: border-box !important;
+  }
+  .air-conteiner .popup-air.main-form .main-form__wrapper {
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+}
+
+.et-price-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  margin-bottom: 16px;
+}
+.et-price-block--inline {
+  margin-bottom: 0;
+  align-items: flex-end;
+}
+.et-price-block .direction-element__price,
+.et-price-block .route-selection__price {
+  margin-bottom: 0 !important;
+}
+.et-price-old {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #8b93a7;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgba(139, 147, 167, 0.9);
+  background: #f4f5f8;
+  padding: 3px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+/* Виїзд 07:00/18:00 + адреса→адреса */
+.route-list__route-time-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+.route-list__route-time-local {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #6b7388;
+}
+.et-dep-note {
+  width: 100%;
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #4a5163;
+}
+.et-dest-box {
+  width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+}
+.et-dest-note {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #4a5163;
+  text-align: center;
+}
+
+/* Блок ціни на сторінці маршруту */
+.route-selection .route-selection__actions {
+  width: 100%;
+  flex-direction: column;
+  align-items: center !important;
+  gap: 12px;
+}
+.route-selection .et-price-block,
+.route-selection .et-price-block--inline {
+  width: 100%;
+  align-items: center !important;
+  margin-bottom: 0;
+  gap: 10px;
+}
+.route-selection .et-price-old {
+  display: inline-block;
+  padding: 0;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #8b93a7;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgba(139, 147, 167, 0.9);
+}
+.route-selection .route-selection__price,
+.route-selection .direction-element__price {
+  width: 100%;
+  text-align: center !important;
+  justify-content: center;
+}
+
+/* Ціни лише в блоці бронювання, не в картці маршруту */
+.route-list__element-top-mob .et-price-block {
+  display: none !important;
+}
+.et-door-booking-note {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f4f5f8;
+  border: 1px solid #e4e9f2;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #2c3344;
+}
+.et-booking-summary {
+  margin: 0 0 20px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #faf8ff 0%, #fff 100%);
+  border: 1px solid rgba(91, 45, 157, 0.12);
+  box-shadow: 0 8px 24px rgba(40, 20, 80, 0.06);
+  overflow: hidden;
+}
+.et-booking-summary .et-door-booking-note {
+  margin: 0;
+  padding: 14px 16px 12px;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  text-align: center;
+  font-size: 13px;
+  color: #4a5163;
+}
+.et-card-door-note {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
+  color: #6b7388;
+}
+.et-door-to-door .route-list__adv-text {
+  line-height: 1.35;
+}
+
+/* Підказка між пошуком і напрямками */
+.front-sec {
+  padding-bottom: 56px;
+}
+.et-popular-routes-note {
+  max-width: 820px;
+  margin: 20px auto 0;
+  padding: 14px 20px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.45;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 16px;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-sizing: border-box;
+}
+.et-popular-routes-note--mob {
+  display: none;
+}
+@media (max-width: 768px) {
+  .front-sec {
+    padding-bottom: 40px !important;
+  }
+  .et-popular-routes-note--desk {
+    display: none;
+  }
+  .et-popular-routes-note--mob {
+    display: block;
+    width: 100%;
+    flex: 0 0 100%;
+    order: 2;
+    margin: 0 0 20px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: #2c3344;
+    background: #f4f5f8;
+    border: 1px solid #e4e9f2;
+  }
+  .direction-sec__title-mob {
+    margin-top: 28px !important;
+  }
+}
+
+/* Пошук маршруту: регіони + swap */
+.main-search-top,
+.main-search-down {
+  align-items: flex-start !important;
+  flex-wrap: wrap;
+  gap: 8px 0;
+}
+.main-search-top .search__input-location,
+.main-search-down .search__input-location {
+  position: relative;
+  /* резерв під підпис регіону — без стрибка після JS */
+  padding-bottom: 28px;
+  box-sizing: border-box;
+}
+.main-search-top .search__region-label,
+.main-search-down .search__region-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  margin-top: 0;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #130c5a;
+  line-height: 1.2;
+  pointer-events: none;
+}
+.main-search-top .search__swap-btn,
+.main-search-down .search__swap-btn {
+  flex: 0 0 auto;
+  align-self: center;
+  width: 44px;
+  height: 44px;
+  margin: 0 4px;
+  border: 1px solid #d7dceb;
+  border-radius: 50%;
+  background: #fff;
+  color: #130c5a;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  touch-action: manipulation;
+}
+.main-search-top .search__swap-btn:hover,
+.main-search-down .search__swap-btn:hover {
+  background: #f3f5fb;
+}
+@media (hover: hover) and (pointer: fine) {
+  .main-search-top .search__swap-btn:hover,
+  .main-search-down .search__swap-btn:hover {
+    transform: rotate(180deg);
+    transition: background 0.2s ease, transform 0.25s ease;
+  }
+}
+.main-search-top .search__swap-btn.is-swap-anim,
+.main-search-down .search__swap-btn.is-swap-anim {
+  animation: et-swap-spin 0.35s ease;
+}
+@keyframes et-swap-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(180deg);
+  }
+}
+.main-search-top .search__swap-btn svg,
+.main-search-down .search__swap-btn svg {
+  width: 20px;
+  height: 20px;
+}
+.main-search-top .search__date-wrap,
+.main-search-down .search__date-wrap {
+  position: relative;
+  width: 100%;
+}
+.main-search-top .search__input-header,
+.main-search-down .search__input-header {
+  cursor: pointer;
+}
+.main-search-top .search__input-header select.search__inp-element,
+.main-search-down .search__input-header select.search__inp-element {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  cursor: pointer;
+}
+
+/* Дата: клікабельна вся «кнопка», не лише вузький input */
+.main-search-top .select-date .search__input-header,
+.main-search-down .select-date .search__input-header {
+  position: relative;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+.main-search-top .select-date .search__inp-icon,
+.main-search-down .select-date .search__inp-icon,
+.main-search-top .select-date .select-date__value,
+.main-search-down .select-date .select-date__value,
+.main-search-top .select-date .search__date-wrap,
+.main-search-down .select-date .search__date-wrap,
+.main-search-top .select-date input,
+.main-search-down .select-date input {
+  pointer-events: none !important;
+}
+.main-search-top .select-date .select-date__value,
+.main-search-down .select-date .select-date__value,
+.main-search-top .select-date .search__date-wrap,
+.main-search-down .select-date .search__date-wrap {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.main-search-top .select-date input,
+.main-search-down .select-date input {
+  width: 100% !important;
+  height: 100%;
+  min-height: 22px;
+  padding-left: 10px;
+}
+/* Панель календаря на body — завжди прихована, поки немає .is-open */
+.search__cal-panel,
+.main-search-top .search__cal-panel,
+body > .search__cal-panel {
+  display: none !important;
+  position: fixed;
+  z-index: 100060;
+  width: 300px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(19, 12, 90, 0.18);
+  overflow: visible;
+}
+.main-search-top .search__cal-panel.is-open,
+.search__cal-panel.is-open,
+body > .search__cal-panel.is-open {
+  display: block !important;
+}
+
+/* Прибрати зайві банери «Забронюйте свій рейс» */
+.banenr-sec.news-banner-sec,
+.banenr-sec.blank-banner-sec {
+  display: none !important;
+}
+
+/* Футер Cookie Policy — клікабельний на мобілці */
+.footer {
+  position: relative;
+  z-index: 20;
+}
+.footer__down {
+  position: relative;
+  z-index: 30;
+  pointer-events: auto;
+}
+.footer__nav-down,
+.footer__nav-down-ul,
+.footer__nav-down-ul li,
+.footer__nav-down a,
+#menu-footer-meny2 a,
+#menu-item-124 a,
+#menu-item-125 a,
+#menu-item-1361 a,
+.footer__social-row,
+.footer__social {
+  position: relative;
+  z-index: 31;
+  pointer-events: auto !important;
+}
+.footer__nav-down-ul {
+  flex-wrap: wrap;
+  gap: 8px 4px;
+}
+.footer__nav-down-ul a {
+  display: inline-block;
+  padding: 12px 10px;
+  min-height: 44px;
+  line-height: 1.3;
+  box-sizing: border-box;
+}
+
+/* Картки напрямків: не тягнути btnv3 на 152px з route-list */
+.direction-element {
+  align-items: flex-start !important;
+}
+.direction-element .direction-element__time {
+  align-items: flex-end;
+}
+.direction-element .direction-element__buttons,
+.direction-element .direction-element__button {
+  display: flex !important;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center !important;
+  align-content: flex-start !important;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+.direction-element .btnv3,
+.direction-element a.btnv3,
+.direction-element button.btnv3 {
+  height: auto !important;
+  min-height: 0 !important;
+  width: auto !important;
+  max-width: 100%;
+  padding: 10px 20px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  display: inline-block !important;
+  align-self: center !important;
+  flex: 0 0 auto !important;
+}
+.search__cal-panel .vanilla-calendar {
+  width: 100% !important;
+  min-height: 288px;
+  box-shadow: none !important;
+  border: none !important;
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+}
+.search__cal-panel .vanilla-calendar-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px;
+  padding: 0 8px;
+}
+.search__cal-panel .vanilla-calendar-header__content,
+.search__cal-panel .vanilla-calendar-month,
+.search__cal-panel .vanilla-calendar-year {
+  color: #000 !important;
+  font-weight: 700;
+}
+.search__cal-panel .vanilla-calendar-month,
+.search__cal-panel .vanilla-calendar-year {
+  pointer-events: none !important;
+  cursor: default !important;
+}
+.search__cal-panel .vanilla-calendar-arrow {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: relative !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-width: 28px;
+  flex-shrink: 0;
+  cursor: pointer !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  transform: none !important;
+}
+.search__cal-panel .vanilla-calendar-arrow:before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 18px 18px !important;
+  opacity: 1 !important;
+}
+/* Ліва стрілка */
+.search__cal-panel .vanilla-calendar-arrow_prev,
+.search__cal-panel .vanilla-calendar-arrow.vanilla-calendar-arrow_prev {
+  transform: none !important;
+}
+.search__cal-panel .vanilla-calendar-arrow_prev:before,
+.search__cal-panel .vanilla-calendar-arrow.vanilla-calendar-arrow_prev:before {
+  transform: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M15 6L9 12L15 18' stroke='%23000000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+}
+/* Права стрілка */
+.search__cal-panel .vanilla-calendar-arrow_next,
+.search__cal-panel .vanilla-calendar-arrow.vanilla-calendar-arrow_next {
+  transform: none !important;
+}
+.search__cal-panel .vanilla-calendar-arrow_next:before,
+.search__cal-panel .vanilla-calendar-arrow.vanilla-calendar-arrow_next:before {
+  transform: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M9 6L15 12L9 18' stroke='%23000000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+}
+.search__cal-panel .vanilla-calendar-arrow:hover:before {
+  opacity: 0.65 !important;
+}
+.front-sec__search.main-search-top,
+.main-search-top .search__input-wrapper,
+.main-search-top .select-date,
+.main-search-top .select-date__value {
+  overflow: visible !important;
+}
+.direction-element.is-search-highlight {
+  outline: 3px solid #446cf4;
+  outline-offset: 4px;
+  box-shadow: 0 0 0 6px rgba(68, 108, 244, 0.18);
+  transition: outline-color 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+.direction-element__stop-note {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #eef2ff;
+  border: 1px solid rgba(68, 108, 244, 0.35);
+  color: #130c5a;
+  font-size: 13px;
+  line-height: 1.35;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.direction-element__stop-note strong {
+  font-weight: 700;
+}
+.direction-element__stop-note span {
+  opacity: 0.85;
+}
+.main-search-top .search__input-header {
+  transition: box-shadow 0.35s ease, background-color 0.35s ease;
+}
+.main-search-top .search__input-header.is-search-field-error {
+  box-shadow: 0 0 0 2px #446cf4, 0 0 0 6px rgba(68, 108, 244, 0.22);
+  background-color: #eef2ff;
+  animation: et-search-field-in 0.35s ease;
+}
+.main-search-top .search__input-header.is-search-field-error-out {
+  animation: et-search-field-out 0.32s ease forwards;
+}
+@keyframes et-search-field-in {
+  from {
+    box-shadow: 0 0 0 0 rgba(68, 108, 244, 0);
+    background-color: #f1f2f4;
+  }
+  to {
+    box-shadow: 0 0 0 2px #446cf4, 0 0 0 6px rgba(68, 108, 244, 0.22);
+    background-color: #eef2ff;
+  }
+}
+@keyframes et-search-field-out {
+  from {
+    box-shadow: 0 0 0 2px #446cf4, 0 0 0 6px rgba(68, 108, 244, 0.22);
+    background-color: #eef2ff;
+  }
+  to {
+    box-shadow: 0 0 0 0 rgba(68, 108, 244, 0);
+    background-color: #f1f2f4;
+  }
+}
+@media (max-width: 768px) {
+  .footer__down {
+    padding-bottom: 88px;
+  }
+  .footer__nav-down-ul {
+    width: 100%;
+    justify-content: center !important;
+    row-gap: 12px;
+  }
+  .footer__nav-down-ul li {
+    margin: 0 6px 8px !important;
+  }
+  #floating-menu {
+    z-index: 40;
+  }
+  #floating-menu .menu-items {
+    right: 0 !important;
+    left: auto !important;
+    max-width: calc(100vw - 24px);
+  }
+  #floating-menu .menu-items .phone {
+    width: min(220px, calc(100vw - 80px)) !important;
+    min-width: 0 !important;
+    font-size: 14px !important;
+    padding: 0 12px !important;
+  }
+  .route-list-sec {
+    position: relative;
+    z-index: 1;
+  }
+  .et-dest-note {
+    font-size: 15px;
+  }
+  .footer {
+    z-index: 50;
+  }
+}
+
+/* —— Мобайл: красивий пошук —— */
+@media (max-width: 985px) {
+  .main-search-top,
+  .main-search-down,
+  form.main-search-top.front-sec__search {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding: 20px 16px !important;
+  }
+  .main-search-top > .search__input-wrapper,
+  .main-search-top > .search__input-location,
+  .main-search-top > .select-date,
+  .main-search-top > .search__input-wrapper-send,
+  .main-search-down > .search__input-wrapper,
+  .main-search-down > .search__input-location,
+  .main-search-down > .select-date,
+  .main-search-down > .search__input-wrapper-send {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    flex: none !important;
+  }
+  .main-search-top .search__swap-btn,
+  .main-search-down .search__swap-btn {
+    order: 0;
+    align-self: center !important;
+    margin: 2px auto !important;
+    width: 48px;
+    height: 48px;
+    box-shadow: 0 4px 14px rgba(19, 12, 90, 0.12);
+    border-color: #cfd6e8;
+    z-index: 2;
+  }
+  .main-search-top .search__region-label,
+  .main-search-down .search__region-label {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-size: 12px;
+  }
+  .main-search-top .search__input-wrapper-send,
+  .main-search-down .search__input-wrapper-send {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+  }
+  .main-search-top .search__input-wrapper-send .btnV2,
+  .main-search-down .search__input-wrapper-send .btnV2,
+  .main-search-top .main-search-top__btn,
+  .main-search-down .main-search-top__btn {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+  .main-search-top .search__input-wrapper-send-error,
+  .main-search-down .search__input-wrapper-send-error {
+    text-align: center;
+  }
+
+  /* Кнопки карток — колонка, не під плаваючим меню справа */
+  .direction-element {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .direction-element .direction-element__location,
+  .direction-element .direction-element__time {
+    width: 100% !important;
+  }
+  .direction-element .direction-element__time {
+    margin-top: 12px;
+    text-align: left !important;
+  }
+  .direction-element .direction-element__price {
+    text-align: left !important;
+  }
+  .direction-element .direction-element__buttons,
+  .direction-element .direction-element__button {
+    width: 100% !important;
+    justify-content: stretch !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .direction-element .btnv3,
+  .direction-element a.btnv3,
+  .direction-element button.btnv3 {
+    width: 100% !important;
+    text-align: center !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* Прибрати сині/сірі квадрати при тапі */
+html {
+  -webkit-tap-highlight-color: transparent !important;
+}
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent !important;
+}
+a,
+button,
+input,
+select,
+textarea,
+summary,
+label,
+.btnV1,
+.btnV2,
+.btnv3,
+.btnv3-mob-route,
+.search__input-btn,
+.search__swap-btn,
+.search__input-header,
+.footer__social,
+.air-open-btn,
+.direction-sec__toggle-btn {
+  -webkit-tap-highlight-color: transparent !important;
+  outline: none !important;
+}
+a:focus,
+a:active,
+a:focus-visible,
+button:focus,
+button:active,
+button:focus-visible,
+input:focus,
+input:active,
+select:focus,
+select:active,
+.btnV1:focus,
+.btnV1:active,
+.btnV2:focus,
+.btnV2:active,
+.btnv3:focus,
+.btnv3:active,
+.search__input-btn:focus,
+.search__input-btn:active,
+.search__swap-btn:focus,
+.search__swap-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Моб. меню: месенджери не біліють після кліку (залипає :focus → transparent) */
+.header__mobile-contacts .contacts-body-sec__social,
+.header__mobile-contacts .contacts-body-sec__social:hover,
+.header__mobile-contacts .contacts-body-sec__social:focus,
+.header__mobile-contacts .contacts-body-sec__social:focus-visible,
+.header__mobile-contacts .contacts-body-sec__social:active {
+  background: #f6f4ff !important;
+  transform: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+.header__mobile-contacts .contacts-body-sec__phone-link:hover,
+.header__mobile-contacts .contacts-body-sec__phone-link:focus,
+.header__mobile-contacts .contacts-body-sec__phone-link:focus-visible,
+.header__mobile-contacts .contacts-body-sec__phone-link:active {
+  background: #f6f4ff !important;
+  transform: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Банер маршруту на ads — сховати на мобілці */
+@media (max-width: 768px) {
+  .banenr-sec.router-banner-sec {
+    display: none !important;
+  }
+}
+
+/* Контакти в шапці — лише месенджери */
+.header__phone-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+}
+.header__phone,
+.header__phone--tel-only,
+a.header__phone,
+.contacts-body-sec__phone-list,
+.footer__phone-link,
+#floating-menu .phone,
+.manager-contact__phones,
+.manager-contact__phone-link {
+  display: none !important;
+}
+.et-header-msg {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.et-header-msg__link {
+  display: inline-flex;
+  line-height: 0;
+  border-radius: 10px;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.et-header-msg__link img {
+  width: 34px;
+  height: 34px;
+  display: block;
+}
+.et-header-msg__link:hover,
+.et-header-msg__link:focus {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+#floating-menu .phone {
+  width: auto;
+  min-width: 200px;
+  padding: 0 16px;
+  white-space: nowrap;
+}
+
+/* Попап мессенджеров при клике на телефон в шапке (legacy) */
+.et-phone-msg {
+  position: absolute;
+  z-index: 10050;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 8px 28px rgba(20, 24, 50, 0.18);
+  border: 1px solid rgba(20, 24, 50, 0.08);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(4px);
+  transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s;
+}
+.et-phone-msg.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+.et-phone-msg__link {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  overflow: hidden;
+  line-height: 0;
+  flex-shrink: 0;
+}
+.et-phone-msg__link img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.et-phone-msg__link:hover,
+.et-phone-msg__link:focus {
+  outline: none;
+  filter: brightness(1.05);
+}
+.header__phone-wrapper {
+  position: relative;
+}
+
+/* Плаваюче меню не перекриває кнопки карток */
+#floating-menu {
+  width: 55px !important;
+  height: 55px !important;
+  overflow: visible !important;
+  z-index: 60 !important;
+  pointer-events: none;
+}
+#floating-menu .toggle-btn {
+  pointer-events: auto;
+  position: absolute !important;
+  right: 0 !important;
+  bottom: 0 !important;
+}
+#floating-menu .menu-items {
+  position: absolute !important;
+  right: 0 !important;
+  bottom: 70px !important;
+  margin: 0 !important;
+  pointer-events: none;
+}
+#floating-menu .menu-items.show {
+  pointer-events: auto;
+}
+#floating-menu .menu-items .btn,
+#floating-menu .menu-items .phone {
+  pointer-events: auto;
+}
+
+
+/* sync overrides v=20260829d */
+@media (max-width: 768px) {
+  .header .container.header__container,
+  .header .container {
+    padding: 12px 16px !important;
+  }
+  .header__logo {
+    width: 100px !important;
+    max-width: 100px !important;
+  }
+  .header__logo-img {
+    max-height: 36px !important;
+    object-fit: contain !important;
+  }
+  .burger { width: 24px !important; height: 18px !important; }
+  .burger__sl { width: 24px !important; }
+  .header__mobile { padding-top: 68px !important; }
+
+  .header__mobile-contacts .contacts-body-sec__social-row,
+  .header__mobile-wrapper-down .contacts-body-sec__social-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  .header__mobile-contacts .contacts-body-sec__social,
+  .header__mobile-wrapper-down .contacts-body-sec__social {
+    flex: 1 1 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: 44px !important;
+  }
+}
+
+
+/* booking oferta lower under submit */
+.booking-form .inp-form-acceptance,
+[data-air="booking-form-popup"] .inp-form-acceptance {
+  margin-top: 18px;
+  padding-top: 4px;
+}
+
+/* Переваги комфорту: на телефоні 2 колонки-картки */
+@media (max-width: 768px) {
+  .advantages-sec {
+    padding-top: 40px !important;
+    padding-bottom: 40px !important;
+  }
+  .advantages-sec__title {
+    width: 100% !important;
+    margin: 0 0 14px !important;
+    padding-bottom: 0 !important;
+    font-size: 22px !important;
+    line-height: 1.2 !important;
+    text-align: center !important;
+  }
+  .advantages-sec__icon-container {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  .advantages-sec__wrapper,
+  .advantages-sec__wrapper:first-child {
+    margin-top: 0 !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    text-align: center !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+    min-height: 92px !important;
+    padding: 12px 8px 10px !important;
+    border-radius: 14px !important;
+    background: #f5f2f9 !important;
+    box-sizing: border-box !important;
+  }
+  .advantages-sec__icon {
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 10px !important;
+    flex: 0 0 36px !important;
+  }
+  .advantages-sec__icon-img {
+    width: 20px !important;
+    height: auto !important;
+  }
+  .advantages-sec__icon-text {
+    display: block !important;
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    transform: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    z-index: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: none !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+    font-weight: 600 !important;
+    color: #1a1233 !important;
+    pointer-events: none !important;
+  }
+  .advantages-sec__icon-text-tooltip,
+  .advantages-sec__icon-text.tooltip,
+  .advantages-sec__icon-text.visible {
+    display: none !important;
+  }
+  .route-list-banner-sec__advantages-mob {
+    display: block !important;
+    width: 100% !important;
+  }
+  .route-list-banner-sec__advantages-mob .advantages-sec__info {
+    width: 100% !important;
+  }
+  .advantages-sec__icon-img {
+    width: 20px !important;
+    height: 20px !important;
+    max-width: 20px !important;
+    max-height: 20px !important;
+    object-fit: contain !important;
+    display: block !important;
+  }
+  .advantages-sec__images {
+    margin-top: 18px !important;
+  }
+  .advantages-sec__img-small {
+    height: 140px !important;
+    border-radius: 16px !important;
+  }
+  .advantages-sec__img-small:first-child,
+  .advantages-sec__img-col:first-child .advantages-sec__img-small:first-child {
+    margin-bottom: 10px !important;
+  }
+  .advantages-sec__img-big {
+    height: 180px !important;
+    border-radius: 16px !important;
+  }
+}
+
+/* Ціна після Знайти рейс */
+.et-search-price { width: 100%; margin: 14px 0 0; }
+.et-search-price__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid rgba(91, 45, 157, 0.14);
+  box-shadow: 0 8px 24px rgba(40, 20, 80, 0.06);
+}
+.et-search-price__label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #5a4d73;
+  letter-spacing: 0.01em;
+}
+.et-search-price__now {
+  font-size: 28px;
+  font-weight: 800;
+  color: #2c1b57;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.et-search-price__now strong {
+  font-weight: 800;
+}
+.et-search-price__currency {
+  font-size: 0.55em;
+  font-weight: 700;
+  color: #7a6d94;
+  margin-left: 2px;
+  letter-spacing: 0;
+}
+.booking-form .main-form__title,
+[data-air="booking-form-popup"] .main-form__title {
+  text-align: center;
+  line-height: 1.25;
+}
+.booking-form .main-form__subtitle,
+[data-air="booking-form-popup"] .main-form__subtitle {
+  max-width: 28ch;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  line-height: 1.45;
+}
+.et-booking-summary .et-booking-price {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0;
+  padding: 14px 16px 16px;
+  border: none;
+  border-radius: 0;
+  border-top: 1px solid rgba(91, 45, 157, 0.1);
+  background: transparent;
+}
+.et-booking-price__label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #5a4d73;
+  letter-spacing: 0.01em;
+}
+.et-booking-price__value {
+  font-size: 28px;
+  font-weight: 800;
+  color: #2c1b57;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.et-booking-price__value strong {
+  font-weight: 800;
+}
+@media (max-width: 768px) {
+  .et-search-price__now { font-size: 24px; }
+  .et-booking-price__value { font-size: 24px; }
+  .et-search-price__inner,
+  .et-booking-summary .et-booking-price { padding: 14px 14px 16px; }
+}
+
+.et-phone-intl {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 0;
+  box-sizing: border-box;
+}
+.inp-form.inp-form--intl-phone {
+  display: block;
+}
+.inp-form.inp-form--intl-phone .inp-form__icon-wrapper {
+  display: none !important;
+}
+.inp-form.inp-form--intl-phone .inp-form__inp-wrapper,
+.inp-form.inp-form--intl-phone .inp-form__inp-wrapper p,
+.delivery-form__phone-field .inp-form__inp-wrapper {
+  width: 100%;
+  margin: 0;
+}
+.inp-form.inp-form--intl-phone .et-phone-intl,
+.delivery-form__phone-field .et-phone-intl,
+.search__input-wrapper .et-phone-intl {
+  min-height: 52px;
+  padding: 0 18px;
+  border-radius: 100px;
+  background: #f1f2f4 !important;
+  border: none !important;
+}
+.inp-form.inp-form--intl-phone .et-phone-intl__country,
+.delivery-form__phone-field .et-phone-intl__country,
+.search__input-wrapper .et-phone-intl__country {
+  flex: 0 0 auto;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  margin: 0;
+  padding: 0 16px 0 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: #444d56 !important;
+  line-height: 1.2 !important;
+  cursor: pointer;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%238b93a7' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right center !important;
+  background-size: 12px 8px !important;
+}
+.inp-form.inp-form--intl-phone .et-phone-intl__input,
+.delivery-form__phone-field .et-phone-intl__input,
+.search__input-wrapper .et-phone-intl__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-left: 14px;
+  border-left: 1px solid rgba(68, 77, 86, 0.12);
+}
+.inp-form.inp-form--intl-phone .et-phone-intl__tel,
+.inp-form.inp-form--intl-phone input.et-phone-intl__tel,
+.delivery-form__phone-field .et-phone-intl__tel,
+.search__input-wrapper .et-phone-intl__tel,
+.search__input-wrapper .et-phone-intl__tel.search__input {
+  display: block;
+  width: 100% !important;
+  min-width: 0;
+  padding: 18px 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  font-size: 16px !important;
+  font-weight: 400 !important;
+  color: #444d56 !important;
+  line-height: 1 !important;
+}
+.inp-form.inp-form--intl-phone .et-phone-intl__tel::placeholder,
+.search__input-wrapper .et-phone-intl__tel::placeholder {
+  color: #8b93a7;
+  opacity: 1;
+}
+@media (max-width: 640px) {
+  .inp-form.inp-form--intl-phone .et-phone-intl,
+  .search__input-wrapper .et-phone-intl {
+    padding: 0 14px;
+  }
+  .inp-form.inp-form--intl-phone .et-phone-intl__country,
+  .search__input-wrapper .et-phone-intl__country {
+    font-size: 15px !important;
+    padding-right: 14px !important;
+  }
+}
