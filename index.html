@@ -4,7 +4,7 @@
 
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 	<link rel="preload" href="fonts/FixelDisplay-Regular.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="fonts/FixelDisplay-Bold.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/main.min.css">
@@ -3599,7 +3599,7 @@
 
 		<p class="main-form__title air-open-btn" data-popup-current="form-send">Залишити заявку</p>
 
-		<p class="main-form__subtitle">Наш менеджер свяжется с вами течении 10 минут</p>
+		<p class="main-form__subtitle">Наш менеджер звʼяжеться з вами протягом 10 хвилин</p>
 
 		<form>
 
@@ -3607,7 +3607,7 @@
 
 				<img src="images/ic-user.svg" alt="" class="inp-form__icon">
 
-				<input type="text" class="inp-form__inp" placeholder="Имя">
+				<input type="text" name="fullname" class="inp-form__inp" placeholder="Імʼя" required>
 
 			</div>
 
@@ -3617,7 +3617,7 @@
 
 				<img src="images/ic-phon.svg" alt="" class="inp-form__icon">
 
-				<input type="text" class="inp-form__inp" placeholder="Номер телефона">
+				<input type="tel" name="phone" class="inp-form__inp" placeholder="Номер телефону" required>
 
 			</div>
 
@@ -3625,7 +3625,7 @@
 
 			<div class="inp-form-btn-wrapper">
 
-				<input type="submit" value="Знайти рейс" class="btnV2">
+				<input type="submit" value="Надіслати заявку" class="btnV2">
 
 			</div>
 

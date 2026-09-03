@@ -115,3 +115,4 @@
   .et-theme-toggle { bottom: 140px !important; }
   .et-to-top { bottom: 16px !important; }
 }
+.et-chat__win[hidden], .et-chat__badge[hidden] { display: none !important; }

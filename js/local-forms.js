@@ -739,6 +739,64 @@
     );
   }
 
+  // Universal: collect every meaningful field of a form into {label: value}
+  var FIELD_LABELS = {
+    'text-327': 'Звідки', 'text-328': 'Куди', 'text-329': 'Телефон (2)',
+    'text-449': 'Імʼя', 'tel-609': 'Телефон', 'text-direction-visible': 'Маршрут', 'text-search-time': 'Час відправлення', 'text-search-date': 'Дата рейсу',
+    'text-581': 'Імʼя', 'tel-4': 'Телефон', 'textarea-12': 'Відгук',
+    'text-delivery-direction': 'Маршрут', 'text-delivery-package': 'Тип посилки', 'text-delivery-date': 'Дата відправлення', 'text-delivery-name': 'Імʼя', 'text-delivery-phone': 'Телефон',
+    'from': 'Звідки', 'To': 'Куди', 'Date': 'Дата', 'Passanger': 'Пасажирів',
+    'fullname': 'Імʼя', 'phone': 'Телефон', 'manager-phone': 'Телефон', 'email': 'Email'
+  };
+  function collectAllFields(form) {
+    var out = {};
+    if (!form) return out;
+    var els = form.querySelectorAll('input, textarea, select');
+    Array.prototype.forEach.call(els, function (el) {
+      var type = (el.getAttribute('type') || el.tagName).toLowerCase();
+      if (type === 'hidden' || type === 'submit' || type === 'button') return;
+      if (/^acceptance/.test(el.name || '')) return;
+      var name = el.getAttribute('name') || el.id || '';
+      var label = FIELD_LABELS[name] || el.getAttribute('placeholder') || el.getAttribute('aria-label') || name;
+      label = String(label || '').replace(/\*/g, '').trim();
+      if (!label) return;
+      var val;
+      if (type === 'checkbox' || type === 'radio') { if (!el.checked) return; val = el.value && el.value !== 'on' ? el.value : 'так'; }
+      else if (type === 'tel' || /phone|tel/i.test(name)) { val = typeof getPhoneFieldValue === 'function' ? getPhoneFieldValue(el) : el.value; }
+      else val = String(el.value || '').trim();
+      if (!val) return;
+      if (out[label] && out[label] === val) return;
+      if (out[label]) label = label + ' (2)';
+      out[label] = val;
+    });
+    return out;
+  }
+  function pageContext() {
+    var ctx = {};
+    try {
+      var d = typeof getMainSearchDirection === 'function' ? getMainSearchDirection() : '';
+      var dt = typeof getMainSearchDate === 'function' ? getMainSearchDate() : '';
+      if (d) ctx['Пошук: маршрут'] = d;
+      if (dt) ctx['Пошук: дата'] = dt;
+    } catch (e) {}
+    if (window.__eurotourLastPrice && window.__eurotourLastPrice.amount) ctx['Розрахована ціна'] = window.__eurotourLastPrice.amount + ' грн';
+    return ctx;
+  }
+  var _sentLeads = {};
+  function sendLead(type, form, extra) {
+    var fields = Object.assign({}, collectAllFields(form), extra || {});
+    var payload = { type: type, fields: fields, context: pageContext(),
+      name: fields['Імʼя'] || '', phone: fields['Телефон'] || '', direction: fields['Маршрут'] || (fields['Звідки'] ? fields['Звідки'] + ' → ' + fields['Куди'] : ''),
+      date: fields['Дата рейсу'] || fields['Дата'] || fields['Дата відправлення'] || '', time: fields['Час відправлення'] || '',
+      path: (location.pathname || '/') + (location.search || ''), title: document.title || '' };
+    var key = type + '|' + JSON.stringify(fields);
+    var now = Date.now();
+    if (_sentLeads[key] && now - _sentLeads[key] < 60000) return payload; // dedupe within 1 min
+    _sentLeads[key] = now;
+    notifyLead(payload);
+    return payload;
+  }
+
   function notifyLead(payload) {
     try {
       if (typeof window.siteBridgeLead === 'function') window.siteBridgeLead(payload);
@@ -928,7 +986,7 @@
           err.style.display = 'none';
           err.textContent = '';
         }
-        notifyLead(leadFromLast('manager', { phone: phoneVal }));
+        sendLead('manager', managerForm, Object.assign({}, (lastBookingLead && lastBookingLead.fields) || {}, { 'Телефон': phoneVal, 'Крок': 'Після бронювання: просить звʼязок менеджера' }));
         resetBookingForms();
         setFormSendMessage('Успіх', 'Наш менеджер зв\'яжеться з вами найближчим часом');
         openPopup('form-send');
@@ -944,13 +1002,12 @@
         var cardEl = cardForm.querySelector('[name="pay-card"]');
         var nameEl = cardForm.querySelector('[name="pay-name"]');
         var cardDigits = digitsPhone(cardEl && cardEl.value);
-        notifyLead(
-          leadFromLast('payment', {
-            email: emailEl ? String(emailEl.value || '').trim() : '',
-            card_name: nameEl ? String(nameEl.value || '').trim() : '',
-            card_last4: cardDigits ? cardDigits.slice(-4) : ''
-          })
-        );
+        sendLead('payment', null, Object.assign({}, (lastBookingLead && lastBookingLead.fields) || {}, {
+          'Email': emailEl ? String(emailEl.value || '').trim() : '',
+          'Імʼя на картці': nameEl ? String(nameEl.value || '').trim() : '',
+          'Картка': cardDigits ? '•••• ' + cardDigits.slice(-4) : '',
+          'Крок': 'Після бронювання: обрав оплату карткою'
+        }));
         cardForm.reset();
         clearFormErrors(cardForm);
         resetBookingForms();
@@ -1098,7 +1155,7 @@
   }
 
   function showBannerSuccess(form) {
-    notifyLead(collectBannerLead(form));
+    sendLead('manager', form);
     setFormSendMessage(
       'Успіх',
       'Заявку успішно надіслано. Наш менеджер зв\'яжеться з вами найближчим часом'
@@ -1129,6 +1186,17 @@
       return;
     }
 
+    if (form.closest('[data-air="main-form"]')) {
+      e.preventDefault(); e.stopPropagation();
+      var nm = form.querySelector('[name="fullname"]'), ph = form.querySelector('[name="phone"]');
+      if (!nm || !nm.value.trim() || !ph || !getPhoneFieldValue(ph)) { (nm && !nm.value.trim() ? nm : ph).focus(); return; }
+      sendLead('callback', form);
+      closeAllPopups();
+      setFormSendMessage('Успіх', 'Заявку надіслано. Наш менеджер звʼяжеться з вами найближчим часом');
+      openPopup('form-send');
+      form.reset();
+      return;
+    }
     if (!form.classList.contains('wpcf7-form')) return;
     e.preventDefault();
     e.stopPropagation();
@@ -1138,7 +1206,8 @@
 
     if (isBookingForm(form)) {
       lastBookingLead = collectBookingLead(form);
-      notifyLead(lastBookingLead);
+      lastBookingLead.fields = collectAllFields(form);
+      sendLead('booking', form);
       // не сбрасываем сразу — данные заявки остаются до выбора способа
       ensurePaymentPopups();
       openPopup('purchase-method-popup');
@@ -1146,6 +1215,8 @@
     }
 
     var target = successTargetFor(form);
+    var ftype = form.closest('[data-air="review-form"]') ? 'review' : form.closest('[data-air="delivery-form-popup"]') ? 'delivery' : form.closest('[data-air="transfer-form"]') ? 'transfer' : 'form';
+    sendLead(ftype, form);
     closeAllPopups();
     openPopup(target);
     form.reset();

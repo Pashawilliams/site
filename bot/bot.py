@@ -144,14 +144,18 @@ class Store:
 
     def save(self, msg):
         self.data["updated_at"] = dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-        self.sha = self._put(DATA_PATH, self.data, self.sha, f"admin-bot: {msg}")
+        with self._lock:
+            self.sha = self._put(DATA_PATH, self.data, self.sha, f"admin-bot: {msg}")
         self.state.setdefault("log", []).append({"t": self.data["updated_at"], "msg": msg})
         self.state["log"] = self.state["log"][-200:]
         self.save_state(silent=True)
 
+    _lock = threading.Lock()
+
     def save_state(self, silent=False):
         try:
-            self.state_sha = self._put(STATE_PATH, self.state, self.state_sha, "admin-bot: state")
+            with self._lock:
+                self.state_sha = self._put(STATE_PATH, self.state, self.state_sha, "admin-bot: state")
         except Exception as e:
             log.warning("state save failed: %s", e)
             if not silent:
@@ -312,7 +316,7 @@ def stats_view(msg_id=None):
     leads = st.get("leads", [])
     txt = (f"<b>Статистика</b>\nЗаявок отримано: {len(leads)}\nЧатів: {len(st.get('chats', {}))}\nАдмінів: {len(admin_ids())}\nОстанні зміни:\n" +
            ("\n".join(f"• {esc(l['t'][5:16])} {esc(l['msg'])}" for l in logs) or "—"))
-    kb = ikb([[("📥 Останні заявки", "leads"), ("⬅️ Меню", "main")]])
+    kb = ikb([[("📥 Останні заявки", "leads"), ("🗑 Очистити заявки", "leads_clear")], [("⬅️ Меню", "main")]])
     (edit if msg_id else send)(*((msg_id, txt, kb) if msg_id else (txt, kb)))
 
 def admins_view(msg_id=None):
@@ -335,7 +339,7 @@ def admins_view(msg_id=None):
 
 def chat_kb(sidv):
     return ikb([[("✍️ Відповісти", f"chatreply:{sidv}"), ("📜 Історія", f"chat:{sidv}")],
-                [("✅ Закрити чат", f"chatclose:{sidv}"), ("🚫 Заблокувати", f"chatban:{sidv}")],
+                [("✅ Закрити", f"chatclose:{sidv}"), ("🗑 Видалити", f"chatdel:{sidv}"), ("🚫 Блок", f"chatban:{sidv}")],
                 [("⬅️ Усі чати", "chats")]])
 
 
@@ -346,6 +350,8 @@ def chats_view(msg_id=None):
     for sidv, c in items:
         flag = "🟢" if not c.get("closed") else "⚪️"
         rows.append([(f"{flag} {c.get('name') or 'Гість'} · {sidv[:6]} · {c.get('last','')[5:16]}", f"chat:{sidv}")])
+    if chats:
+        rows.append([("🧹 Видалити закриті", "chats_clear_closed"), ("🗑 Видалити всі", "chats_clear_all")])
     rows.append([("⬅️ Меню", "main")])
     txt = f"<b>Чати з відвідувачами</b> ({len(chats)})\nЩоб відповісти — відкрийте чат або зробіть swipe-reply на повідомленні відвідувача."
     (edit if msg_id else send)(*((msg_id, txt, ikb(rows)) if msg_id else (txt, ikb(rows))))
@@ -379,18 +385,36 @@ def reply_to_visitor(sidv, text):
         return False
 
 
+KINDS = {"booking": "🎫 Бронювання рейсу", "manager": "📞 Звʼязок з менеджером", "callback": "📞 Зворотний дзвінок", "payment": "💳 Оплата карткою",
+         "delivery": "📦 Доставка посилки", "transfer": "🚐 Трансфер", "review": "⭐ Новий відгук", "form": "📝 Форма"}
+
+
 def fmt_lead(ev):
     lead = ev.get("lead") or {}
-    kinds = {"booking": "Бронювання", "manager": "Звʼязок з менеджером", "card": "Оплата карткою", "delivery": "Доставка посилки", "transfer": "Трансфер"}
-    lines = [f"📥 <b>Нова заявка: {esc(kinds.get(lead.get('type'), lead.get('type') or 'форма'))}</b>"]
-    for k, label in (("name", "Імʼя"), ("phone", "Телефон"), ("direction", "Маршрут"), ("date", "Дата"), ("time", "Час"), ("price_text", "Ціна"), ("email", "Email"), ("comment", "Коментар")):
-        if lead.get(k):
-            lines.append(f"{label}: <b>{esc(lead[k])}</b>")
-    if lead.get("phone"):
-        digits = "".join(ch for ch in str(lead["phone"]) if ch.isdigit())
-        if digits:
-            lines.append(f"WhatsApp: https://wa.me/{digits}")
-    lines.append(f"<i>{esc((ev.get('page') or '')[:90])} · {esc((ev.get('ts') or '')[:16])}</i>")
+    fields = lead.get("fields") or {}
+    if not fields:  # legacy payload
+        for k, label in (("name", "Імʼя"), ("phone", "Телефон"), ("direction", "Маршрут"), ("date", "Дата"), ("time", "Час"), ("price_text", "Ціна"), ("email", "Email")):
+            if lead.get(k):
+                fields[label] = lead[k]
+    lines = [f"📥 <b>Нова заявка · {esc(KINDS.get(lead.get('type'), lead.get('type') or 'форма'))}</b>", ""]
+    order = ["Імʼя", "Телефон", "Маршрут", "Звідки", "Куди", "Дата рейсу", "Дата", "Дата відправлення", "Час відправлення", "Пасажирів", "Тип посилки", "Email", "Відгук", "Крок"]
+    seen = set()
+    for k in order + [k for k in fields if k not in order]:
+        if k in fields and k not in seen and fields[k]:
+            seen.add(k)
+            lines.append(f"▫️ {esc(k)}: <b>{esc(fields[k])}</b>")
+    ctx = lead.get("context") or {}
+    if ctx:
+        lines.append("")
+        for k, v in ctx.items():
+            lines.append(f"▪️ {esc(k)}: {esc(v)}")
+    phone = fields.get("Телефон") or lead.get("phone")
+    if phone:
+        digits = "".join(ch for ch in str(phone) if ch.isdigit())
+        if len(digits) >= 10:
+            lines.append("")
+            lines.append(f"📲 <a href=\"https://wa.me/{digits}\">WhatsApp</a> · <a href=\"https://t.me/+{digits}\">Telegram</a> · <code>+{digits}</code>")
+    lines.append(f"<i>{esc((ev.get('page') or '').replace('https://', '')[:70])} · {esc((ev.get('ts') or '')[:16].replace('T', ' '))}</i>")
     return "\n".join(lines)
 
 
@@ -398,7 +422,10 @@ def on_bridge_event(ev):
     kind = ev.get("kind")
     sidv = str(ev.get("sid") or "")[:16]
     if kind == "lead":
-        store.state.setdefault("leads", []).append({"t": ev.get("ts") or dt.datetime.utcnow().isoformat(), "text": json.dumps(ev.get("lead") or {}, ensure_ascii=False)[:600]})
+        _l = ev.get("lead") or {}
+        _f = _l.get("fields") or {}
+        _summary = ", ".join(f"{k}: {v}" for k, v in _f.items()) if _f else json.dumps(_l, ensure_ascii=False)
+        store.state.setdefault("leads", []).append({"t": ev.get("ts") or dt.datetime.utcnow().isoformat(), "kind": KINDS.get(_l.get("type"), _l.get("type") or ""), "text": _summary[:700]})
         store.state["leads"] = store.state["leads"][-200:]
         mark_dirty()
         kb = ikb([[("💬 Написати в чат сайту", f"chatreply:{sidv}")]]) if sidv else None
@@ -415,6 +442,7 @@ def on_bridge_event(ev):
         c["last"] = dt.datetime.utcnow().isoformat()
         c["closed"] = False
         mark_dirty()
+        threading.Thread(target=lambda: store.save_state(silent=True), daemon=True).start()
         head = "💬 <b>Нове повідомлення з сайту</b>" if not ev.get("first") else "💬 <b>Новий чат з сайту</b>"
         txt = (f"{head}\nВід: <b>{esc(c.get('name') or 'Гість')}</b> · #chat_{sidv}\n\n{esc(ev.get('text') or '')}\n\n"
                f"<i>Відповісти: swipe-reply на це повідомлення або кнопка нижче</i>")
@@ -595,6 +623,28 @@ def handle_callback(cq):
             c["closed"] = True
             mark_dirty()
         return chats_view(msg_id)
+    if data.startswith("chatdel:"):
+        sidv = data.split(":")[1]
+        store.state.get("chats", {}).pop(sidv, None)
+        mark_dirty()
+        store.save_state(silent=True)
+        return chats_view(msg_id)
+    if data == "chats_clear_closed":
+        ch = store.state.get("chats", {})
+        for k in [k for k, v in ch.items() if v.get("closed")]:
+            ch.pop(k, None)
+        mark_dirty(); store.save_state(silent=True)
+        return chats_view(msg_id)
+    if data == "chats_clear_all":
+        return edit(msg_id, "Видалити <b>всі</b> чати? Історію не можна буде відновити.", ikb([[("🗑 Так, видалити все", "chats_clear_all_yes"), ("Скасувати", "chats")]]))
+    if data == "chats_clear_all_yes":
+        store.state["chats"] = {}
+        mark_dirty(); store.save_state(silent=True)
+        return chats_view(msg_id)
+    if data == "leads_clear":
+        store.state["leads"] = []
+        mark_dirty(); store.save_state(silent=True)
+        return stats_view(msg_id)
     if data.startswith("chatban:"):
         sidv = data.split(":")[1]
         if sidv not in store.state["banned"]:
@@ -608,7 +658,7 @@ def handle_callback(cq):
                 d = json.loads(l["text"]); return ", ".join(f"{k}: {v}" for k, v in d.items() if v and k not in ("path", "title"))
             except Exception:
                 return l["text"]
-        txt = "<b>Останні заявки</b>\n\n" + ("\n\n".join(f"🕒 {esc(l['t'][:16])}\n{esc(_fmt(l))}" for l in leads) or "Поки немає")
+        txt = "<b>Останні заявки</b>\n\n" + ("\n\n".join(f"🕒 {esc(l['t'][:16].replace('T',' '))} {esc(l.get('kind',''))}\n{esc(_fmt(l))}" for l in leads) or "Поки немає")
         return edit(msg_id, txt, ikb([[("⬅️ Меню", "main")]]))
 
 
