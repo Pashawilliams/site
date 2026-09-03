@@ -656,29 +656,7 @@
   }
 
   var _etLeadLastTs = 0;
-  function trackFbLead(payload) {
-    try {
-      if (typeof window.fbq !== 'function') return;
-      // анти-дубль: клік може спіймати і local-forms, і live-chat
-      var now = Date.now();
-      if (now - _etLeadLastTs < 1500) return;
-      _etLeadLastTs = now;
-      var p = payload || {};
-      var params = {
-        content_name: 'отправка заявки',
-        content_category: p.type || (p.channel ? 'contact_' + p.channel : 'form'),
-        status: true
-      };
-      if (p.channel) params.content_ids = [String(p.channel)];
-      if (p.direction) params.content_ids = (params.content_ids || []).concat([String(p.direction)]);
-      if (p.path) params.content_ids = (params.content_ids || []).concat([String(p.path)]);
-      if (p.href) params.content_ids = (params.content_ids || []).concat([String(p.href)]);
-      // Standard Lead — як при заявці (оптимізація Meta Ads)
-      fbq('track', 'Lead', params);
-      // Кастомна назва події, як при формі зворотного зв'язку
-      fbq('trackCustom', 'отправка заявки', params);
-    } catch (err) {}
-  }
+  function trackFbLead(payload) {}
 
   // доступно для live-chat.js та інших скриптів
   window.__eurotourTrackLead = trackFbLead;
@@ -761,23 +739,7 @@
     );
   }
 
-  function notifyLead(payload) {
-    trackFbLead(payload);
-    try {
-      var body = JSON.stringify(payload || {});
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon('/api/lead', new Blob([body], { type: 'application/json' }));
-        return;
-      }
-      fetch('/api/lead', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: body,
-        keepalive: true,
-        credentials: 'same-origin'
-      }).catch(function () {});
-    } catch (err) {}
-  }
+  function notifyLead(payload) { /* backend not configured */ }
 
   function homeHref() {
     var prefix = assetPrefix();
@@ -829,7 +791,7 @@
         '</div>'
     );
 
-    var imgBase = assetPrefix() + 'wp-content/uploads/2024/05/';
+    var imgBase = assetPrefix() + 'images/';
     var manager = makePopup(
       'manager-contact-popup',
       '<p class="main-form__title">Зв\'язатися з менеджером</p>' +
@@ -838,7 +800,7 @@
         '<div class="inp-form">' +
         '<div class="inp-form__icon-wrapper"><p><img src="' +
         assetPrefix() +
-        'wp-content/themes/eurotour/img/_src/ic-phon.svg" alt="" class="inp-form__icon" /></p></div>' +
+        'images/ic-phon.svg" alt="" class="inp-form__icon" /></p></div>' +
         '<div class="inp-form__inp-wrapper">' +
         '<span class="wpcf7-form-control-wrap">' +
         '<input type="tel" name="manager-phone" class="wpcf7-form-control wpcf7-tel inp-form__inp" placeholder="Номер телефону" required aria-required="true" autocomplete="tel">' +
@@ -850,12 +812,12 @@
         '</form>' +
         '<p class="manager-contact__or">Або напишіть нам у месенджер</p>' +
         '<div class="manager-contact__msg">' +
-        '<a class="manager-contact__msg-link" href="https://t.me/eurotour_eu" target="_blank" rel="noopener noreferrer" title="Telegram">' +
+        '<a class="manager-contact__msg-link" href="https://t.me/pereviznyk_support" target="_blank" rel="noopener noreferrer" title="Telegram">' +
         '<img src="' +
         imgBase +
         'i-telegram.png" alt="Telegram" width="36" height="36">' +
         '</a>' +
-        '<a class="manager-contact__msg-link" href="https://wa.me/eurotour_eu" target="_blank" rel="noopener noreferrer" title="WhatsApp">' +
+        '<a class="manager-contact__msg-link" href="https://wa.me/380973452025" target="_blank" rel="noopener noreferrer" title="WhatsApp">' +
         '<img src="' +
         imgBase +
         'i-whtsap.png" alt="WhatsApp" width="36" height="36">' +
@@ -1924,28 +1886,7 @@
     );
   }
 
-  function initHeaderPhoneMessengers() {
-    var wrap = document.querySelector('.header__phone-wrapper');
-    if (!wrap || wrap.dataset.msgBound === '1') return;
-    wrap.dataset.msgBound = '1';
-
-    var prefix = assetPrefix();
-    var imgBase = prefix + 'wp-content/uploads/2024/05/';
-    // телефони прибрані — тільки месенджери
-    wrap.innerHTML =
-      '<div class="et-header-msg">' +
-      '<a class="et-header-msg__link" href="https://t.me/eurotour_eu" target="_blank" rel="noopener noreferrer" title="Telegram">' +
-      '<img src="' +
-      imgBase +
-      'i-telegram.png" alt="Telegram" width="36" height="36">' +
-      '</a>' +
-      '<a class="et-header-msg__link" href="https://wa.me/eurotour_eu" target="_blank" rel="noopener noreferrer" title="WhatsApp">' +
-      '<img src="' +
-      imgBase +
-      'i-whtsap.png" alt="WhatsApp" width="36" height="36">' +
-      '</a>' +
-      '</div>';
-  }
+  function initHeaderPhoneMessengers() { /* header contacts are static in HTML */ }
 
   function initRouteDestinationNote() {
     var dest = document.getElementById('single-route-destination');

@@ -1,0 +1,77 @@
+/* Base styles for custom contact elements — theme independent (always loaded) */
+.et-msg { display: flex; align-items: center; gap: 8px; }
+.et-msg__link { width: 38px; height: 38px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; color: #fff; text-decoration: none; transition: transform .18s ease; }
+.et-msg__link svg { width: 20px; height: 20px; display: block; }
+.et-msg__link:hover { transform: translateY(-2px); }
+.et-msg__link--tg { background: #1e96c8; }
+.et-msg__link--wa { background: #1ea952; }
+.et-msg__link--ph { background: #ede9fb; color: #4e1986; }
+.header__phone-wrapper { display: flex; align-items: center; gap: 14px; }
+.et-header-phone { color: #130c5a; font-weight: 700; font-size: 17px; white-space: nowrap; text-decoration: none; }
+@media (max-width: 1100px) { .et-header-phone { display: none; } }
+.et-mobile-contacts { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.et-mobile-contact { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 16px; border-radius: 14px; background: #f4f5f8; color: #130c5a; font-weight: 600; text-decoration: none; }
+.et-mobile-contact svg { width: 22px; height: 22px; }
+.et-mobile-contact--tg svg { color: #1e96c8; } .et-mobile-contact--wa svg { color: #1ea952; } .et-mobile-contact--ph svg { color: #4e1986; }
+.et-footer-phone { color: #fff; font-size: 22px; font-weight: 700; text-decoration: none; }
+.footer__contacts-note { display: block; margin-top: 6px; color: rgba(255,255,255,.65); font-size: 13px; }
+.footer__contacts-ul { list-style: none; margin: 0 0 16px; padding: 0; text-align: right; }
+.et-footer-contacts { display: flex; gap: 10px; }
+.et-footer-contact { width: 44px; height: 44px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255,255,255,.12); color: #fff; }
+.et-footer-contact svg { width: 20px; height: 20px; }
+#floating-menu .btn svg { width: 26px; height: 26px; color: #fff; }
+#floating-menu .whatsapp { background: #1ea952; }
+#floating-menu .phone-call { background: #4e1986; }
+#floating-menu .menu-icon { transition: transform .3s ease; }
+#floating-menu .menu-icon.is-open { transform: rotate(90deg); }
+.manager-contact__msg { display: flex; justify-content: center; gap: 12px; }
+.manager-contact__msg-link { display: inline-flex; padding: 6px; border-radius: 12px; line-height: 0; }
+.manager-contact__msg-link[title="Telegram"] { background: #1e96c8; } .manager-contact__msg-link[title="WhatsApp"] { background: #1ea952; }
+.reviews-sec__name::before { content: attr(data-initial); display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; margin-right: 10px; vertical-align: middle; background: linear-gradient(94deg,#4e1986,#6e137d); color: #fff; font-size: 15px; font-weight: 700; }
+.reviews-sec__date { padding-left: 44px; }
+
+/* Floating controls (theme independent) */
+.et-theme-toggle, .et-to-top {
+  position: fixed; left: 20px; z-index: 90; width: 48px; height: 48px; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,.1); background: #fff; color: #130c5a;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0,0,0,.15); padding: 0; transition: transform .2s ease, opacity .25s ease, visibility .25s ease;
+}
+.et-theme-toggle { bottom: 20px; }
+.et-to-top { bottom: 80px; opacity: 0; visibility: hidden; transform: translateY(10px); }
+.et-to-top.is-visible { opacity: 1; visibility: visible; transform: none; }
+.et-theme-toggle:hover { transform: scale(1.08); }
+.et-theme-toggle svg, .et-to-top svg { width: 22px; height: 22px; }
+.et-to-top svg { width: 20px; height: 20px; }
+.et-reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+.et-reveal.is-visible { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .et-reveal { opacity: 1; transform: none; transition: none; } }
+@media (max-width: 767px) {
+  .et-theme-toggle { left: auto; right: 12px; bottom: 84px; width: 40px; height: 40px; }
+  .et-to-top { left: 12px; bottom: 16px; width: 40px; height: 40px; }
+}
+
+/* Direction cards structure (theme independent) */
+.direction-element { display: flex !important; flex-direction: row !important; flex-wrap: wrap !important; align-items: flex-start !important; gap: 14px 12px; padding: 22px 20px 20px !important; }
+.direction-element__location { flex: 1 1 0 !important; min-width: 0; width: auto !important; padding: 0 !important; position: relative; }
+.direction-element__time { flex: 0 0 auto !important; width: auto !important; max-width: 48%; display: block !important; text-align: right !important; margin: 0 !important; }
+.direction-element__buttons.et-card-actions { flex: 0 0 100% !important; width: 100% !important; display: flex !important; flex-direction: row !important; gap: 10px !important; margin-top: 2px !important; justify-content: stretch !important; }
+.direction-element__buttons.et-card-actions > * { flex: 1 1 0 !important; width: auto !important; padding: 12px 8px !important; font-size: 14px !important; font-weight: 600 !important; text-align: center; }
+.direction-element .direction-location-element { align-items: center !important; margin-top: 0 !important; }
+.direction-element .direction-location-element + .direction-location-element { margin-top: 16px !important; }
+.direction-element__location::before { content: ""; position: absolute; left: 17px; top: 34px; height: 24px; width: 2px; background: repeating-linear-gradient(to bottom, rgba(19,12,90,.25) 0 4px, transparent 4px 8px); }
+.direction-element .direction-location-element__icon-wrapper { width: 36px !important; height: 36px !important; flex: 0 0 36px; }
+.direction-element .direction-location-element__icon { width: 12px !important; height: 12px !important; }
+.direction-element .direction-location-element__info { padding: 0 0 0 10px !important; width: auto !important; }
+.direction-element .direction-location-element__city { font-size: 19px !important; line-height: 1.1 !important; }
+.direction-element .et-price-block { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.direction-element .et-price-old { font-size: 12px; padding: 3px 8px; border-radius: 8px; white-space: nowrap; text-decoration: line-through; }
+.direction-element .direction-element__price { font-size: 21px !important; margin: 0 !important; white-space: nowrap; text-align: right !important; }
+.direction-element .et-card-door-note { font-size: 12px !important; margin-top: 8px; line-height: 1.3; }
+.direction-sec__direction { container-type: inline-size; }
+@container (max-width: 640px) {
+  .direction-element__time { flex: 0 0 100% !important; max-width: none; text-align: left !important; padding-top: 12px; border-top: 1px solid rgba(0,0,0,.08); }
+  .direction-element .et-price-block { align-items: flex-start; gap: 4px; }
+  .direction-element .direction-element__price { text-align: left !important; font-size: 22px !important; }
+  .direction-element__buttons.et-card-actions > * { padding: 11px 6px !important; font-size: 13px !important; }
+}

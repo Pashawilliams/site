@@ -50,6 +50,22 @@
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
+    // Direction cards: move action buttons out of the price column
+    function fixCards(root) {
+      (root || document).querySelectorAll('.direction-element').forEach(function (card) {
+        var btns = card.querySelector('.direction-element__buttons');
+        if (btns && !btns.classList.contains('et-card-actions')) {
+          btns.classList.add('et-card-actions');
+          card.appendChild(btns);
+        }
+      });
+    }
+    fixCards();
+    var cardsRoot = document.querySelector('.direction-sec__direction') || document.body;
+    if ('MutationObserver' in window) {
+      new MutationObserver(function () { fixCards(cardsRoot); }).observe(cardsRoot, { childList: true, subtree: true });
+    }
+
     // Reveal on scroll
     var targets = document.querySelectorAll(
       '.direction-element, .advantages-sec__icon-container, .reviews-sec__slider-element, .faq-sec__elementV1, .faq-sec__elementV2, .banenr-sec__info, .banenr-sec__form'
