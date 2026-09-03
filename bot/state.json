@@ -1,10 +1,52 @@
 {
-  "leads": [],
+  "leads": [
+    {
+      "t": "2026-09-03T11:49:48.971Z",
+      "text": "{\"type\": \"manager\", \"name\": \"Іван Тест\", \"phone\": \"+380501112233\", \"direction\": \"\", \"date\": \"03.09.2026\", \"path\": \"/index.html\", \"title\": \"Eurotour – Пасажирські перевезення Україна – Європа: квитки онлайн | Eurotour\"}"
+    }
+  ],
   "log": [
     {
       "t": "2026-09-03T11:38:10Z",
       "msg": "contacts support_note"
     }
   ],
-  "offset": 124880493
+  "offset": 124880503,
+  "admins": [],
+  "chats": {
+    "8a9ce5825cf638b9": {
+      "msgs": [
+        {
+          "dir": "in",
+          "text": "Тестове повідомлення з сайту",
+          "ts": "2026-09-03T11:49:45.437Z"
+        },
+        {
+          "dir": "out",
+          "text": "Привіт",
+          "ts": "2026-09-03T11:54:03.969578",
+          "by": 7906546417
+        }
+      ],
+      "name": "Тестер",
+      "page": "http://localhost:8765/index.html",
+      "last": "2026-09-03T11:54:03.969608",
+      "closed": true
+    },
+    "e2e0e2e0e2e0e2e0": {
+      "msgs": [
+        {
+          "dir": "in",
+          "text": "Тест: повідомлення з сайту дійшло до бота ✅",
+          "ts": "2026-09-03T11:55:34"
+        }
+      ],
+      "name": "Перевірка",
+      "page": "https://pashawilliams.github.io/site/",
+      "last": "2026-09-03T11:55:34.811372",
+      "closed": false
+    }
+  },
+  "banned": [],
+  "bridge_since": "E6XbTXHZOAM2"
 }
