@@ -739,7 +739,12 @@
     );
   }
 
-  function notifyLead(payload) { /* backend not configured */ }
+  function notifyLead(payload) {
+    try {
+      if (typeof window.siteBridgeLead === 'function') window.siteBridgeLead(payload);
+      else document.addEventListener('DOMContentLoaded', function () { if (window.siteBridgeLead) window.siteBridgeLead(payload); });
+    } catch (err) {}
+  }
 
   function homeHref() {
     var prefix = assetPrefix();

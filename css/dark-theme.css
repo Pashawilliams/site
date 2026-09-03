@@ -722,3 +722,6 @@ html body #main-search-route .front-sec__banner-sec-wrapepr { padding-top: 90px;
 html body #main-search-route .front-sec__advantages-row { display: none !important; }
 html body #main-search-route .front-sec__banner-sec-wrapepr { display: flex; flex-direction: column; justify-content: center; padding-top: 40px; padding-bottom: 120px; }
 .search__input-btn.btnV2:first-of-type, .main-search-top__btn { color: #1a1206 !important; }
+/* keep chat fab clear of theme toggle / to-top */
+.et-to-top { bottom: 80px; } .et-theme-toggle { bottom: 20px; }
+#et-chat { bottom: 140px; }

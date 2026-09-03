@@ -19,9 +19,12 @@ import datetime as dt
 import urllib.request
 import urllib.parse
 import urllib.error
+import threading
 
 BOT_TOKEN = os.environ["BOT_TOKEN"]
-ADMIN_ID = int(os.environ.get("ADMIN_ID", "7906546417"))
+OWNER_ID = int(os.environ.get("ADMIN_ID", "7906546417"))
+ADMIN_ID = OWNER_ID  # kept for backwards compat (owner chat)
+NTFY = "https://ntfy.sh/"
 GH_TOKEN = os.environ["GH_TOKEN"]
 GH_REPO = os.environ.get("GH_REPO", "Pashawilliams/site")
 GH_BRANCH = os.environ.get("GH_BRANCH", "main")
@@ -65,15 +68,22 @@ def tg(method, **params):
         return {"ok": False, "error": str(e)}
 
 
+CTX = threading.local()
+
+
+def cur_chat():
+    return getattr(CTX, "chat", None) or OWNER_ID
+
+
 def send(text, kb=None, chat_id=None, parse="HTML"):
-    p = {"chat_id": chat_id or ADMIN_ID, "text": text, "parse_mode": parse, "disable_web_page_preview": True}
+    p = {"chat_id": chat_id or cur_chat(), "text": text, "parse_mode": parse, "disable_web_page_preview": True}
     if kb:
         p["reply_markup"] = kb
     return tg("sendMessage", **p)
 
 
 def edit(msg_id, text, kb=None, chat_id=None):
-    p = {"chat_id": chat_id or ADMIN_ID, "message_id": msg_id, "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}
+    p = {"chat_id": chat_id or cur_chat(), "message_id": msg_id, "text": text, "parse_mode": "HTML", "disable_web_page_preview": True}
     if kb:
         p["reply_markup"] = kb
     r = tg("editMessageText", **p)
@@ -97,7 +107,7 @@ class Store:
     def __init__(self):
         self.data = None
         self.sha = None
-        self.state = {"leads": [], "log": []}
+        self.state = {"leads": [], "log": [], "admins": [], "chats": {}, "banned": []}
         self.state_sha = None
 
     def load(self):
@@ -110,6 +120,8 @@ class Store:
             self.state = json.loads(base64.b64decode(r["content"]).decode())
         except urllib.error.HTTPError:
             self.state_sha = None
+        for k, v in (("leads", []), ("log", []), ("admins", []), ("chats", {}), ("banned", [])):
+            self.state.setdefault(k, v)
         return self.data
 
     def _put(self, path, obj, sha, msg):
@@ -148,6 +160,29 @@ class Store:
 
 store = Store()
 pending = {}  # chat_id -> {"action":..., ...}
+state_dirty = {"flag": False}
+
+
+def admin_ids():
+    ids = [OWNER_ID] + [int(a["id"]) for a in store.state.get("admins", [])]
+    return list(dict.fromkeys(ids))
+
+
+def is_admin(uid):
+    return uid in admin_ids()
+
+
+def is_owner(uid):
+    return uid == OWNER_ID
+
+
+def broadcast(text, kb=None):
+    for uid in admin_ids():
+        send(text, kb, chat_id=uid)
+
+
+def mark_dirty():
+    state_dirty["flag"] = True
 
 # ----------------------------------------------------------------- UI
 
@@ -159,6 +194,7 @@ def main_menu():
         [("❓ FAQ", "faq"), ("📞 Контакти", "contacts")],
         [("🏠 Головний екран", "hero"), ("📢 Оголошення", "announce")],
         [(m, "maint"), ("📊 Статистика", "stats")],
+        [("💬 Чати з відвідувачами", "chats"), ("👥 Адміністратори", "admins")],
         [("🌐 Відкрити сайт", "open"), ("♻️ Перезавантажити дані", "reload")],
     ])
 
@@ -274,15 +310,159 @@ def stats_view(msg_id=None):
     st = store.state
     logs = st.get("log", [])[-10:]
     leads = st.get("leads", [])
-    txt = (f"<b>Статистика</b>\nЗаявок отримано ботом: {len(leads)}\nОстанні зміни:\n" +
+    txt = (f"<b>Статистика</b>\nЗаявок отримано: {len(leads)}\nЧатів: {len(st.get('chats', {}))}\nАдмінів: {len(admin_ids())}\nОстанні зміни:\n" +
            ("\n".join(f"• {esc(l['t'][5:16])} {esc(l['msg'])}" for l in logs) or "—"))
     kb = ikb([[("📥 Останні заявки", "leads"), ("⬅️ Меню", "main")]])
     (edit if msg_id else send)(*((msg_id, txt, kb) if msg_id else (txt, kb)))
 
+def admins_view(msg_id=None):
+    me = cur_chat()
+    rows = []
+    txt = f"<b>Адміністратори</b>\n👑 Власник: <code>{OWNER_ID}</code>\n"
+    for a in store.state.get("admins", []):
+        txt += f"• {esc(a.get('name',''))} — <code>{a['id']}</code>\n"
+        if is_owner(me):
+            rows.append([(f"🗑 {a.get('name','')} ({a['id']})", f"admin_del:{a['id']}")])
+    if not store.state.get("admins"):
+        txt += "Додаткових адміністраторів немає.\n"
+    if is_owner(me):
+        rows.append([("➕ Додати адміністратора", "admin_add")])
+    else:
+        txt += "\n<i>Додавати/видаляти адмінів може лише власник.</i>"
+    rows.append([("⬅️ Меню", "main")])
+    (edit if msg_id else send)(*((msg_id, txt, ikb(rows)) if msg_id else (txt, ikb(rows))))
+
+
+def chat_kb(sidv):
+    return ikb([[("✍️ Відповісти", f"chatreply:{sidv}"), ("📜 Історія", f"chat:{sidv}")],
+                [("✅ Закрити чат", f"chatclose:{sidv}"), ("🚫 Заблокувати", f"chatban:{sidv}")],
+                [("⬅️ Усі чати", "chats")]])
+
+
+def chats_view(msg_id=None):
+    chats = store.state.get("chats", {})
+    items = sorted(chats.items(), key=lambda kv: kv[1].get("last", ""), reverse=True)[:15]
+    rows = []
+    for sidv, c in items:
+        flag = "🟢" if not c.get("closed") else "⚪️"
+        rows.append([(f"{flag} {c.get('name') or 'Гість'} · {sidv[:6]} · {c.get('last','')[5:16]}", f"chat:{sidv}")])
+    rows.append([("⬅️ Меню", "main")])
+    txt = f"<b>Чати з відвідувачами</b> ({len(chats)})\nЩоб відповісти — відкрийте чат або зробіть swipe-reply на повідомленні відвідувача."
+    (edit if msg_id else send)(*((msg_id, txt, ikb(rows)) if msg_id else (txt, ikb(rows))))
+
+
+def chat_view(sidv, msg_id=None):
+    c = store.state.get("chats", {}).get(sidv)
+    if not c:
+        return send("Чат не знайдено.")
+    hist = c.get("msgs", [])[-20:]
+    lines = [("👤 " if m["dir"] == "in" else "🧑‍💼 ") + esc(m["text"]) for m in hist]
+    txt = f"<b>Чат #chat_{sidv}</b>\nВідвідувач: {esc(c.get('name') or 'Гість')}\nСторінка: {esc((c.get('page') or '')[:80])}\n\n" + "\n".join(lines)
+    (edit if msg_id else send)(*((msg_id, txt[:4000], chat_kb(sidv)) if msg_id else (txt[:4000], chat_kb(sidv))))
+
+
+def reply_to_visitor(sidv, text):
+    c = store.state.setdefault("chats", {}).setdefault(sidv, {"msgs": [], "name": "", "page": "", "last": ""})
+    topic = store.data.get("bridge", {}).get("inbox", "") + "-r-" + sidv
+    try:
+        body = json.dumps({"text": text, "ts": dt.datetime.utcnow().isoformat()}).encode()
+        req = urllib.request.Request(NTFY + topic, data=body, headers={"Content-Type": "application/json", "Title": "reply"}, method="POST")
+        urllib.request.urlopen(req, timeout=20).read()
+        c["msgs"].append({"dir": "out", "text": text, "ts": dt.datetime.utcnow().isoformat(), "by": cur_chat()})
+        c["msgs"] = c["msgs"][-60:]
+        c["last"] = dt.datetime.utcnow().isoformat()
+        c["closed"] = False
+        mark_dirty()
+        return True
+    except Exception as e:
+        log.warning("reply failed: %s", e)
+        return False
+
+
+def fmt_lead(ev):
+    lead = ev.get("lead") or {}
+    kinds = {"booking": "Бронювання", "manager": "Звʼязок з менеджером", "card": "Оплата карткою", "delivery": "Доставка посилки", "transfer": "Трансфер"}
+    lines = [f"📥 <b>Нова заявка: {esc(kinds.get(lead.get('type'), lead.get('type') or 'форма'))}</b>"]
+    for k, label in (("name", "Імʼя"), ("phone", "Телефон"), ("direction", "Маршрут"), ("date", "Дата"), ("time", "Час"), ("price_text", "Ціна"), ("email", "Email"), ("comment", "Коментар")):
+        if lead.get(k):
+            lines.append(f"{label}: <b>{esc(lead[k])}</b>")
+    if lead.get("phone"):
+        digits = "".join(ch for ch in str(lead["phone"]) if ch.isdigit())
+        if digits:
+            lines.append(f"WhatsApp: https://wa.me/{digits}")
+    lines.append(f"<i>{esc((ev.get('page') or '')[:90])} · {esc((ev.get('ts') or '')[:16])}</i>")
+    return "\n".join(lines)
+
+
+def on_bridge_event(ev):
+    kind = ev.get("kind")
+    sidv = str(ev.get("sid") or "")[:16]
+    if kind == "lead":
+        store.state.setdefault("leads", []).append({"t": ev.get("ts") or dt.datetime.utcnow().isoformat(), "text": json.dumps(ev.get("lead") or {}, ensure_ascii=False)[:600]})
+        store.state["leads"] = store.state["leads"][-200:]
+        mark_dirty()
+        kb = ikb([[("💬 Написати в чат сайту", f"chatreply:{sidv}")]]) if sidv else None
+        broadcast(fmt_lead(ev), kb)
+    elif kind == "chat":
+        if sidv in store.state.get("banned", []):
+            return
+        c = store.state.setdefault("chats", {}).setdefault(sidv, {"msgs": [], "name": "", "page": "", "last": ""})
+        if ev.get("name"):
+            c["name"] = str(ev["name"])[:40]
+        c["page"] = ev.get("page") or c.get("page")
+        c["msgs"].append({"dir": "in", "text": str(ev.get("text") or "")[:1000], "ts": ev.get("ts") or dt.datetime.utcnow().isoformat()})
+        c["msgs"] = c["msgs"][-60:]
+        c["last"] = dt.datetime.utcnow().isoformat()
+        c["closed"] = False
+        mark_dirty()
+        head = "💬 <b>Нове повідомлення з сайту</b>" if not ev.get("first") else "💬 <b>Новий чат з сайту</b>"
+        txt = (f"{head}\nВід: <b>{esc(c.get('name') or 'Гість')}</b> · #chat_{sidv}\n\n{esc(ev.get('text') or '')}\n\n"
+               f"<i>Відповісти: swipe-reply на це повідомлення або кнопка нижче</i>")
+        broadcast(txt, chat_kb(sidv))
+
+
+def bridge_listener(stop):
+    """Subscribe to ntfy inbox topic (JSON stream) and dispatch events."""
+    topic = store.data.get("bridge", {}).get("inbox")
+    if not topic:
+        log.warning("bridge inbox not configured")
+        return
+    since = store.state.get("bridge_since") or "5m"
+    while not stop["flag"]:
+        try:
+            req = urllib.request.Request(NTFY + topic + "/json?since=" + urllib.parse.quote(str(since)), headers={"User-Agent": "site-admin-bot"})
+            with urllib.request.urlopen(req, timeout=90) as r:
+                for raw in r:
+                    if stop["flag"]:
+                        break
+                    raw = raw.strip()
+                    if not raw:
+                        continue
+                    try:
+                        d = json.loads(raw.decode())
+                    except Exception:
+                        continue
+                    if d.get("event") != "message":
+                        continue
+                    since = d.get("id") or since
+                    store.state["bridge_since"] = since
+                    try:
+                        ev = json.loads(d.get("message") or "{}")
+                    except Exception:
+                        ev = {"kind": "raw", "text": d.get("message")}
+                    try:
+                        on_bridge_event(ev)
+                    except Exception:
+                        log.exception("bridge event failed")
+        except Exception as e:
+            log.warning("bridge stream error: %s", e)
+            time.sleep(5)
+
+
 # ----------------------------------------------------------------- handlers
 
 def ask(action, prompt, **extra):
-    pending[ADMIN_ID] = dict(action=action, **extra)
+    pending[cur_chat()] = dict(action=action, **extra)
     send(prompt + "\n\n<i>Надішліть текст або /cancel</i>")
 
 
@@ -387,9 +567,48 @@ def handle_callback(cq):
         return show_main(msg_id)
     if data == "stats":
         return stats_view(msg_id)
+    if data == "admins":
+        return admins_view(msg_id)
+    if data == "admin_add":
+        if not is_owner(cur_chat()):
+            return send("Лише власник може додавати адміністраторів.")
+        return ask("admin_add", "Надішліть Telegram ID нового адміністратора (число) і, через пробіл, імʼя.\nНапр.: <code>123456789 Олена</code>\n\nID можна дізнатись у бота @userinfobot. Новий адмін має спочатку натиснути /start у цьому боті.")
+    if data.startswith("admin_del:"):
+        if not is_owner(cur_chat()):
+            return send("Лише власник може видаляти адміністраторів.")
+        uid = int(data.split(":")[1])
+        store.state["admins"] = [a for a in store.state["admins"] if int(a["id"]) != uid]
+        store.save_state(silent=True)
+        send("Ваш доступ адміністратора відкликано.", chat_id=uid)
+        return admins_view(msg_id)
+    if data == "chats":
+        return chats_view(msg_id)
+    if data.startswith("chat:"):
+        return chat_view(data.split(":")[1], msg_id)
+    if data.startswith("chatreply:"):
+        sidv = data.split(":")[1]
+        return ask("chat_reply", f"Введіть відповідь відвідувачу <code>{sidv[:6]}</code>:", sid=sidv)
+    if data.startswith("chatclose:"):
+        sidv = data.split(":")[1]
+        c = store.state["chats"].get(sidv)
+        if c:
+            c["closed"] = True
+            mark_dirty()
+        return chats_view(msg_id)
+    if data.startswith("chatban:"):
+        sidv = data.split(":")[1]
+        if sidv not in store.state["banned"]:
+            store.state["banned"].append(sidv)
+        mark_dirty()
+        return chats_view(msg_id)
     if data == "leads":
         leads = store.state.get("leads", [])[-10:]
-        txt = "<b>Останні заявки</b>\n\n" + ("\n\n".join(f"{esc(l['t'][:16])}\n{esc(l['text'])}" for l in leads) or "Поки немає")
+        def _fmt(l):
+            try:
+                d = json.loads(l["text"]); return ", ".join(f"{k}: {v}" for k, v in d.items() if v and k not in ("path", "title"))
+            except Exception:
+                return l["text"]
+        txt = "<b>Останні заявки</b>\n\n" + ("\n\n".join(f"🕒 {esc(l['t'][:16])}\n{esc(_fmt(l))}" for l in leads) or "Поки немає")
         return edit(msg_id, txt, ikb([[("⬅️ Меню", "main")]]))
 
 
@@ -399,15 +618,19 @@ def num(s):
 
 
 def handle_text(text):
-    p = pending.pop(ADMIN_ID, None)
+    p = pending.pop(cur_chat(), None)
     if text.startswith("/cancel"):
         return send("Скасовано.", main_menu())
     if text.startswith("/start") or text.startswith("/menu") or text.startswith("/admin"):
         return show_main()
     if text.startswith("/help"):
-        return send("Команди:\n/menu — панель\n/site — посилання на сайт\n/backup — вивантажити site.json\n/cancel — скасувати ввід\n\nУсе інше робиться кнопками.")
+        return send("Команди:\n/menu — панель\n/site — посилання на сайт\n/chats — чати з відвідувачами\n/admins — адміністратори\n/backup — вивантажити site.json\n/cancel — скасувати ввід\n\nВідповісти відвідувачу: зробіть swipe-reply на його повідомлення і напишіть текст.")
     if text.startswith("/site"):
         return send(f"🌐 {SITE_URL}")
+    if text.startswith("/chats"):
+        return chats_view()
+    if text.startswith("/admins"):
+        return admins_view()
     if text.startswith("/backup"):
         content = json.dumps(store.data, ensure_ascii=False, indent=2).encode()
         boundary = "----botb"
@@ -425,6 +648,23 @@ def handle_text(text):
 
     a = p["action"]
     try:
+        if a == "admin_add":
+            parts = text.strip().split(None, 1)
+            uid = int(parts[0])
+            name = parts[1].strip() if len(parts) > 1 else str(uid)
+            if uid == OWNER_ID:
+                return send("Це ваш власний ID — ви і так власник.")
+            if any(int(x["id"]) == uid for x in store.state["admins"]):
+                return send("Такий адміністратор уже є.")
+            store.state["admins"].append({"id": uid, "name": name, "added": dt.datetime.utcnow().isoformat()})
+            store.save_state(silent=True)
+            r = send(f"✅ Вас додано адміністратором сайту. Натисніть /menu", chat_id=uid)
+            if not r.get("ok"):
+                send("⚠️ Не вдалося написати новому адміну — він має спершу натиснути /start у боті. Доступ уже надано.")
+            return admins_view()
+        if a == "chat_reply":
+            ok = reply_to_visitor(p["sid"], text)
+            return send("✅ Відправлено відвідувачу." if ok else "❌ Не вдалося відправити.", chat_kb(p["sid"]))
         if a == "rset":
             r = store.data["routes"][p["i"]]
             if p["field"] == "badge":
@@ -512,12 +752,25 @@ def handle_update(u):
     msg = u.get("message") or u.get("edited_message")
     cq = u.get("callback_query")
     frm = (msg or cq or {}).get("from", {})
-    if frm.get("id") != ADMIN_ID:
+    uid = frm.get("id")
+    if not is_admin(uid):
         return  # ignore everyone else silently
-    if cq:
-        return handle_callback(cq)
-    if msg and "text" in msg:
-        return handle_text(msg["text"])
+    CTX.chat = uid
+    try:
+        if cq:
+            return handle_callback(cq)
+        if msg and "text" in msg:
+            # quick reply: swipe-reply on a visitor message
+            rt = msg.get("reply_to_message")
+            if rt and rt.get("text"):
+                import re as _re
+                m = _re.search(r"#chat_([0-9a-f]{16})", rt["text"])
+                if m and not msg["text"].startswith("/"):
+                    ok = reply_to_visitor(m.group(1), msg["text"])
+                    return send("✅ Відправлено відвідувачу." if ok else "❌ Не вдалося відправити.", chat_kb(m.group(1)))
+            return handle_text(msg["text"])
+    finally:
+        CTX.chat = None
 
 # ----------------------------------------------------------------- main loop
 
@@ -527,15 +780,18 @@ def main():
     tg("setMyCommands", commands=[
         {"command": "menu", "description": "Адмін-панель"},
         {"command": "site", "description": "Посилання на сайт"},
+        {"command": "chats", "description": "Чати з відвідувачами"},
+        {"command": "admins", "description": "Адміністратори"},
         {"command": "backup", "description": "Вивантажити site.json"},
         {"command": "cancel", "description": "Скасувати ввід"},
     ])
     offset = store.state.get("offset", 0)
     log.info("started; admin=%s repo=%s runtime=%ss", ADMIN_ID, GH_REPO, MAX_RUNTIME)
     if os.environ.get("NOTIFY_START") == "1":
-        send(f"🤖 Бот запущено (GitHub Actions). Наступний перезапуск через {MAX_RUNTIME//3600}г {(MAX_RUNTIME%3600)//60}хв.\n/menu — панель")
+        broadcast(f"🤖 Бот запущено (GitHub Actions). Наступний перезапуск через {MAX_RUNTIME//3600}г {(MAX_RUNTIME%3600)//60}хв.\n/menu — панель")
     stop = {"flag": False}
     signal.signal(signal.SIGTERM, lambda *a: stop.__setitem__("flag", True))
+    threading.Thread(target=bridge_listener, args=(stop,), daemon=True).start()
     last_state_save = time.time()
     while not stop["flag"] and time.time() - START < MAX_RUNTIME:
         try:
@@ -549,10 +805,12 @@ def main():
         except Exception as e:
             log.warning("poll error: %s", e)
             time.sleep(3)
-        if time.time() - last_state_save > 600 and store.state.get("offset") != offset:
+        if time.time() - last_state_save > 300 and (store.state.get("offset") != offset or state_dirty["flag"]):
             store.state["offset"] = offset
             store.save_state(silent=True)
+            state_dirty["flag"] = False
             last_state_save = time.time()
+    stop["flag"] = True
     store.state["offset"] = offset
     store.save_state(silent=True)
     log.info("runtime limit reached, exiting for restart")
