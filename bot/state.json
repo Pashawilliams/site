@@ -245,11 +245,16 @@
           "dir": "in",
           "text": "",
           "ts": "2026-09-05T17:03:48.638Z"
+        },
+        {
+          "dir": "in",
+          "text": "Танцуй пантера",
+          "ts": "2026-09-05T17:04:02.264Z"
         }
       ],
       "name": "",
       "page": "http://eurotour.pp.ua/",
-      "last": "2026-09-05T17:03:50.093219",
+      "last": "2026-09-05T17:04:02.668085",
       "closed": false,
       "agent": 7906546417
     }
@@ -259,7 +264,7 @@
     "6cd1251e5d8222f5",
     "ebd5ebce931f2bc6"
   ],
-  "bridge_since": "9mB43KtOG5gr",
+  "bridge_since": "nktGFTPJp0QN",
   "dialogs": {
     "7906546417": "4f150bdba3d5e1f4"
   },
