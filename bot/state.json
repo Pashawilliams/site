@@ -128,8 +128,21 @@
       "page": "http://eurotour.pp.ua/",
       "last": "2026-09-05T08:43:47.107645",
       "closed": true
+    },
+    "ad08b537c4e91489": {
+      "msgs": [
+        {
+          "dir": "in",
+          "text": "Привет",
+          "ts": "2026-09-05T09:22:23.257Z"
+        }
+      ],
+      "name": "",
+      "page": "http://eurotour.pp.ua/",
+      "last": "2026-09-05T09:22:23.686367",
+      "closed": false
     }
   },
   "banned": [],
-  "bridge_since": "n71rHYcarES8"
+  "bridge_since": "1xp2DE4lMqs0"
 }
