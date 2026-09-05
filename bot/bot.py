@@ -30,7 +30,7 @@ GH_REPO = os.environ.get("GH_REPO", "Pashawilliams/site")
 GH_BRANCH = os.environ.get("GH_BRANCH", "main")
 DATA_PATH = "data/site.json"
 STATE_PATH = "bot/state.json"
-SITE_URL = os.environ.get("SITE_URL", "https://pashawilliams.github.io/site/")
+SITE_URL = os.environ.get("SITE_URL", "https://eurotour.pp.ua/")
 MAX_RUNTIME = int(os.environ.get("MAX_RUNTIME", str(5 * 3600 + 20 * 60)))  # 5h20m
 START = time.time()
 

@@ -45,7 +45,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_PAT }}
           GH_REPO: ${{ github.repository }}
           GH_BRANCH: main
-          SITE_URL: https://pashawilliams.github.io/site/
+          SITE_URL: https://eurotour.pp.ua/
           MAX_RUNTIME: "19200"
           NOTIFY_START: ${{ github.event_name == 'workflow_dispatch' && '1' || '0' }}
         run: python bot/bot.py
