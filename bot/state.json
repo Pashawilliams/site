@@ -143,8 +143,21 @@
       "page": "http://localhost:8765/chat.html",
       "last": "2026-09-05T11:15:45.615671",
       "closed": false
+    },
+    "ce3a51ba323038db": {
+      "msgs": [
+        {
+          "dir": "in",
+          "text": "Привіт! Є місця на завтра?",
+          "ts": "2026-09-05T11:17:34.070Z"
+        }
+      ],
+      "name": "Тест",
+      "page": "http://localhost:8765/chat.html",
+      "last": "2026-09-05T11:17:34.162223",
+      "closed": false
     }
   },
   "banned": [],
-  "bridge_since": "DTC350bwT0z3"
+  "bridge_since": "qkr4VZvoLzYa"
 }
