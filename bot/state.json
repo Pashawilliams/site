@@ -211,6 +211,19 @@
       "page": "http://eurotour.pp.ua/",
       "last": "2026-09-05T17:00:42.077473",
       "closed": true
+    },
+    "4f150bdba3d5e1f4": {
+      "msgs": [
+        {
+          "dir": "in",
+          "text": "",
+          "ts": "2026-09-05T17:02:34.578Z"
+        }
+      ],
+      "name": "",
+      "page": "http://eurotour.pp.ua/",
+      "last": "2026-09-05T17:02:35.923989",
+      "closed": false
     }
   },
   "banned": [
@@ -218,7 +231,7 @@
     "6cd1251e5d8222f5",
     "ebd5ebce931f2bc6"
   ],
-  "bridge_since": "gRFCxfZs5XRg",
+  "bridge_since": "UHzVMB0cRIJG",
   "dialogs": {},
   "owner_name": "Дмитро Перевізник"
 }
