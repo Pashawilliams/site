@@ -479,5 +479,21 @@
   "updated_at": "2026-09-05T07:55:21Z",
   "bridge": {
     "inbox": "et-inbox-uuJyNbPNRLF0BTIaYvU1EyQ1cCAdiM0c"
-  }
+  },
+  "managers": [
+    {
+      "name": "Дмитро",
+      "role": "Менеджер з перевезень",
+      "phone": "+380683175335",
+      "telegram": "https://t.me/+380683175335",
+      "whatsapp": "https://wa.me/380683175335"
+    },
+    {
+      "name": "Олексій",
+      "role": "Менеджер з перевезень",
+      "phone": "+380973452025",
+      "telegram": "https://t.me/pereviznyk_support",
+      "whatsapp": "https://wa.me/380973452025"
+    }
+  ]
 }

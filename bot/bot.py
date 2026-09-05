@@ -122,6 +122,7 @@ class Store:
             self.state_sha = None
         for k, v in (("leads", []), ("log", []), ("admins", []), ("chats", {}), ("banned", [])):
             self.state.setdefault(k, v)
+        self.data.setdefault("managers", [])
         return self.data
 
     def _put(self, path, obj, sha, msg):
@@ -200,7 +201,7 @@ def main_menu():
     return ikb([
         [(f"📥 Заявки{' · '+str(new_leads) if new_leads else ''}", "leads"), (f"💬 Чати{' · '+str(open_chats) if open_chats else ''}", "chats")],
         [("🛣 Маршрути", "routes:0"), ("⭐ Відгуки", "reviews"), ("❓ FAQ", "faq")],
-        [("🏠 Головна", "hero"), ("📞 Контакти", "contacts")],
+        [("🏠 Головна", "hero"), ("👤 Менеджери", "managers")],
         [(("📢 Оголошення ✓" if an.get("enabled") else "📢 Оголошення"), "announce"), (m, "maint")],
         [("👥 Адміни", "admins"), ("📊 Журнал", "stats"), ("🌐 Сайт", "open")],
     ])
@@ -284,9 +285,55 @@ def contacts_view(msg_id=None):
     kb = ikb([
         [("📱 Телефон", "cset:phone"), ("✈️ Telegram", "cset:telegram")],
         [("💬 WhatsApp", "cset:whatsapp"), ("📝 Підпис у шапці", "cset:support_note")],
-        [("⬅️ Меню", "main")],
+        [("👤 Менеджери", "managers"), ("⬅️ Меню", "main")],
     ])
     (edit if msg_id else send)(*((msg_id, txt, kb) if msg_id else (txt, kb)))
+
+
+def _mgr_fmt(m):
+    d = "".join(ch for ch in m.get("phone", "") if ch.isdigit())
+    ph = f"+{d[:3]} {d[3:5]} {d[5:8]} {d[8:10]} {d[10:]}".strip() if len(d) == 12 else m.get("phone", "")
+    return f"<b>{esc(m.get('name',''))}</b> — {esc(ph)}\n<i>{esc(m.get('role',''))}</i>"
+
+
+def managers_view(msg_id=None):
+    ms = store.data.setdefault("managers", [])
+    txt = "<b>👤 Менеджери</b>\nПоказуються у розділі «Контакти», у футері, в мобільному меню та у вікні вибору «кому написати/подзвонити».\n\n"
+    txt += "\n\n".join(f"{i+1}. {_mgr_fmt(m)}" for i, m in enumerate(ms)) if ms else "<i>Список порожній — на сайті показуються менеджери за замовчуванням.</i>"
+    rows = [[(f"{i+1}. {m.get('name','')}", f"mgr:{i}")] for i, m in enumerate(ms)]
+    rows.append([("➕ Додати менеджера", "mgr_add")])
+    rows.append([("📞 Загальні контакти", "contacts"), ("⬅️ Меню", "main")])
+    (edit if msg_id else send)(*((msg_id, txt, ikb(rows)) if msg_id else (txt, ikb(rows))))
+
+
+def manager_view(i, msg_id=None):
+    ms = store.data.get("managers", [])
+    if i >= len(ms):
+        return managers_view(msg_id)
+    m = ms[i]
+    txt = (f"{_mgr_fmt(m)}\nTelegram: {esc(m.get('telegram','') or 'авто (за номером)')}\nWhatsApp: {esc(m.get('whatsapp','') or 'авто (за номером)')}")
+    kb = ikb([
+        [("✏️ Ім'я", f"mset:{i}:name"), ("✏️ Посада", f"mset:{i}:role")],
+        [("📱 Телефон", f"mset:{i}:phone"), ("✈️ Telegram", f"mset:{i}:telegram"), ("💬 WhatsApp", f"mset:{i}:whatsapp")],
+        [("⬆️ Вище", f"mup:{i}"), ("🗑 Видалити", f"mdel:{i}"), ("⬅️ Назад", "managers")],
+    ])
+    (edit if msg_id else send)(*((msg_id, txt, kb) if msg_id else (txt, kb)))
+
+
+def _parse_manager(text, m=None):
+    m = dict(m or {})
+    lines = [l.strip() for l in text.split("\n") if l.strip()]
+    if len(lines) < 2:
+        raise ValueError("format")
+    m["name"] = lines[0]
+    d = "".join(ch for ch in lines[1] if ch.isdigit())
+    if len(d) < 10:
+        raise ValueError("phone")
+    m["phone"] = "+" + d
+    m["role"] = lines[2] if len(lines) > 2 else m.get("role") or "Менеджер з перевезень"
+    m["telegram"] = lines[3] if len(lines) > 3 else m.get("telegram") or f"https://t.me/+{d}"
+    m["whatsapp"] = lines[4] if len(lines) > 4 else m.get("whatsapp") or f"https://wa.me/{d}"
+    return m
 
 
 def hero_view(msg_id=None):
@@ -615,6 +662,30 @@ def handle_callback(cq):
         return faq_view(msg_id)
     if data == "faq_add":
         return ask("faq_add", "2 рядки:\n<code>Питання?\nВідповідь.</code>")
+    if data == "managers":
+        return managers_view(msg_id)
+    if data.startswith("mgr:"):
+        return manager_view(int(data.split(":")[1]), msg_id)
+    if data == "mgr_add":
+        return ask("mgr_add", "Надішліть дані менеджера (кожне з нового рядка):\n<code>Ім'я\n+380XXXXXXXXX\nПосада (необов'язково)\nПосилання Telegram (необов'язково)\nПосилання WhatsApp (необов'язково)</code>\n\nПриклад:\n<code>Олексій\n+380973452025\nМенеджер з перевезень\nhttps://t.me/pereviznyk_support</code>")
+    if data.startswith("mset:"):
+        _, i, field = data.split(":")
+        hints = {"name": "Нове ім'я:", "role": "Нова посада:", "phone": "Номер: <code>+380XXXXXXXXX</code>", "telegram": "Посилання t.me/… або «auto»", "whatsapp": "Посилання wa.me/… або «auto»"}
+        return ask("mset", hints[field], i=int(i), field=field)
+    if data.startswith("mup:"):
+        i = int(data.split(":")[1])
+        ms = store.data["managers"]
+        if i > 0:
+            ms[i-1], ms[i] = ms[i], ms[i-1]
+            store.save("managers reorder")
+        return managers_view(msg_id)
+    if data.startswith("mdel:"):
+        i = int(data.split(":")[1])
+        ms = store.data["managers"]
+        if i < len(ms):
+            m = ms.pop(i)
+            store.save(f"delete manager {m.get('name','')}")
+        return managers_view(msg_id)
     if data == "contacts":
         return contacts_view(msg_id)
     if data.startswith("cset:"):
@@ -831,6 +902,34 @@ def handle_text(text):
             store.data["faq"].append({"q": lines[0].strip(), "a": " ".join(lines[1:]).strip()})
             store.save("add faq")
             return faq_view()
+        if a == "mgr_add":
+            m = _parse_manager(text)
+            store.data.setdefault("managers", []).append(m)
+            store.save(f"add manager {m['name']}")
+            return managers_view()
+        if a == "mset":
+            ms = store.data["managers"]
+            m = ms[p["i"]]
+            v = text.strip()
+            f = p["field"]
+            d = "".join(ch for ch in m.get("phone", "") if ch.isdigit())
+            if f == "phone":
+                d = "".join(ch for ch in v if ch.isdigit())
+                if len(d) < 10:
+                    raise ValueError("phone")
+                m["phone"] = "+" + d
+                if not m.get("whatsapp") or "wa.me" in m.get("whatsapp", ""):
+                    m["whatsapp"] = "https://wa.me/" + d
+                if not m.get("telegram") or "t.me/+" in m.get("telegram", ""):
+                    m["telegram"] = "https://t.me/+" + d
+            elif f == "telegram" and v.lower() == "auto":
+                m["telegram"] = "https://t.me/+" + d
+            elif f == "whatsapp" and v.lower() == "auto":
+                m["whatsapp"] = "https://wa.me/" + d
+            else:
+                m[f] = v
+            store.save(f"manager {m['name']} {f}")
+            return manager_view(p["i"])
         if a == "cset":
             c = store.data["contacts"]
             v = text.strip()
