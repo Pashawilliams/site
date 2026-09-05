@@ -117,8 +117,21 @@
       "page": "http://localhost:8765/chat.html",
       "last": "2026-09-05T11:14:57.574548",
       "closed": false
+    },
+    "6cd1251e5d8222f5": {
+      "msgs": [
+        {
+          "dir": "in",
+          "text": "тест",
+          "ts": "2026-09-05T11:15:20.608Z"
+        }
+      ],
+      "name": "",
+      "page": "http://localhost:8765/chat.html",
+      "last": "2026-09-05T11:15:20.698723",
+      "closed": false
     }
   },
   "banned": [],
-  "bridge_since": "L0VG3yu5QcKR"
+  "bridge_since": "TTwc7Qs46BDY"
 }
