@@ -4,7 +4,8 @@
   'use strict';
   var DEFAULT = [
     { name: 'Дмитро', role: 'Менеджер з перевезень', phone: '+380683175335', telegram: 'https://t.me/+380683175335', whatsapp: 'https://wa.me/380683175335' },
-    { name: 'Олексій', role: 'Менеджер з перевезень', phone: '+380973452025', telegram: 'https://t.me/pereviznyk_support', whatsapp: 'https://wa.me/380973452025' }
+    { name: 'Олексій', role: 'Менеджер з перевезень', phone: '+380973452025', telegram: 'https://t.me/+380973452025', whatsapp: 'https://wa.me/380973452025' },
+    { name: 'Сергій', role: 'Менеджер з перевезень', phone: '+380680813450', telegram: 'https://t.me/+380680813450', whatsapp: 'https://wa.me/380680813450' }
   ];
   var managers = DEFAULT.slice();
   var ICON = {
@@ -20,7 +21,7 @@
   function fmtPhone(p) { var d = digits(p); return d.length === 12 ? '+' + d.slice(0, 3) + ' ' + d.slice(3, 5) + ' ' + d.slice(5, 8) + ' ' + d.slice(8, 10) + ' ' + d.slice(10) : (p || ''); }
   function link(m, ch) {
     if (ch === 'ph') return 'tel:+' + digits(m.phone);
-    if (ch === 'tg') return m.telegram || ('https://t.me/+' + digits(m.phone));
+    if (ch === 'tg') return (m.telegram && /t\.me\//.test(m.telegram)) ? m.telegram : ('https://t.me/+' + digits(m.phone));
     return m.whatsapp || ('https://wa.me/' + digits(m.phone));
   }
   function initial(n) { return (n || '?').trim().charAt(0).toUpperCase(); }

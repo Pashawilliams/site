@@ -492,8 +492,15 @@
       "name": "Олексій",
       "role": "Менеджер з перевезень",
       "phone": "+380973452025",
-      "telegram": "https://t.me/pereviznyk_support",
+      "telegram": "https://t.me/+380973452025",
       "whatsapp": "https://wa.me/380973452025"
+    },
+    {
+      "name": "Сергій",
+      "role": "Менеджер з перевезень",
+      "phone": "+380680813450",
+      "telegram": "https://t.me/+380680813450",
+      "whatsapp": "https://wa.me/380680813450"
     }
   ]
 }

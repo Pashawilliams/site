@@ -303,7 +303,8 @@ html body #main-search-route .front-sec__banner-sec .front-sec__bg { filter: blu
 /* managers */
 .et-managers { margin-top: 28px; }
 .et-managers__title { margin: 0 0 14px; font-size: 20px; font-weight: 800; color: #130c5a; }
-.et-managers__list { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.et-managers__list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 1099px) and (min-width: 768px) { .et-managers__list { grid-template-columns: 1fr 1fr; } }
 .et-managers .et-mgr { opacity: 0; transform: translateY(22px) scale(.98); transition: opacity .55s ease, transform .55s cubic-bezier(.2,.8,.2,1), box-shadow .25s; transition-delay: calc(var(--i, 0) * .12s); }
 .et-managers.is-in .et-mgr { opacity: 1; transform: none; }
 .et-mgr:hover { box-shadow: 0 18px 44px rgba(56,70,97,.14); }
