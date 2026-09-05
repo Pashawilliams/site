@@ -36,12 +36,22 @@
       var h = d.documentElement.scrollHeight - w.innerHeight;
       bar.style.transform = 'scaleX(' + (h > 0 ? Math.min(1, y / h) : 0) + ')';
       if (header) header.classList.toggle('is-compact', y > 40);
-      var sf = $('.search') || hero; var heroBottom = sf ? sf.getBoundingClientRect().bottom + y : 500;
-      var nearBottom = y + w.innerHeight > d.documentElement.scrollHeight - 320;
-      cta.classList.toggle('is-visible', y > heroBottom - 40 && !nearBottom && !d.body.classList.contains('et-chat-open'));
       lastY = y;
     });
     on(w, 'scroll', update, { passive: true }); on(w, 'resize', update, { passive: true }); update();
+    /* Dock is always visible on mobile: it is pinned to the bottom edge (bottom:0 + safe-area),
+       so browser toolbars can never overlap it. Only the chat window / mobile menu hide it. */
+    cta.setAttribute('role', 'navigation'); cta.setAttribute('aria-label', 'Швидкий зв’язок');
+    setTimeout(function () { cta.classList.add('is-visible'); }, 350);
+    // Move the visual-viewport with iOS Safari when its toolbar collapses/expands (prevents the "lagging" bar)
+    if (w.visualViewport) {
+      var vv = w.visualViewport;
+      var syncVV = rafThrottle(function () {
+        var off = Math.max(0, w.innerHeight - vv.height - vv.offsetTop);
+        cta.style.setProperty('--vv-gap', off + 'px');
+      });
+      on(vv, 'resize', syncVV); on(vv, 'scroll', syncVV); syncVV();
+    }
 
     /* ---------- 4. Animated counters in hero ---------- */
     if (!reduce && 'IntersectionObserver' in w) {
