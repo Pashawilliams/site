@@ -104,8 +104,21 @@
       "page": "https://pashawilliams.github.io/site/?v=1788437381",
       "last": "2026-09-03T12:10:42.523258",
       "closed": true
+    },
+    "361693775db33bd7": {
+      "msgs": [
+        {
+          "dir": "in",
+          "text": "Привет",
+          "ts": "2026-09-05T08:43:23.917Z"
+        }
+      ],
+      "name": "Холку",
+      "page": "http://eurotour.pp.ua/",
+      "last": "2026-09-05T08:43:24.374761",
+      "closed": false
     }
   },
   "banned": [],
-  "bridge_since": "UTNeaBX3UuoE"
+  "bridge_since": "577rInRmIThQ"
 }
