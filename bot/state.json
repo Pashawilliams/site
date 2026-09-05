@@ -261,11 +261,16 @@
           "dir": "in",
           "text": "Онлайн вы со мной сейчас \nНу",
           "ts": "2026-09-05T17:04:56.160Z"
+        },
+        {
+          "dir": "in",
+          "text": "💙💛",
+          "ts": "2026-09-05T17:05:03.896Z"
         }
       ],
       "name": "",
       "page": "http://eurotour.pp.ua/",
-      "last": "2026-09-05T17:04:56.569763",
+      "last": "2026-09-05T17:05:04.302374",
       "closed": false,
       "agent": 7906546417
     }
@@ -275,7 +280,7 @@
     "6cd1251e5d8222f5",
     "ebd5ebce931f2bc6"
   ],
-  "bridge_since": "k2Ho1KmiL6xC",
+  "bridge_since": "Apq5SdQXarf4",
   "dialogs": {
     "7906546417": "4f150bdba3d5e1f4"
   },
