@@ -88,14 +88,19 @@
           "dir": "in",
           "text": "Привіт! Є місця на завтра?",
           "ts": "2026-09-05T11:14:25.508Z"
+        },
+        {
+          "dir": "in",
+          "text": "Мій документ",
+          "ts": "2026-09-05T11:14:36.459Z"
         }
       ],
       "name": "Тест",
       "page": "http://localhost:8765/chat.html",
-      "last": "2026-09-05T11:14:25.597703",
+      "last": "2026-09-05T11:14:36.701868",
       "closed": false
     }
   },
   "banned": [],
-  "bridge_since": "5EUCD9GUTa00"
+  "bridge_since": "ZB5r2B943eTY"
 }
