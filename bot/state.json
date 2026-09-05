@@ -68,7 +68,21 @@
   ],
   "offset": 124880575,
   "admins": [],
-  "chats": {},
+  "chats": {
+    "56825ebc9c518d9f": {
+      "msgs": [
+        {
+          "dir": "in",
+          "text": "Привіт! Є місця на завтра?",
+          "ts": "2026-09-05T11:13:31.261Z"
+        }
+      ],
+      "name": "Тест",
+      "page": "http://localhost:8765/chat.html",
+      "last": "2026-09-05T11:13:31.353328",
+      "closed": false
+    }
+  },
   "banned": [],
-  "bridge_since": "e7I3MDedNzWs"
+  "bridge_since": "0zTjZWKjdlm7"
 }
