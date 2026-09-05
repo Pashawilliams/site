@@ -43,8 +43,8 @@
 .et-theme-toggle:hover { transform: scale(1.08); }
 .et-theme-toggle svg, .et-to-top svg { width: 22px; height: 22px; }
 .et-to-top svg { width: 20px; height: 20px; }
-.et-reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
-.et-reveal.is-visible { opacity: 1; transform: none; }
+.et-reveal { opacity: 0; transition: opacity .45s ease; }
+.et-reveal.is-visible { opacity: 1; }
 @media (prefers-reduced-motion: reduce) { .et-reveal { opacity: 1; transform: none; transition: none; } }
 @media (max-width: 767px) {
   .et-theme-toggle { left: auto; right: 12px; bottom: 84px; width: 40px; height: 40px; }
@@ -174,3 +174,27 @@ body.has-announce .main { padding-top: 132px !important; }
 }
 .footer__mob-phone { margin: 14px 0 0; display: flex; flex-direction: column; gap: 4px; }
 .footer__social-row.et-footer-contacts .footer__social { width: 44px; height: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+
+/* ===== v5.1: light calendar polish ===== */
+.search__cal-panel { border-radius: 18px; box-shadow: 0 24px 60px rgba(19,12,90,.22); overflow: hidden; }
+.search__cal-panel .vanilla-calendar-day__btn { border-radius: 10px; font-weight: 600; color: #101828; }
+.search__cal-panel .vanilla-calendar-day__btn_weekend { color: #d9480f; }
+.search__cal-panel .vanilla-calendar-day__btn_today { box-shadow: inset 0 0 0 1.5px #1e3a8a; }
+.search__cal-panel .vanilla-calendar-day__btn_selected, .search__cal-panel .vanilla-calendar-day__btn_selected:hover { background: #1e3a8a; color: #fff; }
+.search__cal-panel .vanilla-calendar-day__btn_disabled, .search__cal-panel .vanilla-calendar-day__btn_prev, .search__cal-panel .vanilla-calendar-day__btn_next { color: #98a2b3; opacity: .7; }
+.search__cal-panel .vanilla-calendar-week__day { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: #667085; }
+
+/* ===== v5.1: chat quick replies / typing ===== */
+.et-chat__quick { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px 0; background: #0b1020; }
+.et-chat__quick button { border: 1px solid rgba(255,255,255,.14); background: transparent; color: #e5e9f2; font-size: 12px; padding: 6px 11px; border-radius: 999px; cursor: pointer; transition: background .15s, border-color .15s; }
+.et-chat__quick button:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.3); }
+.et-chat__quick[hidden] { display: none !important; }
+.et-chat__typing div { display: flex; gap: 4px; padding: 4px 2px; }
+.et-chat__typing span { width: 7px; height: 7px; border-radius: 50%; background: #9aa4b8; animation: etTyping 1.2s infinite ease-in-out; }
+.et-chat__typing span:nth-child(2) { animation-delay: .15s; } .et-chat__typing span:nth-child(3) { animation-delay: .3s; }
+@keyframes etTyping { 0%,80%,100% { transform: translateY(0); opacity: .4; } 40% { transform: translateY(-4px); opacity: 1; } }
+.et-chat__inp { max-height: 120px; }
+/* perf: promote only fixed layers, avoid heavy paints */
+.et-reveal { will-change: opacity; }
+.direction-element, .reviews-sec__slider-element-wrapper, .faq-sec__elementV2, .popup-air { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+img.direction-element__icon, .direction-element img, .advantages-sec img { filter: none; }

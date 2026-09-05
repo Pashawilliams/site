@@ -182,7 +182,7 @@ body .direction-element__buttons.et-card-actions > * { border-radius: 10px !impo
 .air-close::after { transform: translate(-50%,-50%) rotate(-45deg); }
 .air-close:hover { border-color: var(--dt-accent) !important; }
 .et-legal ul { list-style: disc; }
-.air-conteiner { background: rgba(5,8,9,.8) !important; backdrop-filter: blur(6px); }
+.air-conteiner { background: rgba(5,8,9,.86) !important; }
 .et-legal__wrap { max-width: 640px; padding: 32px 28px !important; max-height: 80vh; overflow: auto; }
 .et-legal__title { font-size: 24px; font-weight: 800; margin: 0 0 16px; letter-spacing: -.02em; }
 .et-legal p, .et-legal li { color: var(--dt-text-2) !important; font-size: 15px; line-height: 1.65; margin-bottom: 10px; }
@@ -214,7 +214,7 @@ body #floating-menu .btn { border-radius: 12px !important; }
 #et-announce a { color: var(--dt-ink) !important; }
 
 /* Reveal animation softened */
-.et-reveal { transform: translateY(14px); }
+
 
 /* ---------- Mobile ---------- */
 @media (max-width: 767px) {
@@ -305,3 +305,23 @@ html body #main-search-route .front-sec__bg { position: absolute; inset: 0; widt
 .slick-dots li button::before, .slick-dots li button:before { color: var(--dt-text-3) !important; opacity: .45 !important; }
 .slick-dots li.slick-active button::before, .slick-dots li.slick-active button:before { color: var(--dt-accent) !important; opacity: 1 !important; }
 .reviews-sec__star-row svg, .reviews-sec__star-row svg path { fill: var(--dt-accent) !important; }
+
+/* ===== v5.1: calendar (dark) ===== */
+.search__cal-panel { background: var(--dt-surface) !important; border: 1px solid var(--dt-border-strong) !important; box-shadow: 0 24px 60px rgba(0,0,0,.6) !important; border-radius: 18px !important; overflow: hidden !important; }
+.search__cal-panel .vanilla-calendar { background: transparent !important; border: none !important; box-shadow: none !important; }
+.search__cal-panel .vanilla-calendar-header, .search__cal-panel .vanilla-calendar-month, .search__cal-panel .vanilla-calendar-year,
+.search__cal-panel .vanilla-calendar-week__day { color: var(--dt-text) !important; background: transparent !important; }
+.search__cal-panel .vanilla-calendar-week__day { color: var(--dt-text-3) !important; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+.search__cal-panel .vanilla-calendar-arrow { filter: invert(1) brightness(1.4) !important; opacity: .9; }
+.search__cal-panel .vanilla-calendar-day__btn { background: transparent !important; color: var(--dt-text) !important; border-radius: 10px !important; font-weight: 600; }
+.search__cal-panel .vanilla-calendar-day__btn_weekend { color: var(--dt-accent) !important; }
+.search__cal-panel .vanilla-calendar-day__btn_today { box-shadow: inset 0 0 0 1.5px var(--dt-accent) !important; }
+.search__cal-panel .vanilla-calendar-day__btn:hover, .search__cal-panel .vanilla-calendar-day__btn_hover { background: var(--dt-surface-3) !important; }
+.search__cal-panel .vanilla-calendar-day__btn_selected, .search__cal-panel .vanilla-calendar-day__btn_selected:hover { background: var(--dt-accent) !important; color: #0a1210 !important; }
+.search__cal-panel .vanilla-calendar-day__btn_disabled, .search__cal-panel .vanilla-calendar-day__btn_prev, .search__cal-panel .vanilla-calendar-day__btn_next { color: var(--dt-text-3) !important; opacity: .45; }
+.search__cal-panel .vanilla-calendar-months__month, .search__cal-panel .vanilla-calendar-years__year { color: var(--dt-text) !important; background: transparent !important; }
+.search__cal-panel .vanilla-calendar-months__month_selected, .search__cal-panel .vanilla-calendar-years__year_selected { background: var(--dt-accent) !important; color: #0a1210 !important; }
+.et-chat__quick { background: var(--dt-surface) !important; }
+.et-chat__quick button { border-color: var(--dt-border-strong) !important; color: var(--dt-text) !important; }
+.et-chat__quick button:hover { background: rgba(200,242,74,.12) !important; border-color: var(--dt-accent) !important; }
+.et-chat__typing span { background: var(--dt-text-3) !important; }

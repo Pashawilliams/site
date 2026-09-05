@@ -65,12 +65,13 @@
     fixCards();
     var cardsRoot = document.querySelector('.direction-sec__direction') || document.body;
     if ('MutationObserver' in window) {
-      new MutationObserver(function () { fixCards(cardsRoot); }).observe(cardsRoot, { childList: true, subtree: true });
+      var mo = new MutationObserver(function (muts) { if (muts.some(function (m) { return m.addedNodes.length; })) fixCards(cardsRoot); });
+      mo.observe(cardsRoot, { childList: true, subtree: false });
     }
 
     // Reveal on scroll
     var targets = document.querySelectorAll(
-      '.direction-element, .advantages-sec__icon-container, .reviews-sec__slider-element, .faq-sec__elementV1, .faq-sec__elementV2, .banenr-sec__info, .banenr-sec__form'
+      '.advantages-sec__icon-container, .faq-sec__elementV1, .faq-sec__elementV2, .banenr-sec__info, .banenr-sec__form'
     );
     if ('IntersectionObserver' in window) {
       var io = new IntersectionObserver(function (entries) {
@@ -80,7 +81,7 @@
       }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
       targets.forEach(function (el, i) {
         el.classList.add('et-reveal');
-        el.style.transitionDelay = (i % 4) * 60 + 'ms';
+        
         io.observe(el);
       });
     }

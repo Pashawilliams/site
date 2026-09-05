@@ -39,8 +39,7 @@ body {
   background: var(--header-bg) !important;
   border-bottom: 1px solid var(--dt-border) !important;
   box-shadow: var(--header-shadow) !important;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  
 }
 .header__nav-list a { color: var(--dt-text) !important; }
 .header__nav-list a:hover,
@@ -307,8 +306,8 @@ input[type="text"], input[type="tel"], input[type="email"], input[type="date"], 
 .et-theme-toggle .ico-moon { display: block; }
 
 /* ---------- Reveal on scroll ---------- */
-.et-reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
-.et-reveal.is-visible { opacity: 1; transform: none; }
+.et-reveal { opacity: 0; transition: opacity .45s ease; }
+.et-reveal.is-visible { opacity: 1; }
 @media (prefers-reduced-motion: reduce) {
   .et-reveal { opacity: 1; transform: none; transition: none; }
   html { scroll-behavior: auto; }
@@ -480,7 +479,7 @@ body #floating-menu .phone-call { background: var(--dt-surface-3) !important; bo
   background: var(--dt-grad-btn); color: #fff; font-size: 15px; font-weight: 700;
 }
 .reviews-sec__date { padding-left: 44px; }
-.reviews-sec__star-row svg { filter: drop-shadow(0 0 6px rgba(246,196,69,.35)); }
+
 .slick-dots li button::before { font-size: 10px !important; opacity: 1 !important; }
 
 /* =========================================================
@@ -640,7 +639,7 @@ body { background:
 @media (max-width: 767px) { .front-sec__title { font-size: 30px !important; } .front-sec__subtitle { font-size: 15px !important; } }
 
 /* Search box */
-.search, .front-sec__search { border-radius: 28px !important; backdrop-filter: blur(16px); background: rgba(17,24,39,.92) !important; }
+.search, .front-sec__search { border-radius: 28px !important; background: rgba(17,24,39,.92) !important; }
 .search__region-label { color: var(--dt-accent-2) !important; letter-spacing: .12em; }
 
 /* Buttons */
@@ -653,7 +652,6 @@ body { background:
 /* Cards */
 .direction-element, .reviews-sec__slider-element-wrapper, .faq-sec__elementV2, .direction-sec__sale-wrapper, .direction-sec__extra-inner, .popup-air {
   background: linear-gradient(160deg, rgba(24,34,54,.9) 0%, rgba(17,24,39,.95) 100%) !important;
-  backdrop-filter: blur(10px);
 }
 .direction-element { position: relative; overflow: hidden; }
 .direction-element::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--dt-grad-btn); opacity: 0; transition: opacity .25s ease; }

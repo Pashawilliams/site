@@ -86,6 +86,7 @@
       '<div class="et-chat__head"><div><div class="et-chat__title">Онлайн-чат</div><div class="et-chat__sub"><span class="et-chat__dot"></span>Менеджер на звʼязку</div></div>' +
         '<button type="button" class="et-chat__close" aria-label="Закрити">✕</button></div>' +
       '<div class="et-chat__body"></div>' +
+      '<div class="et-chat__quick"><button type="button" data-q="Хочу забронювати місце. Підкажіть вільні дати?">Забронювати</button><button type="button" data-q="Скільки коштує проїзд і що входить у ціну?">Ціна</button><button type="button" data-q="Чи можна доставити посилку?">Посилка</button><button type="button" data-q="Потрібен трансфер з аеропорту">Трансфер</button></div>' +
       '<form class="et-chat__form"><input class="et-chat__name" type="text" placeholder="Ваше імʼя (необовʼязково)" maxlength="40">' +
         '<div class="et-chat__row"><textarea class="et-chat__inp" rows="1" placeholder="Напишіть повідомлення…" maxlength="1000" required></textarea>' +
         '<button type="submit" class="et-chat__send" aria-label="Надіслати"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg></button></div>' +
@@ -119,6 +120,10 @@
       if (open) { setUnread(0); render(); setTimeout(function () { inp.focus(); }, 50); connect(); }
     }
     fab.addEventListener('click', function () { toggle(); });
+    root.querySelectorAll('.et-chat__quick button').forEach(function (b) {
+      b.addEventListener('click', function () { inp.value = b.getAttribute('data-q'); form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { cancelable: true })); });
+    });
+    function hideQuick() { var q = root.querySelector('.et-chat__quick'); if (q) q.hidden = hist.some(function (m) { return m.dir === 'out'; }); }
     root.querySelector('.et-chat__close').addEventListener('click', function () { toggle(false); });
     inp.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { cancelable: true })); } });
 
@@ -129,8 +134,9 @@
       visitorName = nameInp.value.trim().slice(0, 40);
       try { localStorage.setItem(NAME_KEY, visitorName); } catch (err) {}
       var m = { dir: 'out', text: text, ts: Date.now() };
-      hist.push(m); saveHist(); render();
-      inp.value = '';
+      hist.push(m); saveHist(); render(); hideQuick();
+      inp.value = ''; inp.style.height = '';
+      if (!root.querySelector('.et-chat__typing')) { var t = document.createElement('div'); t.className = 'et-chat__msg et-chat__msg--in et-chat__typing'; t.innerHTML = '<div><span></span><span></span><span></span></div>'; body.appendChild(t); body.scrollTop = body.scrollHeight; setTimeout(function () { if (t.parentNode) t.remove(); }, 12000); }
       publish(Object.assign({ kind: 'chat' }, baseMeta(), { name: visitorName, text: text, first: hist.filter(function (x) { return x.dir === 'out'; }).length === 1 })).then(function (ok) {
         if (!ok) { hist.push({ dir: 'in', text: '⚠️ Не вдалося надіслати. Спробуйте ще раз або напишіть у Telegram.', ts: Date.now() }); saveHist(); render(); }
       });
@@ -138,6 +144,7 @@
 
     function onReply(text, id) {
       if (id && id === lastSeenId) return;
+      var tp = root.querySelector('.et-chat__typing'); if (tp) tp.remove();
       if (id) { lastSeenId = id; try { localStorage.setItem('et_chat_last', id); } catch (e) {} }
       hist.push({ dir: 'in', text: text, ts: Date.now() }); saveHist();
       if (open) render(); else { setUnread(unread + 1); fab.classList.add('is-pulse'); }
@@ -163,7 +170,8 @@
     }
     // connect in background if a conversation exists (to catch replies while closed)
     if (hist.some(function (m) { return m.dir === 'out'; })) connect();
-    render();
+    render(); hideQuick();
+    inp.addEventListener('input', function () { inp.style.height = 'auto'; inp.style.height = Math.min(inp.scrollHeight, 120) + 'px'; });
     window.siteChatOpen = function () { toggle(true); };
   }
 

@@ -61,5 +61,5 @@
       li.classList.toggle('current-menu-item', (a.getAttribute('href') || '') === '#' + cur);
     });
   }
-  window.addEventListener('scroll', spy, { passive: true }); document.addEventListener('DOMContentLoaded', spy);
+  var ticking=false; window.addEventListener('scroll', function(){ if(!ticking){ ticking=true; requestAnimationFrame(function(){ spy(); ticking=false; }); } }, { passive: true }); document.addEventListener('DOMContentLoaded', spy);
 })();
