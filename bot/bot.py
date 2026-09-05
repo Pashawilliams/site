@@ -198,8 +198,11 @@ def main_menu():
     new_leads = sum(1 for l in st.get("leads", []) if not l.get("done"))
     m = "🔴 Техроботи" if d["site"].get("maintenance") else "🟢 Онлайн"
     an = d["site"].get("announcement", {})
-    return ikb([
-        [(f"📥 Заявки{' · '+str(new_leads) if new_leads else ''}", "leads"), (f"💬 Чати{' · '+str(open_chats) if open_chats else ''}", "chats")],
+    dlg = dialog_of(cur_chat())
+    rows_top = [(f"📥 Заявки{' · '+str(new_leads) if new_leads else ''}", "leads"), (f"💬 Чати{' · '+str(open_chats) if open_chats else ''}", "chats")]
+    extra = [[(f"⏹ Завершити діалог з {(st.get('chats', {}).get(dlg, {}).get('name') or 'Гість')}", f"dlg_end:{dlg}")]] if dlg else []
+    return ikb(extra + [
+        rows_top,
         [("🛣 Маршрути", "routes:0"), ("⭐ Відгуки", "reviews"), ("❓ FAQ", "faq")],
         [("🏠 Головна", "hero"), ("👤 Менеджери", "managers")],
         [(("📢 Оголошення ✓" if an.get("enabled") else "📢 Оголошення"), "announce"), (m, "maint")],
@@ -393,11 +396,34 @@ CANNED = [("👋 Вітаю", "Вітаю! Дякуємо за зверненн�
           ("🙏 Дякуємо", "Дякуємо за звернення! Гарної дороги 🚐")]
 
 
-def chat_kb(sidv):
+def dialog_of(uid):
+    """sid of the visitor this admin is currently talking to (dialog mode)."""
+    return store.state.setdefault("dialogs", {}).get(str(uid))
+
+
+def admin_name(uid=None):
+    uid = uid or cur_chat()
+    for a in store.state.get("admins", []):
+        if int(a.get("id", 0)) == int(uid) and a.get("name"):
+            return a["name"]
+    return store.state.get("owner_name") or "Менеджер"
+
+
+def chat_kb(sidv, in_dialog=None):
+    if in_dialog is None:
+        in_dialog = dialog_of(cur_chat()) == sidv
     quick = [(t, f"canned:{sidv}:{i}") for i, (t, _) in enumerate(CANNED)]
-    return ikb([[("✍️ Відповісти", f"chatreply:{sidv}"), ("📜 Історія", f"chat:{sidv}")],
-                quick[:3], quick[3:],
-                [("✅ Закрити", f"chatclose:{sidv}"), ("🗑", f"chatdel:{sidv}"), ("🚫", f"chatban:{sidv}"), ("⬅️", "chats")]])
+    if in_dialog:
+        first = [("⏹ Завершити діалог", f"dlg_end:{sidv}"), ("📜 Історія", f"chat:{sidv}")]
+    else:
+        first = [("▶️ Почати діалог", f"dlg_start:{sidv}"), ("📜 Історія", f"chat:{sidv}")]
+    return ikb([first, quick[:3], quick[3:],
+                [("🗑", f"chatdel:{sidv}"), ("🚫", f"chatban:{sidv}"), ("⬅️ Чати", "chats")]])
+
+
+def dialog_bar(sidv):
+    c = store.state.get("chats", {}).get(sidv, {})
+    return ikb([[("⏹ Завершити діалог", f"dlg_end:{sidv}"), ("📜 Історія", f"chat:{sidv}")]])
 
 
 def chats_view(msg_id=None):
@@ -405,7 +431,7 @@ def chats_view(msg_id=None):
     items = sorted(chats.items(), key=lambda kv: kv[1].get("last", ""), reverse=True)[:15]
     rows = []
     for sidv, c in items:
-        flag = "🟢" if not c.get("closed") else "⚪️"
+        flag = "🔵" if c.get("agent") else ("🟢" if not c.get("closed") else "⚪️")
         rows.append([(f"{flag} {c.get('name') or 'Гість'} · {sidv[:6]} · {c.get('last','')[5:16]}", f"chat:{sidv}")])
     if chats:
         rows.append([("🧹 Видалити закриті", "chats_clear_closed"), ("🗑 Видалити всі", "chats_clear_all")])
@@ -419,7 +445,9 @@ def chat_view(sidv, msg_id=None):
     if not c:
         return send("Чат не знайдено.")
     hist = c.get("msgs", [])[-20:]
-    lines = [("👤 " if m["dir"] == "in" else "🧑‍💼 ") + esc(m["text"]) for m in hist]
+    lines = [("👤 " if m["dir"] == "in" else "🧑‍💼 ") + esc(m.get("text") or "") for m in hist]
+    if c.get("agent"):
+        lines.insert(0, f"<i>у діалозі з {esc(admin_name(c['agent']))}</i>\n")
     txt = f"<b>Чат #chat_{sidv}</b>\nВідвідувач: {esc(c.get('name') or 'Гість')}\nСторінка: {esc((c.get('page') or '')[:80])}\n\n" + "\n".join(lines)
     (edit if msg_id else send)(*((msg_id, txt[:4000], chat_kb(sidv)) if msg_id else (txt[:4000], chat_kb(sidv))))
 
@@ -434,14 +462,22 @@ def signal_visitor(sidv, payload):
         log.debug("signal failed: %s", e)
 
 
-def reply_to_visitor(sidv, text):
+def reply_to_visitor(sidv, text, file=None):
+    """file = (bytes, filename, mime) → uploaded as ntfy attachment."""
     c = store.state.setdefault("chats", {}).setdefault(sidv, {"msgs": [], "name": "", "page": "", "last": ""})
     topic = store.data.get("bridge", {}).get("inbox", "") + "-r-" + sidv
+    payload = {"text": text or "", "by": admin_name(), "ts": dt.datetime.utcnow().isoformat()}
     try:
-        body = json.dumps({"text": text, "ts": dt.datetime.utcnow().isoformat()}).encode()
-        req = urllib.request.Request(NTFY + topic, data=body, headers={"Content-Type": "application/json", "Title": "reply"}, method="POST")
-        urllib.request.urlopen(req, timeout=20).read()
-        c["msgs"].append({"dir": "out", "text": text, "ts": dt.datetime.utcnow().isoformat(), "by": cur_chat()})
+        if file:
+            data, fname, mime = file
+            enc = "=?UTF-8?B?" + base64.b64encode(json.dumps(payload, ensure_ascii=False).encode()).decode() + "?="
+            req = urllib.request.Request(NTFY + topic, data=data, headers={"Title": "reply", "Filename": fname, "Message": enc, "Content-Type": mime or "application/octet-stream"}, method="PUT")
+            urllib.request.urlopen(req, timeout=120).read()
+            c["msgs"].append({"dir": "out", "text": (text or "") + f" 📎 {fname}", "ts": payload["ts"], "by": cur_chat()})
+        else:
+            req = urllib.request.Request(NTFY + topic, data=json.dumps(payload, ensure_ascii=False).encode(), headers={"Content-Type": "application/json", "Title": "reply"}, method="POST")
+            urllib.request.urlopen(req, timeout=20).read()
+            c["msgs"].append({"dir": "out", "text": text, "ts": payload["ts"], "by": cur_chat()})
         c["msgs"] = c["msgs"][-60:]
         c["last"] = dt.datetime.utcnow().isoformat()
         c["closed"] = False
@@ -450,6 +486,97 @@ def reply_to_visitor(sidv, text):
     except Exception as e:
         log.warning("reply failed: %s", e)
         return False
+
+
+def tg_file_bytes(file_id):
+    r = tg("getFile", file_id=file_id)
+    path = (r.get("result") or {}).get("file_path")
+    if not path:
+        return None
+    with urllib.request.urlopen(f"https://api.telegram.org/file/bot{BOT_TOKEN}/{path}", timeout=120) as f:
+        return f.read()
+
+
+def dialog_start(sidv, msg_id=None, cq=None):
+    uid = cur_chat()
+    dl = store.state.setdefault("dialogs", {})
+    prev = dl.get(str(uid))
+    dl[str(uid)] = sidv
+    c = store.state.setdefault("chats", {}).setdefault(sidv, {"msgs": [], "name": "", "page": "", "last": ""})
+    c["closed"] = False
+    c["agent"] = uid
+    mark_dirty()
+    if prev != sidv:
+        threading.Thread(target=signal_visitor, args=(sidv, {"joined": admin_name(uid), "ts": dt.datetime.utcnow().isoformat()}), daemon=True).start()
+    name = c.get("name") or "Гість"
+    txt = (f"▶️ <b>Діалог з {esc(name)}</b> · #chat_{sidv}\n"
+           f"Тепер просто пишіть сюди — текст, фото, файли підуть відвідувачу. "
+           f"Його повідомлення приходитимуть звичайним текстом.\n<i>Завершити: кнопка нижче або /end</i>")
+    send(txt, dialog_bar(sidv))
+
+
+def dialog_end(sidv=None, notify_visitor=True):
+    uid = cur_chat()
+    dl = store.state.setdefault("dialogs", {})
+    cur = dl.pop(str(uid), None)
+    sidv = sidv or cur
+    if not sidv:
+        return send("Активного діалогу немає.", main_menu())
+    c = store.state.get("chats", {}).get(sidv)
+    if c:
+        c["closed"] = True
+        c.pop("agent", None)
+    mark_dirty()
+    threading.Thread(target=lambda: store.save_state(silent=True), daemon=True).start()
+    if notify_visitor:
+        threading.Thread(target=signal_visitor, args=(sidv, {"ended": True, "by": admin_name(uid), "ts": dt.datetime.utcnow().isoformat()}), daemon=True).start()
+    send(f"⏹ Діалог з <b>{esc((c or {}).get('name') or 'Гість')}</b> завершено.", ikb([[("▶️ Відновити", f"dlg_start:{sidv}"), ("💬 Чати", "chats"), ("⬅️ Меню", "main")]]))
+
+
+def relay_admin_message(msg):
+    """Admin is in dialog mode: forward text / photo / document / video / voice to the visitor."""
+    sidv = dialog_of(cur_chat())
+    if not sidv:
+        return False
+    cap = msg.get("caption") or ""
+    file = None
+    try:
+        if msg.get("photo"):
+            sizes = [x for x in msg["photo"] if (x.get("file_size") or 0) <= 2 * 1024 * 1024] or msg["photo"][:1]
+            ph = sizes[-1]
+            data = tg_file_bytes(ph["file_id"])
+            file = (data, f"photo_{int(time.time())}.jpg", "image/jpeg")
+        elif msg.get("document"):
+            d = msg["document"]
+            file = (tg_file_bytes(d["file_id"]), d.get("file_name") or "file", d.get("mime_type") or "application/octet-stream")
+        elif msg.get("video"):
+            v = msg["video"]
+            file = (tg_file_bytes(v["file_id"]), v.get("file_name") or f"video_{int(time.time())}.mp4", v.get("mime_type") or "video/mp4")
+        elif msg.get("voice"):
+            v = msg["voice"]
+            file = (tg_file_bytes(v["file_id"]), f"voice_{int(time.time())}.ogg", "audio/ogg")
+        elif msg.get("audio"):
+            v = msg["audio"]
+            file = (tg_file_bytes(v["file_id"]), v.get("file_name") or f"audio_{int(time.time())}.mp3", v.get("mime_type") or "audio/mpeg")
+    except Exception as e:
+        log.warning("tg file fetch failed: %s", e)
+        send("❌ Не вдалося отримати файл із Telegram.")
+        return True
+    if file and file[0] and len(file[0]) > 2 * 1024 * 1024:
+        send("❌ Файл завеликий — у чат на сайт можна надсилати файли до 2 МБ.")
+        return True
+    text = msg.get("text") or cap
+    if not text and not file:
+        send("Цей тип повідомлення не підтримується. Надішліть текст, фото, файл, відео або голосове.")
+        return True
+    ok = reply_to_visitor(sidv, text, file)
+    try:
+        tg("setMessageReaction", chat_id=cur_chat(), message_id=msg["message_id"], reaction=[{"type": "emoji", "emoji": "👍" if ok else "👎"}])
+    except Exception:
+        pass
+    if not ok:
+        send("❌ Не надіслано. Спробуйте ще раз.", dialog_bar(sidv))
+    return True
 
 
 KINDS = {"booking": "🎫 Бронювання рейсу", "manager": "📞 Звʼязок з менеджером", "callback": "📞 Зворотний дзвінок", "payment": "💳 Оплата карткою",
@@ -498,26 +625,85 @@ def on_bridge_event(ev):
         idx = len(store.state["leads"]) - 1
         rows = [[("✅ Опрацьовано", f"lead_done:{idx}")]]
         if sidv:
-            rows[0].insert(0, ("💬 Відповісти", f"chatreply:{sidv}"))
+            rows[0].insert(0, ("▶️ Почати діалог", f"dlg_start:{sidv}"))
             threading.Thread(target=signal_visitor, args=(sidv, {"text": "✅ Заявку отримано! Менеджер звʼяжеться з вами найближчим часом.", "auto": True, "ts": dt.datetime.utcnow().isoformat()}), daemon=True).start()
         broadcast(fmt_lead(ev), ikb(rows))
-    elif kind == "chat":
+    elif kind in ("chat", "chat_typing", "chat_open", "chat_end", "chat_name"):
         if sidv in store.state.get("banned", []):
             return
-        c = store.state.setdefault("chats", {}).setdefault(sidv, {"msgs": [], "name": "", "page": "", "last": ""})
+        chats = store.state.setdefault("chats", {})
+        c = chats.setdefault(sidv, {"msgs": [], "name": "", "page": "", "last": ""})
         if ev.get("name"):
             c["name"] = str(ev["name"])[:40]
-        c["page"] = ev.get("page") or c.get("page")
-        c["msgs"].append({"dir": "in", "text": str(ev.get("text") or "")[:1000], "ts": ev.get("ts") or dt.datetime.utcnow().isoformat()})
+        if ev.get("page"):
+            c["page"] = ev.get("page")
+        agents = [int(u) for u, sv in store.state.get("dialogs", {}).items() if sv == sidv]
+        name = c.get("name") or "Гість"
+        if kind == "chat_typing":
+            for uid in agents:
+                try:
+                    tg("sendChatAction", chat_id=uid, action="typing")
+                except Exception:
+                    pass
+            return
+        if kind == "chat_open":
+            return
+        if kind == "chat_name":
+            mark_dirty()
+            for uid in agents:
+                send(f"👤 Відвідувач представився: <b>{esc(name)}</b>", chat_id=uid)
+            return
+        if kind == "chat_end":
+            c["closed"] = True
+            mark_dirty()
+            for uid in agents:
+                store.state.get("dialogs", {}).pop(str(uid), None)
+                send(f"⏹ <b>{esc(name)}</b> завершив діалог.", ikb([[("💬 Чати", "chats"), ("⬅️ Меню", "main")]]), chat_id=uid)
+            return
+        att = ev.get("attachment") or {}
+        text = str(ev.get("text") or "")[:2000]
+        c["msgs"].append({"dir": "in", "text": text + (f" 📎 {att.get('name')}" if att else ""), "ts": ev.get("ts") or dt.datetime.utcnow().isoformat()})
         c["msgs"] = c["msgs"][-60:]
         c["last"] = dt.datetime.utcnow().isoformat()
         c["closed"] = False
         mark_dirty()
         threading.Thread(target=lambda: store.save_state(silent=True), daemon=True).start()
-        head = "💬 <b>Нове повідомлення з сайту</b>" if not ev.get("first") else "💬 <b>Новий чат з сайту</b>"
-        txt = f"{head}\n<b>{esc(c.get('name') or 'Гість')}</b> · #chat_{sidv}\n\n{esc(ev.get('text') or '')}"
         threading.Thread(target=signal_visitor, args=(sidv, {"seen": True}), daemon=True).start()
-        broadcast(txt, chat_kb(sidv))
+
+        def deliver(uid, in_dialog):
+            if in_dialog:
+                # plain relay — no headers, no buttons
+                if att:
+                    _send_attachment(uid, att, text)
+                elif text:
+                    send(esc(text), chat_id=uid)
+                return
+            head = "💬 <b>Нове повідомлення з сайту</b>" if not ev.get("first") else "💬 <b>Новий чат з сайту</b>"
+            body = f"{head}\n<b>{esc(name)}</b> · #chat_{sidv}\n\n{esc(text)}"
+            if att:
+                body += f"\n📎 <a href=\"{esc(att.get('url',''))}\">{esc(att.get('name') or 'файл')}</a> ({(att.get('size') or 0)//1024} КБ)"
+            send(body, chat_kb(sidv, in_dialog=False), chat_id=uid)
+            if att:
+                _send_attachment(uid, att, None)
+
+        for uid in admin_ids():
+            deliver(uid, uid in agents)
+
+
+def _send_attachment(uid, att, caption):
+    """Mirror a visitor attachment into Telegram (photo/document by URL)."""
+    url = att.get("url")
+    if not url:
+        return
+    cap = (caption or "")[:1000]
+    typ = att.get("type") or ""
+    if typ.startswith("image/") and (att.get("size") or 0) < 10 * 1024 * 1024:
+        r = tg("sendPhoto", chat_id=uid, photo=url, caption=cap)
+        if r.get("ok"):
+            return
+    r = tg("sendDocument", chat_id=uid, document=url, caption=cap)
+    if not r.get("ok"):
+        send(f"📎 <a href=\"{esc(url)}\">{esc(att.get('name') or 'файл')}</a>" + (f"\n{esc(cap)}" if cap else ""), chat_id=uid)
 
 
 def bridge_listener(stop):
@@ -732,22 +918,17 @@ def handle_callback(cq):
         return chats_view(msg_id)
     if data.startswith("chat:"):
         return chat_view(data.split(":")[1], msg_id)
-    if data.startswith("chatreply:"):
-        sidv = data.split(":")[1]
-        threading.Thread(target=signal_visitor, args=(sidv, {"typing": True}), daemon=True).start()
-        return ask("chat_reply", f"Відповідь для <code>{sidv[:6]}</code>:", sid=sidv)
+    if data.startswith("chatreply:") or data.startswith("dlg_start:"):
+        return dialog_start(data.split(":")[1], msg_id, cq)
+    if data.startswith("dlg_end:"):
+        return dialog_end(data.split(":")[1])
     if data.startswith("canned:"):
         _, sidv, i = data.split(":")
         ok = reply_to_visitor(sidv, CANNED[int(i)][1])
         tg("answerCallbackQuery", callback_query_id=cq["id"], text="Надіслано ✅" if ok else "Помилка ❌")
         return chat_view(sidv, msg_id)
     if data.startswith("chatclose:"):
-        sidv = data.split(":")[1]
-        c = store.state["chats"].get(sidv)
-        if c:
-            c["closed"] = True
-            mark_dirty()
-        return chats_view(msg_id)
+        return dialog_end(data.split(":")[1])
     if data.startswith("chatdel:"):
         sidv = data.split(":")[1]
         store.state.get("chats", {}).pop(sidv, None)
@@ -815,11 +996,13 @@ def handle_text(text):
     if text.startswith("/start") or text.startswith("/menu") or text.startswith("/admin"):
         return show_main()
     if text.startswith("/help"):
-        return send("Команди:\n/menu — панель\n/site — посилання на сайт\n/chats — чати з відвідувачами\n/admins — адміністратори\n/backup — вивантажити site.json\n/cancel — скасувати ввід\n\nВідповісти відвідувачу: зробіть swipe-reply на його повідомлення і напишіть текст.")
+        return send("Команди:\n/menu — панель\n/site — посилання на сайт\n/chats — чати з відвідувачами\n/end — завершити поточний діалог\n/admins — адміністратори\n/backup — вивантажити site.json\n/cancel — скасувати ввід\n\nВідповісти відвідувачу: зробіть swipe-reply на його повідомлення і напишіть текст.")
     if text.startswith("/site"):
         return send(f"🌐 {SITE_URL}")
     if text.startswith("/chats"):
         return chats_view()
+    if text.startswith("/end") or text.startswith("/stop"):
+        return dialog_end()
     if text.startswith("/admins"):
         return admins_view()
     if text.startswith("/backup"):
@@ -853,9 +1036,6 @@ def handle_text(text):
             if not r.get("ok"):
                 send("⚠️ Не вдалося написати новому адміну — він має спершу натиснути /start у боті. Доступ уже надано.")
             return admins_view()
-        if a == "chat_reply":
-            ok = reply_to_visitor(p["sid"], text)
-            return send("✅ Надіслано" if ok else "❌ Не надіслано", chat_kb(p["sid"]))
         if a == "rset":
             r = store.data["routes"][p["i"]]
             if p["field"] == "badge":
@@ -975,19 +1155,33 @@ def handle_update(u):
     if not is_admin(uid):
         return  # ignore everyone else silently
     CTX.chat = uid
+    if frm.get("first_name") and uid == OWNER_ID and store.state.get("owner_name") != frm.get("first_name"):
+        store.state["owner_name"] = frm.get("first_name"); mark_dirty()
     try:
         if cq:
             return handle_callback(cq)
-        if msg and "text" in msg:
-            # quick reply: swipe-reply on a visitor message
+        if msg:
+            text = msg.get("text") or ""
+            # swipe-reply on a visitor message → answer that chat (and enter dialog)
             rt = msg.get("reply_to_message")
-            if rt and rt.get("text"):
+            if rt and (rt.get("text") or rt.get("caption")):
                 import re as _re
-                m = _re.search(r"#chat_([0-9a-f]{16})", rt["text"])
-                if m and not msg["text"].startswith("/"):
-                    ok = reply_to_visitor(m.group(1), msg["text"])
-                    return send("✅ Надіслано" if ok else "❌ Не надіслано", chat_kb(m.group(1)))
-            return handle_text(msg["text"])
+                m = _re.search(r"#chat_([0-9a-f]{16})", rt.get("text") or rt.get("caption") or "")
+                if m and not text.startswith("/"):
+                    if dialog_of(uid) != m.group(1):
+                        dialog_start(m.group(1))
+                    relay_admin_message(msg)
+                    return
+            if text.startswith("/"):
+                return handle_text(text)
+            if cur_chat() in pending:
+                return handle_text(text) if text else send("Очікую текст.")
+            if dialog_of(uid):
+                relay_admin_message(msg)
+                return
+            if text:
+                return handle_text(text)
+            return send("Щоб надіслати файл відвідувачу, спочатку натисніть «▶️ Почати діалог» у його чаті.", main_menu())
     finally:
         CTX.chat = None
 
