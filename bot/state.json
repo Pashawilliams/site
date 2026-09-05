@@ -139,14 +139,19 @@
           "dir": "in",
           "text": "Привет",
           "ts": "2026-09-05T09:22:23.257Z"
+        },
+        {
+          "dir": "in",
+          "text": "Ну",
+          "ts": "2026-09-05T09:22:54.690Z"
         }
       ],
       "name": "",
       "page": "http://eurotour.pp.ua/",
-      "last": "2026-09-05T09:22:23.686367",
+      "last": "2026-09-05T09:22:55.038529",
       "closed": false
     }
   },
   "banned": [],
-  "bridge_since": "1xp2DE4lMqs0"
+  "bridge_since": "e7I3MDedNzWs"
 }
