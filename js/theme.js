@@ -2,11 +2,13 @@
 (function () {
   var KEY = 'et-theme';
   var link = document.getElementById('et-dark-css');
+  var link2 = document.getElementById('et-dark-css-2');
   var html = document.documentElement;
 
   function apply(theme) {
     var dark = theme !== 'light';
     if (link) link.disabled = !dark;
+    if (link2) link2.disabled = !dark;
     html.setAttribute('data-theme', dark ? 'dark' : 'light');
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', dark ? '#0b0d14' : '#ffffff');
