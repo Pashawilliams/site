@@ -266,11 +266,16 @@
           "dir": "in",
           "text": "💙💛",
           "ts": "2026-09-05T17:05:03.896Z"
+        },
+        {
+          "dir": "in",
+          "text": "Потрібен трансфер з аеропорту",
+          "ts": "2026-09-05T17:06:20.001Z"
         }
       ],
       "name": "",
       "page": "http://eurotour.pp.ua/",
-      "last": "2026-09-05T17:05:04.302374",
+      "last": "2026-09-05T17:06:20.534279",
       "closed": false,
       "agent": 7906546417
     }
@@ -280,9 +285,7 @@
     "6cd1251e5d8222f5",
     "ebd5ebce931f2bc6"
   ],
-  "bridge_since": "Apq5SdQXarf4",
-  "dialogs": {
-    "7906546417": "4f150bdba3d5e1f4"
-  },
+  "bridge_since": "vM0v90sZQBqJ",
+  "dialogs": {},
   "owner_name": "Дмитро Перевізник"
 }
