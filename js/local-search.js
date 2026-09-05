@@ -404,15 +404,16 @@
       );
 
       syncMonthArrows();
-      var arrowWatcher = new MutationObserver(function () {
-        syncMonthArrows();
+      var arrowSyncing = false;
+      var arrowWatcher = new MutationObserver(function (muts) {
+        if (arrowSyncing) return;
+        var relevant = false;
+        for (var k = 0; k < muts.length; k++) { if (muts[k].type === 'childList' && muts[k].addedNodes.length) { relevant = true; break; } }
+        if (!relevant) return;
+        arrowSyncing = true;
+        try { syncMonthArrows(); } finally { arrowSyncing = false; }
       });
-      arrowWatcher.observe(holder, {
-        subtree: true,
-        childList: true,
-        attributes: true,
-        attributeFilter: ['data-calendar-selected-month', 'data-calendar-selected-year']
-      });
+      arrowWatcher.observe(holder, { subtree: true, childList: true });
 
       function openCal(ev) {
         if (ev) {

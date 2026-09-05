@@ -290,3 +290,13 @@ body:has(.header__mobile-active) .et-mcta, body:has(.header__mobile-active) #et-
   .header__mobile-contacts { background: #fff; }
   .et-mobile-contact { border: 1px solid rgba(19,12,90,.08); }
 }
+/* departure time toggle in main search */
+.search__time { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 4px; border-radius: 999px; background: #f3f1fa; }
+.search__time-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #7d7a99; padding: 0 6px 0 10px; }
+.search__time-opt { border: none; background: transparent; color: #130c5a; font: inherit; font-size: 14px; font-weight: 700; padding: 7px 14px; border-radius: 999px; cursor: pointer; transition: background .15s, color .15s; }
+.search__time-opt.is-active { background: var(--dt-grad-btn); color: #fff; box-shadow: 0 4px 12px rgba(78,25,134,.25); }
+.search__time-opt:focus-visible { outline: 2px solid #4e1986; outline-offset: 2px; }
+@media (max-width: 767px) { .search__time { width: 100%; justify-content: center; margin-top: 12px; } .search__time-opt { flex: 1 1 0; text-align: center; } }
+/* hero image blur (GPU-cheap: static blur on a promoted layer) */
+html body #main-search-route .front-sec__banner-sec { overflow: hidden; }
+html body #main-search-route .front-sec__banner-sec .front-sec__bg { filter: blur(3px) !important; transform: scale(1.04) translateZ(0) !important; will-change: transform; }

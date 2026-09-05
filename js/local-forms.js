@@ -1298,7 +1298,7 @@
     });
   }
 
-  var DEPARTURE_TIMES = ['07:00', '18:00'];
+  var DEPARTURE_TIMES = ['08:00', '18:00'];
 
   function tomorrowDate() {
     var d = new Date();
@@ -1543,7 +1543,8 @@
       form.querySelector('.booking-form__time') ||
       form.querySelector('input[name="text-search-time"]');
     if (timeInput) {
-      var normalized = normalizeDepartureTime(timeInput.value);
+      var searchTime = normalizeDepartureTime(window.__eurotourSearchTime || '');
+      var normalized = searchTime || normalizeDepartureTime(timeInput.value);
       timeInput.value = normalized || DEPARTURE_TIMES[0];
       try {
         timeInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -2397,21 +2398,20 @@
         );
 
         syncMonthArrows();
-        var arrowWatcher = new MutationObserver(function () {
-          syncMonthArrows();
+        // Тільки перерендер календаря (childList) — без attributes,
+        // інакше setArrowState() сам тригерить observer → нескінченний цикл.
+        var arrowSyncing = false;
+        var arrowWatcher = new MutationObserver(function (muts) {
+          if (arrowSyncing) return;
+          var relevant = false;
+          for (var k = 0; k < muts.length; k++) {
+            if (muts[k].type === 'childList' && muts[k].addedNodes.length) { relevant = true; break; }
+          }
+          if (!relevant) return;
+          arrowSyncing = true;
+          try { syncMonthArrows(); } finally { arrowSyncing = false; }
         });
-        arrowWatcher.observe(holder, {
-          subtree: true,
-          childList: true,
-          characterData: true,
-          attributes: true,
-          attributeFilter: [
-            'data-calendar-selected-month',
-            'data-calendar-selected-year',
-            'class',
-            'disabled',
-          ],
-        });
+        arrowWatcher.observe(holder, { subtree: true, childList: true });
 
         input.addEventListener('click', function (ev) {
           ev.preventDefault();

@@ -92,6 +92,18 @@
       }
     }
 
+    /* ---------- 6b. Departure time toggle in main search ---------- */
+    var timeBox = $('.search__time');
+    if (timeBox) {
+      w.__eurotourSearchTime = '08:00';
+      on(timeBox, 'click', function (e) {
+        var b = e.target.closest('.search__time-opt'); if (!b) return;
+        e.preventDefault();
+        $$('.search__time-opt', timeBox).forEach(function (x) { var a = x === b; x.classList.toggle('is-active', a); x.setAttribute('aria-pressed', a ? 'true' : 'false'); });
+        w.__eurotourSearchTime = b.getAttribute('data-time');
+      });
+    }
+
     /* ---------- 7. Lazy images & decoding ---------- */
     $$('img').forEach(function (img, i) {
       if (!img.getAttribute('loading') && i > 3 && !img.closest('.header')) img.setAttribute('loading', 'lazy');

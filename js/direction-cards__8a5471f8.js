@@ -3,7 +3,7 @@
 
     function getPreferredDepartureTime(times) {
         if (!Array.isArray(times) || !times.length) {
-            return '07:00';
+            return '08:00';
         }
         const now = new Date();
         const currentMinutes = now.getHours() * 60 + now.getMinutes();

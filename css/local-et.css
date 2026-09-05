@@ -936,7 +936,7 @@ input[name="text-search-time"].inp-form__inp {
   white-space: nowrap;
 }
 
-/* Виїзд 07:00/18:00 + адреса→адреса */
+/* Виїзд 08:00/18:00 + адреса→адреса */
 .route-list__route-time-stack {
   display: flex;
   flex-direction: column;
