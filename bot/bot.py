@@ -192,24 +192,25 @@ def mark_dirty():
 
 def main_menu():
     d = store.data
-    m = "🔴 Техроботи: УВІМК" if d["site"].get("maintenance") else "🟢 Сайт працює"
+    st = store.state
+    open_chats = sum(1 for c in st.get("chats", {}).values() if not c.get("closed"))
+    new_leads = sum(1 for l in st.get("leads", []) if not l.get("done"))
+    m = "🔴 Техроботи" if d["site"].get("maintenance") else "🟢 Онлайн"
+    an = d["site"].get("announcement", {})
     return ikb([
-        [("🛣 Маршрути і ціни", "routes:0"), ("⭐ Відгуки", "reviews")],
-        [("❓ FAQ", "faq"), ("📞 Контакти", "contacts")],
-        [("🏠 Головний екран", "hero"), ("📢 Оголошення", "announce")],
-        [(m, "maint"), ("📊 Статистика", "stats")],
-        [("💬 Чати з відвідувачами", "chats"), ("👥 Адміністратори", "admins")],
-        [("🌐 Відкрити сайт", "open"), ("♻️ Перезавантажити дані", "reload")],
+        [(f"📥 Заявки{' · '+str(new_leads) if new_leads else ''}", "leads"), (f"💬 Чати{' · '+str(open_chats) if open_chats else ''}", "chats")],
+        [("🛣 Маршрути", "routes:0"), ("⭐ Відгуки", "reviews"), ("❓ FAQ", "faq")],
+        [("🏠 Головна", "hero"), ("📞 Контакти", "contacts")],
+        [(("📢 Оголошення ✓" if an.get("enabled") else "📢 Оголошення"), "announce"), (m, "maint")],
+        [("👥 Адміни", "admins"), ("📊 Журнал", "stats"), ("🌐 Сайт", "open")],
     ])
 
 
 def show_main(msg_id=None):
     d = store.data
-    txt = (f"<b>Адмін-панель сайту</b>\n"
-           f"{esc(d['site'].get('name',''))} — {esc(d['site'].get('tagline',''))}\n\n"
-           f"Маршрутів: <b>{len(d['routes'])}</b> · Відгуків: <b>{len(d['reviews'])}</b> · FAQ: <b>{len(d['faq'])}</b>\n"
-           f"Оновлено: {esc(d.get('updated_at',''))}\n"
-           f"Бот працює: {int((time.time()-START)/60)} хв (перезапуск кожні 5г20хв)")
+    txt = (f"<b>Eurotour · панель</b>\n"
+           f"🛣 {len(d['routes'])} · ⭐ {len(d['reviews'])} · ❓ {len(d['faq'])}\n"
+           f"<i>оновлено {esc((d.get('updated_at','') or '')[5:16].replace('T',' '))}</i>")
     if msg_id:
         edit(msg_id, txt, main_menu())
     else:
@@ -235,9 +236,9 @@ def routes_view(page, msg_id=None):
     if (page + 1) * PAGE < total:
         nav.append(("▶️", f"routes:{page+1}"))
     rows.append(nav)
-    rows.append([("➕ Додати маршрут", "route_add"), ("💱 Змінити всі ціни на %", "bulk")])
+    rows.append([("➕ Маршрут", "route_add"), ("💱 Усі ціни ±%", "bulk")])
     rows.append([("⬅️ Меню", "main")])
-    txt = f"<b>Маршрути</b> ({total}). Натисніть, щоб редагувати:"
+    txt = f"<b>Маршрути</b> · {total}"
     if msg_id:
         edit(msg_id, txt, ikb(rows))
     else:
@@ -248,10 +249,11 @@ def route_view(i, msg_id=None):
     r = store.data["routes"][i]
     vis = "🚫 Сховати" if r.get("visible", True) else "✅ Показати"
     txt = (f"<b>{esc(r['from'])} → {esc(r['to'])}</b>\n"
-           f"Ціна: <b>{r.get('price') or '—'} грн</b>\nСтара ціна: {r.get('old_price') or '—'}\n"
-           f"Бейдж: {esc(r.get('badge') or '—')}\nВидимість: {'показується' if r.get('visible', True) else 'приховано'}")
+           f"💰 <b>{r.get('price') or '—'} грн</b>" + (f"  <s>{r['old_price']}</s>" if r.get('old_price') else "") +
+           (f"  🔖 {esc(r['badge'])}" if r.get('badge') else "") + ("" if r.get('visible', True) else "\n🚫 приховано"))
     kb = ikb([
-        [("💰 Ціна", f"rset:{i}:price"), ("🏷 Стара ціна", f"rset:{i}:old_price")],
+        [("−200", f"radj:{i}:-200"), ("−100", f"radj:{i}:-100"), ("+100", f"radj:{i}:100"), ("+200", f"radj:{i}:200")],
+        [("💰 Ввести ціну", f"rset:{i}:price"), ("🏷 Стара ціна", f"rset:{i}:old_price")],
         [("🔖 Бейдж", f"rset:{i}:badge"), (vis, f"rtoggle:{i}")],
         [("🗑 Видалити", f"rdel:{i}"), ("⬅️ Назад", f"routes:{i//PAGE}")],
     ])
@@ -314,9 +316,9 @@ def stats_view(msg_id=None):
     st = store.state
     logs = st.get("log", [])[-10:]
     leads = st.get("leads", [])
-    txt = (f"<b>Статистика</b>\nЗаявок отримано: {len(leads)}\nЧатів: {len(st.get('chats', {}))}\nАдмінів: {len(admin_ids())}\nОстанні зміни:\n" +
-           ("\n".join(f"• {esc(l['t'][5:16])} {esc(l['msg'])}" for l in logs) or "—"))
-    kb = ikb([[("📥 Останні заявки", "leads"), ("🗑 Очистити заявки", "leads_clear")], [("⬅️ Меню", "main")]])
+    txt = (f"<b>Журнал</b>\n📥 {len(leads)} заявок · 💬 {len(st.get('chats', {}))} чатів · 👥 {len(admin_ids())} адмінів\n"
+           f"⏱ бот працює {int((time.time()-START)/60)} хв\n\n" + ("\n".join(f"• {esc(l['t'][5:16].replace('T',' '))} {esc(l['msg'])}" for l in logs) or "—"))
+    kb = ikb([[("♻️ Перечитати дані", "reload"), ("💾 Бекап", "backup")], [("⬅️ Меню", "main")]])
     (edit if msg_id else send)(*((msg_id, txt, kb) if msg_id else (txt, kb)))
 
 def admins_view(msg_id=None):
@@ -337,10 +339,18 @@ def admins_view(msg_id=None):
     (edit if msg_id else send)(*((msg_id, txt, ikb(rows)) if msg_id else (txt, ikb(rows))))
 
 
+CANNED = [("👋 Вітаю", "Вітаю! Дякуємо за звернення. Чим можу допомогти?"),
+          ("📞 Номер?", "Залиште, будь ласка, номер телефону — менеджер зателефонує найближчим часом."),
+          ("🗓 Дата?", "На яку дату і з якого міста плануєте поїздку?"),
+          ("✅ Заброньовано", "Місце заброньовано ✅ Деталі поїздки надішлемо напередодні виїзду."),
+          ("🙏 Дякуємо", "Дякуємо за звернення! Гарної дороги 🚐")]
+
+
 def chat_kb(sidv):
+    quick = [(t, f"canned:{sidv}:{i}") for i, (t, _) in enumerate(CANNED)]
     return ikb([[("✍️ Відповісти", f"chatreply:{sidv}"), ("📜 Історія", f"chat:{sidv}")],
-                [("✅ Закрити", f"chatclose:{sidv}"), ("🗑 Видалити", f"chatdel:{sidv}"), ("🚫 Блок", f"chatban:{sidv}")],
-                [("⬅️ Усі чати", "chats")]])
+                quick[:3], quick[3:],
+                [("✅ Закрити", f"chatclose:{sidv}"), ("🗑", f"chatdel:{sidv}"), ("🚫", f"chatban:{sidv}"), ("⬅️", "chats")]])
 
 
 def chats_view(msg_id=None):
@@ -353,7 +363,7 @@ def chats_view(msg_id=None):
     if chats:
         rows.append([("🧹 Видалити закриті", "chats_clear_closed"), ("🗑 Видалити всі", "chats_clear_all")])
     rows.append([("⬅️ Меню", "main")])
-    txt = f"<b>Чати з відвідувачами</b> ({len(chats)})\nЩоб відповісти — відкрийте чат або зробіть swipe-reply на повідомленні відвідувача."
+    txt = f"<b>Чати</b> · {len(chats)}" + ("" if chats else "\nПоки порожньо")
     (edit if msg_id else send)(*((msg_id, txt, ikb(rows)) if msg_id else (txt, ikb(rows))))
 
 
@@ -365,6 +375,16 @@ def chat_view(sidv, msg_id=None):
     lines = [("👤 " if m["dir"] == "in" else "🧑‍💼 ") + esc(m["text"]) for m in hist]
     txt = f"<b>Чат #chat_{sidv}</b>\nВідвідувач: {esc(c.get('name') or 'Гість')}\nСторінка: {esc((c.get('page') or '')[:80])}\n\n" + "\n".join(lines)
     (edit if msg_id else send)(*((msg_id, txt[:4000], chat_kb(sidv)) if msg_id else (txt[:4000], chat_kb(sidv))))
+
+
+def signal_visitor(sidv, payload):
+    """Send a lightweight event (typing/seen) to the visitor without storing it."""
+    topic = store.data.get("bridge", {}).get("inbox", "") + "-r-" + sidv
+    try:
+        req = urllib.request.Request(NTFY + topic, data=json.dumps(payload).encode(), headers={"Content-Type": "application/json", "Title": "event", "Cache": "no"}, method="POST")
+        urllib.request.urlopen(req, timeout=10).read()
+    except Exception as e:
+        log.debug("signal failed: %s", e)
 
 
 def reply_to_visitor(sidv, text):
@@ -428,8 +448,12 @@ def on_bridge_event(ev):
         store.state.setdefault("leads", []).append({"t": ev.get("ts") or dt.datetime.utcnow().isoformat(), "kind": KINDS.get(_l.get("type"), _l.get("type") or ""), "text": _summary[:700]})
         store.state["leads"] = store.state["leads"][-200:]
         mark_dirty()
-        kb = ikb([[("💬 Написати в чат сайту", f"chatreply:{sidv}")]]) if sidv else None
-        broadcast(fmt_lead(ev), kb)
+        idx = len(store.state["leads"]) - 1
+        rows = [[("✅ Опрацьовано", f"lead_done:{idx}")]]
+        if sidv:
+            rows[0].insert(0, ("💬 Відповісти", f"chatreply:{sidv}"))
+            threading.Thread(target=signal_visitor, args=(sidv, {"text": "✅ Заявку отримано! Менеджер звʼяжеться з вами найближчим часом.", "auto": True, "ts": dt.datetime.utcnow().isoformat()}), daemon=True).start()
+        broadcast(fmt_lead(ev), ikb(rows))
     elif kind == "chat":
         if sidv in store.state.get("banned", []):
             return
@@ -444,8 +468,8 @@ def on_bridge_event(ev):
         mark_dirty()
         threading.Thread(target=lambda: store.save_state(silent=True), daemon=True).start()
         head = "💬 <b>Нове повідомлення з сайту</b>" if not ev.get("first") else "💬 <b>Новий чат з сайту</b>"
-        txt = (f"{head}\nВід: <b>{esc(c.get('name') or 'Гість')}</b> · #chat_{sidv}\n\n{esc(ev.get('text') or '')}\n\n"
-               f"<i>Відповісти: swipe-reply на це повідомлення або кнопка нижче</i>")
+        txt = f"{head}\n<b>{esc(c.get('name') or 'Гість')}</b> · #chat_{sidv}\n\n{esc(ev.get('text') or '')}"
+        threading.Thread(target=signal_visitor, args=(sidv, {"seen": True}), daemon=True).start()
         broadcast(txt, chat_kb(sidv))
 
 
@@ -491,7 +515,7 @@ def bridge_listener(stop):
 
 def ask(action, prompt, **extra):
     pending[cur_chat()] = dict(action=action, **extra)
-    send(prompt + "\n\n<i>Надішліть текст або /cancel</i>")
+    send(prompt, ikb([[("✖️ Скасувати", "cancel")]]))
 
 
 def handle_callback(cq):
@@ -500,13 +524,20 @@ def handle_callback(cq):
     tg("answerCallbackQuery", callback_query_id=cq["id"])
     if data == "noop":
         return
+    if data == "cancel":
+        pending.pop(cur_chat(), None)
+        return show_main(msg_id)
     if data == "main":
         return show_main(msg_id)
     if data == "open":
         return send(f"🌐 {SITE_URL}?v={int(time.time())}")
     if data == "reload":
         store.load()
+        tg("answerCallbackQuery", callback_query_id=cq["id"], text="Дані оновлено")
         return show_main(msg_id)
+    if data == "backup":
+        CTX.chat = cur_chat()
+        return handle_text("/backup")
     if data.startswith("routes:"):
         return routes_view(int(data.split(":")[1]), msg_id)
     if data.startswith("route:"):
@@ -524,12 +555,29 @@ def handle_callback(cq):
         return routes_view(0, msg_id)
     if data.startswith("rset:"):
         _, i, field = data.split(":")
-        names = {"price": "нову ціну (число, грн)", "old_price": "стару ціну (число або 0 щоб прибрати)", "badge": "текст бейджа (напр. ХІТ, -20%) або «-» щоб прибрати"}
-        return ask("rset", f"Введіть {names[field]}:", i=int(i), field=field)
+        names = {"price": "Ціна, грн:", "old_price": "Стара ціна (0 — прибрати):", "badge": "Бейдж (напр. ХІТ) або «-»:"}
+        return ask("rset", names[field], i=int(i), field=field)
     if data == "route_add":
-        return ask("route_add", "Введіть маршрут у форматі:\n<code>Київ - Варшава - 4200</code>\n(опційно 4-м значенням стара ціна)")
+        return ask("route_add", "Формат: <code>Київ - Варшава - 4200</code>")
     if data == "bulk":
-        return ask("bulk", "На скільки відсотків змінити всі ціни? (напр. <code>+10</code> або <code>-5</code>)")
+        return edit(msg_id, "Змінити <b>всі</b> ціни на:", ikb([[("−10%", "bulkp:-10"), ("−5%", "bulkp:-5"), ("+5%", "bulkp:5"), ("+10%", "bulkp:10")], [("✏️ Інший %", "bulk_ask"), ("⬅️ Назад", "routes:0")]]))
+    if data == "bulk_ask":
+        return ask("bulk", "Відсоток, напр. <code>+7</code> або <code>-3</code>")
+    if data.startswith("bulkp:"):
+        pct = float(data.split(":")[1])
+        for r in store.data["routes"]:
+            for k in ("price", "old_price"):
+                if r.get(k):
+                    r[k] = int(round(r[k] * (1 + pct / 100) / 100.0) * 100)
+        store.save(f"bulk prices {pct:+.0f}%")
+        tg("answerCallbackQuery", callback_query_id=cq["id"], text=f"Готово: {pct:+.0f}%")
+        return routes_view(0, msg_id)
+    if data.startswith("radj:"):
+        _, i, dlt = data.split(":")
+        i = int(i); r = store.data["routes"][i]
+        r["price"] = max(0, (r.get("price") or 0) + int(dlt))
+        store.save(f"route {r['from']}→{r['to']} price={r['price']}")
+        return route_view(i, msg_id)
     if data == "reviews":
         return reviews_view(msg_id)
     if data.startswith("review:"):
@@ -543,7 +591,7 @@ def handle_callback(cq):
         store.save(f"delete review {r['name']}")
         return reviews_view(msg_id)
     if data == "review_add":
-        return ask("review_add", "Надішліть відгук у форматі (кожне з нового рядка):\n<code>Ім'я\nДата (напр. 12.09.2026)\nОцінка 1-5\nТекст відгуку</code>")
+        return ask("review_add", "4 рядки:\n<code>Імʼя\n12.09.2026\n5\nТекст</code>")
     if data == "faq":
         return faq_view(msg_id)
     if data.startswith("faqi:"):
@@ -566,23 +614,23 @@ def handle_callback(cq):
         store.save("delete faq")
         return faq_view(msg_id)
     if data == "faq_add":
-        return ask("faq_add", "Надішліть питання і відповідь двома рядками:\n<code>Питання?\nВідповідь.</code>")
+        return ask("faq_add", "2 рядки:\n<code>Питання?\nВідповідь.</code>")
     if data == "contacts":
         return contacts_view(msg_id)
     if data.startswith("cset:"):
         field = data.split(":")[1]
-        hints = {"phone": "номер у форматі +380XXXXXXXXX", "telegram": "посилання https://t.me/…", "whatsapp": "посилання https://wa.me/380… (або «auto» — з телефону)", "support_note": "текст підпису"}
-        return ask("cset", f"Введіть {hints[field]}:", field=field)
+        hints = {"phone": "Номер: <code>+380XXXXXXXXX</code>", "telegram": "Посилання t.me/…", "whatsapp": "Посилання wa.me/… або «auto»", "support_note": "Підпис у шапці:"}
+        return ask("cset", hints[field], field=field)
     if data == "hero":
         return hero_view(msg_id)
     if data.startswith("hset:"):
-        return ask("hset", "Введіть новий текст:", field=data.split(":")[1])
+        return ask("hset", "Новий текст:", field=data.split(":")[1])
     if data == "adv_set":
-        return ask("adv_set", "Надішліть список переваг — кожна з нового рядка (до 12):")
+        return ask("adv_set", "Переваги — кожна з нового рядка:")
     if data == "announce":
         return announce_view(msg_id)
     if data.startswith("aset:"):
-        return ask("aset", "Введіть " + ("текст оголошення:" if data.endswith("text") else "посилання (або «-»):"), field=data.split(":")[1])
+        return ask("aset", "Текст оголошення:" if data.endswith("text") else "Посилання або «-»:", field=data.split(":")[1])
     if data == "atoggle":
         a = store.data["site"]["announcement"]
         a["enabled"] = not a.get("enabled")
@@ -600,7 +648,7 @@ def handle_callback(cq):
     if data == "admin_add":
         if not is_owner(cur_chat()):
             return send("Лише власник може додавати адміністраторів.")
-        return ask("admin_add", "Надішліть Telegram ID нового адміністратора (число) і, через пробіл, імʼя.\nНапр.: <code>123456789 Олена</code>\n\nID можна дізнатись у бота @userinfobot. Новий адмін має спочатку натиснути /start у цьому боті.")
+        return ask("admin_add", "<code>ID Імʼя</code>, напр. <code>123456789 Олена</code>\n(ID — через @userinfobot; адмін має натиснути /start у боті)")
     if data.startswith("admin_del:"):
         if not is_owner(cur_chat()):
             return send("Лише власник може видаляти адміністраторів.")
@@ -615,7 +663,13 @@ def handle_callback(cq):
         return chat_view(data.split(":")[1], msg_id)
     if data.startswith("chatreply:"):
         sidv = data.split(":")[1]
-        return ask("chat_reply", f"Введіть відповідь відвідувачу <code>{sidv[:6]}</code>:", sid=sidv)
+        threading.Thread(target=signal_visitor, args=(sidv, {"typing": True}), daemon=True).start()
+        return ask("chat_reply", f"Відповідь для <code>{sidv[:6]}</code>:", sid=sidv)
+    if data.startswith("canned:"):
+        _, sidv, i = data.split(":")
+        ok = reply_to_visitor(sidv, CANNED[int(i)][1])
+        tg("answerCallbackQuery", callback_query_id=cq["id"], text="Надіслано ✅" if ok else "Помилка ❌")
+        return chat_view(sidv, msg_id)
     if data.startswith("chatclose:"):
         sidv = data.split(":")[1]
         c = store.state["chats"].get(sidv)
@@ -651,6 +705,22 @@ def handle_callback(cq):
             store.state["banned"].append(sidv)
         mark_dirty()
         return chats_view(msg_id)
+    if data.startswith("lead_done:"):
+        i = int(data.split(":")[1])
+        ls = store.state.get("leads", [])
+        if 0 <= i < len(ls):
+            ls[i]["done"] = True; mark_dirty()
+        try:
+            old = cq["message"].get("text") or ""
+            edit(msg_id, esc(old) + "\n\n✅ <b>Опрацьовано</b>", ikb([[("↩️ Повернути", f"lead_undo:{i}")]]))
+        except Exception:
+            pass
+        return
+    if data.startswith("lead_undo:"):
+        i = int(data.split(":")[1]); ls = store.state.get("leads", [])
+        if 0 <= i < len(ls):
+            ls[i]["done"] = False; mark_dirty()
+        return edit(msg_id, "Заявку повернуто в роботу.", ikb([[("✅ Опрацьовано", f"lead_done:{i}")]]))
     if data == "leads":
         leads = store.state.get("leads", [])[-10:]
         def _fmt(l):
@@ -658,8 +728,8 @@ def handle_callback(cq):
                 d = json.loads(l["text"]); return ", ".join(f"{k}: {v}" for k, v in d.items() if v and k not in ("path", "title"))
             except Exception:
                 return l["text"]
-        txt = "<b>Останні заявки</b>\n\n" + ("\n\n".join(f"🕒 {esc(l['t'][:16].replace('T',' '))} {esc(l.get('kind',''))}\n{esc(_fmt(l))}" for l in leads) or "Поки немає")
-        return edit(msg_id, txt, ikb([[("⬅️ Меню", "main")]]))
+        txt = "<b>Заявки</b> · останні 10\n\n" + ("\n\n".join(f"{'✅' if l.get('done') else '🆕'} {esc(l['t'][5:16].replace('T',' '))} {esc(l.get('kind',''))}\n{esc(_fmt(l))}" for l in leads) or "Поки немає")
+        return edit(msg_id, txt, ikb([[("🗑 Очистити", "leads_clear"), ("⬅️ Меню", "main")]]))
 
 
 def num(s):
@@ -670,7 +740,7 @@ def num(s):
 def handle_text(text):
     p = pending.pop(cur_chat(), None)
     if text.startswith("/cancel"):
-        return send("Скасовано.", main_menu())
+        return show_main()
     if text.startswith("/start") or text.startswith("/menu") or text.startswith("/admin"):
         return show_main()
     if text.startswith("/help"):
@@ -684,7 +754,7 @@ def handle_text(text):
     if text.startswith("/backup"):
         content = json.dumps(store.data, ensure_ascii=False, indent=2).encode()
         boundary = "----botb"
-        body = (f"--{boundary}\r\nContent-Disposition: form-data; name=\"chat_id\"\r\n\r\n{ADMIN_ID}\r\n"
+        body = (f"--{boundary}\r\nContent-Disposition: form-data; name=\"chat_id\"\r\n\r\n{cur_chat()}\r\n"
                 f"--{boundary}\r\nContent-Disposition: form-data; name=\"document\"; filename=\"site.json\"\r\nContent-Type: application/json\r\n\r\n").encode() + content + f"\r\n--{boundary}--\r\n".encode()
         req = urllib.request.Request(API + "sendDocument", data=body, headers={"Content-Type": f"multipart/form-data; boundary={boundary}"})
         urllib.request.urlopen(req, timeout=60).read()
@@ -694,7 +764,7 @@ def handle_text(text):
         store.state.setdefault("leads", []).append({"t": dt.datetime.utcnow().isoformat(), "text": text})
         store.state["leads"] = store.state["leads"][-100:]
         store.save_state(silent=True)
-        return send("Збережено як нотатку. Відкрити панель — /menu", main_menu())
+        return send("📝 Збережено як нотатку", main_menu())
 
     a = p["action"]
     try:
@@ -714,7 +784,7 @@ def handle_text(text):
             return admins_view()
         if a == "chat_reply":
             ok = reply_to_visitor(p["sid"], text)
-            return send("✅ Відправлено відвідувачу." if ok else "❌ Не вдалося відправити.", chat_kb(p["sid"]))
+            return send("✅ Надіслано" if ok else "❌ Не надіслано", chat_kb(p["sid"]))
         if a == "rset":
             r = store.data["routes"][p["i"]]
             if p["field"] == "badge":
@@ -731,7 +801,7 @@ def handle_text(text):
             r = {"from": parts[0], "to": parts[1], "price": num(parts[2]), "old_price": num(parts[3]) if len(parts) > 3 else None, "slug": "", "visible": True}
             store.data["routes"].append(r)
             store.save(f"add route {r['from']}→{r['to']}")
-            send("⚠️ Увага: нова картка зʼявиться на сайті лише якщо такий маршрут є у вёрстці. Ціна ж використовується у калькуляторі пошуку одразу.")
+            send("✅ Додано. Ціна одразу працює в пошуку на сайті.")
             return routes_view(len(store.data["routes"]) // PAGE)
         if a == "bulk":
             pct = float(text.replace("%", "").replace("+", "").strip())
@@ -795,7 +865,7 @@ def handle_text(text):
             return announce_view()
     except Exception as e:
         log.exception("handle_text")
-        send(f"❌ Помилка: {esc(e)}. Спробуйте ще раз.", main_menu())
+        send("❌ Не вийшло. Перевірте формат і спробуйте ще раз.", main_menu())
 
 
 def handle_update(u):
@@ -817,7 +887,7 @@ def handle_update(u):
                 m = _re.search(r"#chat_([0-9a-f]{16})", rt["text"])
                 if m and not msg["text"].startswith("/"):
                     ok = reply_to_visitor(m.group(1), msg["text"])
-                    return send("✅ Відправлено відвідувачу." if ok else "❌ Не вдалося відправити.", chat_kb(m.group(1)))
+                    return send("✅ Надіслано" if ok else "❌ Не надіслано", chat_kb(m.group(1)))
             return handle_text(msg["text"])
     finally:
         CTX.chat = None
@@ -838,7 +908,7 @@ def main():
     offset = store.state.get("offset", 0)
     log.info("started; admin=%s repo=%s runtime=%ss", ADMIN_ID, GH_REPO, MAX_RUNTIME)
     if os.environ.get("NOTIFY_START") == "1":
-        broadcast(f"🤖 Бот запущено (GitHub Actions). Наступний перезапуск через {MAX_RUNTIME//3600}г {(MAX_RUNTIME%3600)//60}хв.\n/menu — панель")
+        broadcast("🤖 Бот онлайн · /menu", main_menu())
     stop = {"flag": False}
     signal.signal(signal.SIGTERM, lambda *a: stop.__setitem__("flag", True))
     threading.Thread(target=bridge_listener, args=(stop,), daemon=True).start()

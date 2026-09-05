@@ -108,7 +108,8 @@
         body.innerHTML = '<div class="et-chat__msg et-chat__msg--in"><div>Вітаємо! 👋 Напишіть ваше питання — менеджер відповість тут протягом кількох хвилин.</div><time>' + fmtTime(Date.now()) + '</time></div>';
       } else {
         body.innerHTML = hist.map(function (m) {
-          return '<div class="et-chat__msg et-chat__msg--' + (m.dir === 'in' ? 'in' : 'out') + '"><div>' + esc(m.text) + '</div><time>' + fmtTime(m.ts) + '</time></div>';
+          var tick = m.dir === 'out' ? (m.seen ? ' <i class="et-chat__tick et-chat__tick--seen">✓✓</i>' : (m.sent ? ' <i class="et-chat__tick">✓</i>' : '')) : '';
+          return '<div class="et-chat__msg et-chat__msg--' + (m.dir === 'in' ? 'in' : 'out') + (m.auto ? ' et-chat__msg--auto' : '') + '"><div>' + esc(m.text) + '</div><time>' + fmtTime(m.ts) + tick + '</time></div>';
         }).join('');
       }
       body.scrollTop = body.scrollHeight;
@@ -116,7 +117,7 @@
     function setUnread(n) { unread = n; badge.hidden = !n; badge.textContent = n; }
     function toggle(state) {
       open = state == null ? !open : state;
-      win.hidden = !open; fab.classList.toggle('is-open', open);
+      win.hidden = !open; fab.classList.toggle('is-open', open); document.body.classList.toggle('et-chat-open', open);
       if (open) { setUnread(0); render(); setTimeout(function () { inp.focus(); }, 50); connect(); }
     }
     fab.addEventListener('click', function () { toggle(); });
@@ -136,17 +137,32 @@
       var m = { dir: 'out', text: text, ts: Date.now() };
       hist.push(m); saveHist(); render(); hideQuick();
       inp.value = ''; inp.style.height = '';
-      if (!root.querySelector('.et-chat__typing')) { var t = document.createElement('div'); t.className = 'et-chat__msg et-chat__msg--in et-chat__typing'; t.innerHTML = '<div><span></span><span></span><span></span></div>'; body.appendChild(t); body.scrollTop = body.scrollHeight; setTimeout(function () { if (t.parentNode) t.remove(); }, 12000); }
       publish(Object.assign({ kind: 'chat' }, baseMeta(), { name: visitorName, text: text, first: hist.filter(function (x) { return x.dir === 'out'; }).length === 1 })).then(function (ok) {
-        if (!ok) { hist.push({ dir: 'in', text: '⚠️ Не вдалося надіслати. Спробуйте ще раз або напишіть у Telegram.', ts: Date.now() }); saveHist(); render(); }
+        if (!ok) { hist.push({ dir: 'in', text: '⚠️ Не вдалося надіслати. Спробуйте ще раз або напишіть у Telegram.', ts: Date.now() }); }
+        else { m.sent = true; }
+        saveHist(); render();
       });
     });
 
-    function onReply(text, id) {
+    var typingTimer = null;
+    function showTyping(on) {
+      var t = root.querySelector('.et-chat__typing');
+      if (!on) { if (t) t.remove(); return; }
+      if (!t) { t = document.createElement('div'); t.className = 'et-chat__msg et-chat__msg--in et-chat__typing'; t.innerHTML = '<div><span></span><span></span><span></span></div>'; body.appendChild(t); body.scrollTop = body.scrollHeight; }
+      clearTimeout(typingTimer); typingTimer = setTimeout(function () { showTyping(false); }, 20000);
+      var st = root.querySelector('.et-chat__sub'); if (st) { st.setAttribute('data-prev', st.textContent); st.textContent = 'менеджер друкує…'; setTimeout(function () { if (st.getAttribute('data-prev')) st.textContent = st.getAttribute('data-prev'); }, 20000); }
+    }
+    function onEvent(payload, id) {
+      if (payload.typing) { showTyping(true); return; }
+      if (payload.seen) { hist.forEach(function (m) { if (m.dir === 'out') m.seen = true; }); saveHist(); if (open) render(); return; }
+      if (payload.text) onReply(payload.text, id, payload.auto);
+    }
+    function onReply(text, id, auto) {
       if (id && id === lastSeenId) return;
-      var tp = root.querySelector('.et-chat__typing'); if (tp) tp.remove();
+      showTyping(false);
       if (id) { lastSeenId = id; try { localStorage.setItem('et_chat_last', id); } catch (e) {} }
-      hist.push({ dir: 'in', text: text, ts: Date.now() }); saveHist();
+      hist.forEach(function (m) { if (m.dir === 'out') m.seen = true; });
+      hist.push({ dir: 'in', text: text, ts: Date.now(), auto: !!auto }); saveHist();
       if (open) render(); else { setUnread(unread + 1); fab.classList.add('is-pulse'); }
       try { if (!open && 'Notification' in window && Notification.permission === 'granted') new Notification('Відповідь менеджера', { body: text }); } catch (e) {}
     }
@@ -161,7 +177,7 @@
             var d = JSON.parse(ev.data);
             if (d.event === 'message' && d.message) {
               var payload; try { payload = JSON.parse(d.message); } catch (e) { payload = { text: d.message }; }
-              if (payload && payload.text) onReply(payload.text, d.id);
+              if (payload) onEvent(payload, d.id);
             }
           } catch (e) {}
         };

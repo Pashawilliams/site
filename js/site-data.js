@@ -19,7 +19,8 @@
     document.querySelectorAll('a[href*="t.me/"]').forEach(function (a) { if (tg) a.href = tg; });
     document.querySelectorAll('a[href*="wa.me/"], a[href*="whatsapp"]').forEach(function (a) { if (wa) a.href = wa; });
     document.querySelectorAll('a[href^="tel:"]').forEach(function (a) { if (tel) a.href = tel; });
-    document.querySelectorAll('.et-header-phone, .et-footer-phone, .et-mobile-contact--ph span').forEach(function (el) { if (c.phone_display) el.textContent = c.phone_display; });
+    document.querySelectorAll('.et-header-phone, .et-footer-phone, .et-mobile-contact--ph span, .et-ccard--ph .et-ccard__value, .et-ccard--wa .et-ccard__value, .footer__mob-phone').forEach(function (el) { if (c.phone_display) el.textContent = c.phone_display; });
+    var tgv = document.querySelector('.et-ccard--tg .et-ccard__value'); if (tgv && tg) { var m = /t\.me\/([\w_]+)/.exec(tg); if (m) tgv.textContent = '@' + m[1]; }
     document.querySelectorAll('.header__phone-subtitle').forEach(function (el) { if (c.support_note) el.textContent = c.support_note; });
     window.__siteContacts = { telegram: tg, whatsapp: wa, phone: c.phone || '' };
   }
@@ -107,12 +108,12 @@
     var first = list[0], rest = list.slice(1);
     var t1 = document.querySelector('.faq-sec__elementV1 .faq-sec__title');
     var a1 = document.querySelector('.faq-sec__elementV1 .faq-sec__text');
-    if (t1) t1.textContent = '– ' + first.q;
+    if (t1) t1.textContent = first.q;
     if (a1) a1.textContent = first.a;
     var col = document.querySelector('.faq-sec__col-big');
     if (col) {
       col.innerHTML = rest.map(function (f) {
-        return '<div class="faq-sec__elementV2"><h3 class="faq-sec__elementV2-title">– ' + esc(f.q) + '</h3><p class="faq-sec__elementV2-subtitle">' + esc(f.a) + '</p></div>';
+        return '<div class="faq-sec__elementV2"><h3 class="faq-sec__elementV2-title">' + esc(f.q) + '</h3><p class="faq-sec__elementV2-subtitle">' + esc(f.a) + '</p></div>';
       }).join('');
     }
   }
