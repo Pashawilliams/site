@@ -438,10 +438,17 @@
       "closed": false
     },
     "205eb49be5ae6681": {
-      "msgs": [],
+      "msgs": [
+        {
+          "dir": "in",
+          "text": "Привет",
+          "ts": "2026-09-06T17:38:38.167Z"
+        }
+      ],
       "name": "",
       "page": "http://eurotour.pp.ua/",
-      "last": ""
+      "last": "2026-09-06T17:38:38.307611",
+      "closed": false
     }
   },
   "banned": [
@@ -450,7 +457,7 @@
     "ebd5ebce931f2bc6",
     "dcd4f925e7e8326e"
   ],
-  "bridge_since": "TCjfTiEUvRoa",
+  "bridge_since": "hDmRYEPE1e5u",
   "dialogs": {
     "7906546417": "f6a201c6ace72ccf"
   },
