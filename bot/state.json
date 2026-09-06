@@ -472,11 +472,16 @@
           "dir": "in",
           "text": "Поел",
           "ts": "2026-09-06T19:12:19.635Z"
+        },
+        {
+          "dir": "in",
+          "text": "",
+          "ts": "2026-09-06T19:12:39.491Z"
         }
       ],
       "name": "Поко",
       "page": "http://eurotour.pp.ua/",
-      "last": "2026-09-06T19:12:19.839665",
+      "last": "2026-09-06T19:12:41.323553",
       "closed": false
     }
   },
@@ -486,7 +491,7 @@
     "ebd5ebce931f2bc6",
     "dcd4f925e7e8326e"
   ],
-  "bridge_since": "07KCq3RoL9Uq",
+  "bridge_since": "yCGCA0f8PQPZ",
   "dialogs": {
     "7906546417": "205eb49be5ae6681"
   },
