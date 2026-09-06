@@ -400,6 +400,19 @@
       "page": "http://eurotour.pp.ua/",
       "last": "",
       "closed": true
+    },
+    "dcd4f925e7e8326e": {
+      "msgs": [
+        {
+          "dir": "in",
+          "text": "1",
+          "ts": "2026-09-06T17:32:54.666Z"
+        }
+      ],
+      "name": "",
+      "page": "http://eurotour.pp.ua/",
+      "last": "2026-09-06T17:32:55.115390",
+      "closed": false
     }
   },
   "banned": [
@@ -407,7 +420,7 @@
     "6cd1251e5d8222f5",
     "ebd5ebce931f2bc6"
   ],
-  "bridge_since": "HLVYTaGwiRTO",
+  "bridge_since": "Z1qwMaPfmNcE",
   "dialogs": {
     "7906546417": "f6a201c6ace72ccf"
   },
