@@ -44,7 +44,7 @@
   function meta() { return { sid: SID, page: document.referrer || location.href, ua: navigator.userAgent.slice(0, 120), lang: navigator.language, ts: new Date().toISOString(), name: visitorName }; }
   function atBottom() { return el.body.scrollHeight - el.body.scrollTop - el.body.clientHeight < 80; }
   function scrollBottom(force) { if (force || atBottom()) { el.body.scrollTop = el.body.scrollHeight; el.jump.hidden = true; unseenBelow = 0; } }
-  var unseenBelow = 0, stick = true;
+  var unseenBelow = 0, stick = true, nameEditing = false;
 
   /* ---------- rendering ---------- */
   function bubble(m) {
@@ -87,7 +87,7 @@
     el.list.innerHTML = html;
     if (t) el.list.appendChild(t);
     el.quick.hidden = hist.some(function (m) { return m.dir === 'out'; });
-    el.nameRow.hidden = !!visitorName || hist.some(function (m) { return m.dir === 'out'; }) && !!visitorName;
+    if (!nameEditing) el.nameRow.hidden = !!visitorName;
   }
   function appendMsg(m) {
     hist.push(m); save();
@@ -272,12 +272,14 @@
   function submit() {
     var text = el.inp.value.trim();
     if (!text && !pendingFiles.length) return;
-    if (el.name && el.name.value.trim()) { visitorName = el.name.value.trim().slice(0, 40); ls(K.name, visitorName); }
-    el.inp.value = ''; el.inp.style.height = ''; updateSend();
+    if (el.name && el.name.value.trim() && el.name.value.trim() !== visitorName) { visitorName = el.name.value.trim().slice(0, 40); ls(K.name, visitorName); nameEditing = false; el.nameRow.hidden = true; }
+    el.inp.value = ''; el.inp.style.height = ''; updateSend(); stick = true;
+    if (!(window.matchMedia && matchMedia('(pointer: coarse)').matches)) el.inp.focus();
     var files = pendingFiles.slice(); pendingFiles = []; renderStrip();
     if (files.length) {
       files.forEach(function (f, i) { sendFile(f, i === 0 ? text : ''); });
     } else sendText(text);
+    if (ended) { ended = false; applyManager(); }
     if ('Notification' in window && Notification.permission === 'default') { try { Notification.requestPermission(); } catch (e) {} }
     connect();
   }
@@ -303,8 +305,7 @@
   el.body.addEventListener('scroll', function () { stick = atBottom(); if (stick) { el.jump.hidden = true; unseenBelow = 0; } }, { passive: true });
   // images load after render and grow the list → keep pinned to the bottom
   el.list.addEventListener('load', function (e) { if (e.target.tagName === 'IMG' && stick) scrollBottom(true); }, true);
-  el.jump.addEventListener('click', function () { stick = true; });
-  el.jump.addEventListener('click', function () { scrollBottom(true); });
+  el.jump.addEventListener('click', function () { stick = true; scrollBottom(true); });
 
   /* ---------- menu / close ---------- */
   function goBack() { if (document.referrer && document.referrer.indexOf(location.host) !== -1 && history.length > 1) history.back(); else location.href = 'index.html'; }
@@ -316,11 +317,13 @@
     var b = e.target.closest('button[data-act]'); if (!b) return; el.menu.hidden = true;
     var act = b.getAttribute('data-act');
     if (act === 'tg') { window.open('https://t.me/pereviznyk_support', '_blank', 'noopener'); }
-    if (act === 'name') { el.nameRow.hidden = false; el.name.value = visitorName; el.name.focus(); }
+    if (act === 'name') { nameEditing = true; el.nameRow.hidden = false; el.name.value = visitorName; el.name.focus(); }
     if (act === 'end') { if (confirm('Завершити діалог з менеджером?')) { publishJson(Object.assign({ kind: 'chat_end' }, meta())); ended = true; appendMsg({ id: rid(4), sys: true, type: 'end', ts: Date.now() }); applyManager(); } }
     if (act === 'clear') { if (confirm('Очистити історію чату на цьому пристрої?')) { hist = []; save(); manager = null; ls(K.mgr, null); ended = false; applyManager(); render(); scrollBottom(true); } }
   });
-  el.name.addEventListener('change', function () { visitorName = el.name.value.trim().slice(0, 40); ls(K.name, visitorName); if (visitorName) { toast('Дякуємо, ' + visitorName + '!'); el.nameRow.hidden = true; publishJson(Object.assign({ kind: 'chat_name' }, meta())); } });
+  function commitName() { var v = el.name.value.trim().slice(0, 40); if (v === visitorName) { if (v) { nameEditing = false; el.nameRow.hidden = true; } return; } visitorName = v; ls(K.name, visitorName); if (visitorName) { toast('Дякуємо, ' + visitorName + '!'); nameEditing = false; el.nameRow.hidden = true; publishJson(Object.assign({ kind: 'chat_name' }, meta())); } }
+  el.name.addEventListener('change', commitName);
+  el.name.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); commitName(); el.inp.focus(); } });
   window.addEventListener('online', function () { el.offline.hidden = true; connect(); hist.forEach(function (m) { if (m.failed && m.payload) { m.failed = false; publishJson(m.payload).then(function (ok) { m.sent = ok; m.failed = !ok; if (ok) m.payload = null; save(); render(); }); } }); });
   window.addEventListener('offline', function () { el.offline.hidden = false; });
   // keep composer pinned above the on-screen keyboard (iOS/Android): size the app to the visual viewport
