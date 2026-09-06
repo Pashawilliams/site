@@ -112,7 +112,7 @@
       "msg": "add manager Олексій"
     }
   ],
-  "offset": 124880639,
+  "offset": 124880640,
   "admins": [],
   "chats": {
     "56825ebc9c518d9f": {
@@ -448,7 +448,8 @@
       "name": "",
       "page": "http://eurotour.pp.ua/",
       "last": "2026-09-06T17:38:38.307611",
-      "closed": false
+      "closed": false,
+      "agent": 7906546417
     }
   },
   "banned": [
@@ -459,7 +460,7 @@
   ],
   "bridge_since": "hDmRYEPE1e5u",
   "dialogs": {
-    "7906546417": "f6a201c6ace72ccf"
+    "7906546417": "205eb49be5ae6681"
   },
   "owner_name": "Дмитро Перевізник"
 }
