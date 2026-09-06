@@ -36,400 +36,400 @@
     {
       "from": "Київ",
       "to": "Варшава",
-      "price": 4200,
-      "old_price": 5040,
+      "price": null,
+      "old_price": null,
       "slug": "ads/kyyiv-varshava",
       "visible": true
     },
     {
       "from": "Варшава",
       "to": "Київ",
-      "price": 4200,
-      "old_price": 5040,
+      "price": null,
+      "old_price": null,
       "slug": "ads/varshava-kyyiv",
       "visible": true
     },
     {
       "from": "Львів",
       "to": "Варшава",
-      "price": 3100,
-      "old_price": 3720,
+      "price": null,
+      "old_price": null,
       "slug": "ads/lviv-varshava",
       "visible": true
     },
     {
       "from": "Варшава",
       "to": "Львів",
-      "price": 3100,
-      "old_price": 3720,
+      "price": null,
+      "old_price": null,
       "slug": "ads/varshava-lviv",
       "visible": true
     },
     {
       "from": "Київ",
       "to": "Краків",
-      "price": 4400,
-      "old_price": 5280,
+      "price": null,
+      "old_price": null,
       "slug": "ads/kyyiv-krakiv",
       "visible": true
     },
     {
       "from": "Краків",
       "to": "Київ",
-      "price": 4400,
-      "old_price": 5280,
+      "price": null,
+      "old_price": null,
       "slug": "ads/krakiv-kyyiv",
       "visible": true
     },
     {
       "from": "Львів",
       "to": "Краків",
-      "price": 2900,
-      "old_price": 3480,
+      "price": null,
+      "old_price": null,
       "slug": "ads/lviv-krakiv",
       "visible": true
     },
     {
       "from": "Краків",
       "to": "Львів",
-      "price": 2900,
-      "old_price": 3480,
+      "price": null,
+      "old_price": null,
       "slug": "ads/krakiv-lviv",
       "visible": true
     },
     {
       "from": "Київ",
       "to": "Вроцлав",
-      "price": 4900,
-      "old_price": 5880,
+      "price": null,
+      "old_price": null,
       "slug": "ads/kyyiv-vrotslav",
       "visible": true
     },
     {
       "from": "Вроцлав",
       "to": "Київ",
-      "price": 4900,
-      "old_price": 5880,
+      "price": null,
+      "old_price": null,
       "slug": "ads/vrotslav-kyyiv",
       "visible": true
     },
     {
       "from": "Львів",
       "to": "Вроцлав",
-      "price": 3400,
-      "old_price": 4080,
+      "price": null,
+      "old_price": null,
       "slug": "ads/lviv-vrotslav",
       "visible": true
     },
     {
       "from": "Вроцлав",
       "to": "Львів",
-      "price": 3400,
-      "old_price": 4080,
+      "price": null,
+      "old_price": null,
       "slug": "ads/vrotslav-lviv",
       "visible": true
     },
     {
       "from": "Київ",
       "to": "Берлін",
-      "price": 5200,
-      "old_price": 6240,
+      "price": null,
+      "old_price": null,
       "slug": "ads/kyyiv-berlin",
       "visible": true
     },
     {
       "from": "Берлін",
       "to": "Київ",
-      "price": 5200,
-      "old_price": 6240,
+      "price": null,
+      "old_price": null,
       "slug": "ads/berlin-kyyiv",
       "visible": true
     },
     {
       "from": "Львів",
       "to": "Берлін",
-      "price": 4700,
-      "old_price": 5640,
+      "price": null,
+      "old_price": null,
       "slug": "ads/lviv-berlin",
       "visible": true
     },
     {
       "from": "Берлін",
       "to": "Львів",
-      "price": 4700,
-      "old_price": 5640,
+      "price": null,
+      "old_price": null,
       "slug": "ads/berlin-lviv",
       "visible": true
     },
     {
       "from": "Київ",
       "to": "Дрезден",
-      "price": 5200,
-      "old_price": 6240,
+      "price": null,
+      "old_price": null,
       "slug": "ads/kyyiv-drezden",
       "visible": true
     },
     {
       "from": "Дрезден",
       "to": "Київ",
-      "price": 5200,
-      "old_price": 6240,
+      "price": null,
+      "old_price": null,
       "slug": "ads/drezden-kyyiv",
       "visible": true
     },
     {
       "from": "Київ",
       "to": "Прага",
-      "price": 5200,
-      "old_price": 6240,
+      "price": null,
+      "old_price": null,
       "slug": "ads/kyyiv-praha",
       "visible": true
     },
     {
       "from": "Прага",
       "to": "Київ",
-      "price": 5200,
-      "old_price": 6240,
+      "price": null,
+      "old_price": null,
       "slug": "ads/praha-kyyiv",
       "visible": true
     },
     {
       "from": "Львів",
       "to": "Прага",
-      "price": 3900,
-      "old_price": 4680,
+      "price": null,
+      "old_price": null,
       "slug": "ads/lviv-praha",
       "visible": true
     },
     {
       "from": "Прага",
       "to": "Львів",
-      "price": 3900,
-      "old_price": 4680,
+      "price": null,
+      "old_price": null,
       "slug": "ads/praha-lviv",
       "visible": true
     },
     {
       "from": "Київ",
       "to": "Братислава",
-      "price": 4700,
-      "old_price": 5640,
+      "price": null,
+      "old_price": null,
       "slug": "ads/kyyiv-bratyslava",
       "visible": true
     },
     {
       "from": "Братислава",
       "to": "Київ",
-      "price": 4700,
-      "old_price": 5640,
+      "price": null,
+      "old_price": null,
       "slug": "ads/bratyslava-kyyiv",
       "visible": true
     },
     {
       "from": "Львів",
       "to": "Братислава",
-      "price": 3400,
-      "old_price": 4080,
+      "price": null,
+      "old_price": null,
       "slug": "ads/lviv-bratyslava",
       "visible": true
     },
     {
       "from": "Братислава",
       "to": "Львів",
-      "price": 3400,
-      "old_price": 4080,
+      "price": null,
+      "old_price": null,
       "slug": "ads/bratyslava-lviv",
       "visible": true
     },
     {
       "from": "Київ",
       "to": "Будапешт",
-      "price": 5200,
-      "old_price": 6240,
+      "price": null,
+      "old_price": null,
       "slug": "ads/kyyiv-budapesht",
       "visible": true
     },
     {
       "from": "Будапешт",
       "to": "Київ",
-      "price": 5200,
-      "old_price": 6240,
+      "price": null,
+      "old_price": null,
       "slug": "ads/budapesht-kyyiv",
       "visible": true
     },
     {
       "from": "Львів",
       "to": "Будапешт",
-      "price": 3600,
-      "old_price": 4320,
+      "price": null,
+      "old_price": null,
       "slug": "ads/lviv-budapesht",
       "visible": true
     },
     {
       "from": "Будапешт",
       "to": "Львів",
-      "price": 3600,
-      "old_price": 4320,
+      "price": null,
+      "old_price": null,
       "slug": "ads/budapesht-lviv",
       "visible": true
     },
     {
       "from": "Київ",
       "to": "Відень",
-      "price": 5200,
-      "old_price": 6240,
+      "price": null,
+      "old_price": null,
       "slug": "ads/kyyiv-viden",
       "visible": true
     },
     {
       "from": "Відень",
       "to": "Київ",
-      "price": 5200,
-      "old_price": 6240,
+      "price": null,
+      "old_price": null,
       "slug": "ads/viden-kyyiv",
       "visible": true
     },
     {
       "from": "Львів",
       "to": "Відень",
-      "price": 3600,
-      "old_price": 4320,
+      "price": null,
+      "old_price": null,
       "slug": "ads/lviv-viden",
       "visible": true
     },
     {
       "from": "Відень",
       "to": "Львів",
-      "price": 3600,
-      "old_price": 4320,
+      "price": null,
+      "old_price": null,
       "slug": "ads/viden-lviv",
       "visible": true
     },
     {
       "from": "Київ",
       "to": "Бухарест",
-      "price": 4200,
-      "old_price": 5040,
+      "price": null,
+      "old_price": null,
       "slug": "ads/kyyiv-buharest",
       "visible": true
     },
     {
       "from": "Бухарест",
       "to": "Київ",
-      "price": 4200,
-      "old_price": 5040,
+      "price": null,
+      "old_price": null,
       "slug": "ads/buharest-kyyiv",
       "visible": true
     },
     {
       "from": "Одеса",
       "to": "Бухарест",
-      "price": 3100,
-      "old_price": 3720,
+      "price": null,
+      "old_price": null,
       "slug": "ads/odesa-buharest",
       "visible": true
     },
     {
       "from": "Бухарест",
       "to": "Одеса",
-      "price": 3100,
-      "old_price": 3720,
+      "price": null,
+      "old_price": null,
       "slug": "ads/buharest-odesa",
       "visible": true
     },
     {
       "from": "Київ",
       "to": "Кишинів",
-      "price": 2900,
-      "old_price": 3480,
+      "price": null,
+      "old_price": null,
       "slug": "ads/kyyiv-kyshyniv",
       "visible": true
     },
     {
       "from": "Кишинів",
       "to": "Київ",
-      "price": 2900,
-      "old_price": 3480,
+      "price": null,
+      "old_price": null,
       "slug": "ads/kyshyniv-kyyiv",
       "visible": true
     },
     {
       "from": "Одеса",
       "to": "Кишинів",
-      "price": 1600,
-      "old_price": 1920,
+      "price": null,
+      "old_price": null,
       "slug": "ads/odesa-kyshyniv",
       "visible": true
     },
     {
       "from": "Кишинів",
       "to": "Одеса",
-      "price": 1600,
-      "old_price": 1920,
+      "price": null,
+      "old_price": null,
       "slug": "ads/kyshyniv-odesa",
       "visible": true
     },
     {
       "from": "Київ",
       "to": "Мілан",
-      "price": 7300,
-      "old_price": 8760,
+      "price": null,
+      "old_price": null,
       "slug": "ads/kyyiv-milan",
       "visible": true
     },
     {
       "from": "Мілан",
       "to": "Київ",
-      "price": 7300,
-      "old_price": 8760,
+      "price": null,
+      "old_price": null,
       "slug": "ads/milan-kyyiv",
       "visible": true
     },
     {
       "from": "Львів",
       "to": "Мілан",
-      "price": 6000,
-      "old_price": 7200,
+      "price": null,
+      "old_price": null,
       "slug": "ads/lviv-milan",
       "visible": true
     },
     {
       "from": "Мілан",
       "to": "Львів",
-      "price": 6000,
-      "old_price": 7200,
+      "price": null,
+      "old_price": null,
       "slug": "ads/milan-lviv",
       "visible": true
     },
     {
       "from": "Київ",
       "to": "Париж",
-      "price": 7800,
-      "old_price": 9360,
+      "price": null,
+      "old_price": null,
       "slug": "ads/kyyiv-paryzh",
       "visible": true
     },
     {
       "from": "Париж",
       "to": "Київ",
-      "price": 7800,
-      "old_price": 9360,
+      "price": null,
+      "old_price": null,
       "slug": "ads/paryzh-kyyiv",
       "visible": true
     },
     {
       "from": "Львів",
       "to": "Амстердам",
-      "price": 6200,
-      "old_price": 7440,
+      "price": null,
+      "old_price": null,
       "slug": "ads/lviv-amsterdam",
       "visible": true
     },
     {
       "from": "Амстердам",
       "to": "Львів",
-      "price": 6200,
-      "old_price": 7440,
+      "price": null,
+      "old_price": null,
       "slug": "ads/amsterdam-lviv",
       "visible": true
     }
@@ -502,5 +502,378 @@
       "telegram": "https://t.me/+380680813450",
       "whatsapp": "https://wa.me/380680813450"
     }
-  ]
+  ],
+  "durations": {
+    "Амстердам|Львів": {
+      "hours": 18.8,
+      "km": 1547,
+      "src": "osrm"
+    },
+    "Берлін|Київ": {
+      "hours": 19.5,
+      "km": 1344,
+      "src": "osrm"
+    },
+    "Берлін|Львів": {
+      "hours": 12.6,
+      "km": 922,
+      "src": "osrm"
+    },
+    "Братислава|Київ": {
+      "hours": 18.9,
+      "km": 1317,
+      "src": "osrm"
+    },
+    "Братислава|Львів": {
+      "hours": 11.1,
+      "km": 779,
+      "src": "osrm"
+    },
+    "Будапешт|Київ": {
+      "hours": 18.9,
+      "km": 1119,
+      "src": "osrm"
+    },
+    "Будапешт|Львів": {
+      "hours": 11.2,
+      "km": 577,
+      "src": "osrm"
+    },
+    "Бухарест|Київ": {
+      "hours": 16.5,
+      "km": 1000,
+      "src": "osrm"
+    },
+    "Бухарест|Одеса": {
+      "hours": 11.0,
+      "km": 542,
+      "src": "osrm"
+    },
+    "Варшава|Київ": {
+      "hours": 14.1,
+      "km": 777,
+      "src": "osrm"
+    },
+    "Варшава|Львів": {
+      "hours": 8.7,
+      "km": 395,
+      "src": "osrm"
+    },
+    "Вроцлав|Київ": {
+      "hours": 17.1,
+      "km": 1137,
+      "src": "osrm"
+    },
+    "Вроцлав|Львів": {
+      "hours": 9.3,
+      "km": 599,
+      "src": "osrm"
+    },
+    "Відень|Київ": {
+      "hours": 19.4,
+      "km": 1327,
+      "src": "osrm"
+    },
+    "Відень|Львів": {
+      "hours": 11.6,
+      "km": 790,
+      "src": "osrm"
+    },
+    "Дрезден|Київ": {
+      "hours": 19.7,
+      "km": 1386,
+      "src": "osrm"
+    },
+    "Кишинів|Київ": {
+      "hours": 11.8,
+      "km": 520,
+      "src": "osrm"
+    },
+    "Кишинів|Одеса": {
+      "hours": 6.4,
+      "km": 196,
+      "src": "osrm"
+    },
+    "Київ|Берлін": {
+      "hours": 19.5,
+      "km": 1344,
+      "src": "osrm"
+    },
+    "Київ|Братислава": {
+      "hours": 19.0,
+      "km": 1318,
+      "src": "osrm"
+    },
+    "Київ|Будапешт": {
+      "hours": 19.0,
+      "km": 1120,
+      "src": "osrm"
+    },
+    "Київ|Бухарест": {
+      "hours": 16.5,
+      "km": 999,
+      "src": "osrm"
+    },
+    "Київ|Варшава": {
+      "hours": 14.1,
+      "km": 775,
+      "src": "osrm"
+    },
+    "Київ|Вроцлав": {
+      "hours": 17.1,
+      "km": 1136,
+      "src": "osrm"
+    },
+    "Київ|Відень": {
+      "hours": 19.3,
+      "km": 1326,
+      "src": "osrm"
+    },
+    "Київ|Дрезден": {
+      "hours": 19.8,
+      "km": 1387,
+      "src": "osrm"
+    },
+    "Київ|Кишинів": {
+      "hours": 11.8,
+      "km": 520,
+      "src": "osrm"
+    },
+    "Київ|Краків": {
+      "hours": 14.6,
+      "km": 864,
+      "src": "osrm"
+    },
+    "Київ|Мілан": {
+      "hours": 28.2,
+      "km": 2153,
+      "src": "osrm"
+    },
+    "Київ|Париж": {
+      "hours": 29.4,
+      "km": 2364,
+      "src": "osrm"
+    },
+    "Київ|Прага": {
+      "hours": 19.7,
+      "km": 1397,
+      "src": "osrm"
+    },
+    "Краків|Київ": {
+      "hours": 14.6,
+      "km": 864,
+      "src": "osrm"
+    },
+    "Краків|Львів": {
+      "hours": 6.8,
+      "km": 326,
+      "src": "osrm"
+    },
+    "Львів|Амстердам": {
+      "hours": 18.8,
+      "km": 1546,
+      "src": "osrm"
+    },
+    "Львів|Берлін": {
+      "hours": 12.7,
+      "km": 921,
+      "src": "osrm"
+    },
+    "Львів|Братислава": {
+      "hours": 11.2,
+      "km": 779,
+      "src": "osrm"
+    },
+    "Львів|Будапешт": {
+      "hours": 11.2,
+      "km": 577,
+      "src": "osrm"
+    },
+    "Львів|Варшава": {
+      "hours": 8.7,
+      "km": 391,
+      "src": "osrm"
+    },
+    "Львів|Вроцлав": {
+      "hours": 9.3,
+      "km": 597,
+      "src": "osrm"
+    },
+    "Львів|Відень": {
+      "hours": 11.5,
+      "km": 787,
+      "src": "osrm"
+    },
+    "Львів|Краків": {
+      "hours": 6.8,
+      "km": 325,
+      "src": "osrm"
+    },
+    "Львів|Мілан": {
+      "hours": 20.4,
+      "km": 1615,
+      "src": "osrm"
+    },
+    "Львів|Прага": {
+      "hours": 11.9,
+      "km": 858,
+      "src": "osrm"
+    },
+    "Мілан|Київ": {
+      "hours": 28.3,
+      "km": 2153,
+      "src": "osrm"
+    },
+    "Мілан|Львів": {
+      "hours": 20.5,
+      "km": 1616,
+      "src": "osrm"
+    },
+    "Одеса|Бухарест": {
+      "hours": 11.1,
+      "km": 542,
+      "src": "osrm"
+    },
+    "Одеса|Кишинів": {
+      "hours": 6.4,
+      "km": 196,
+      "src": "osrm"
+    },
+    "Париж|Київ": {
+      "hours": 29.5,
+      "km": 2361,
+      "src": "osrm"
+    },
+    "Прага|Київ": {
+      "hours": 19.7,
+      "km": 1397,
+      "src": "osrm"
+    },
+    "Прага|Львів": {
+      "hours": 11.9,
+      "km": 860,
+      "src": "osrm"
+    }
+  },
+  "pricing": {
+    "currency": "UAH",
+    "eur_rate": 51.79,
+    "rate_auto": true,
+    "rate_updated": "2026-09-07",
+    "extra_hours": 3,
+    "tiers": [
+      [
+        6,
+        8,
+        90,
+        120
+      ],
+      [
+        8,
+        10,
+        100,
+        140
+      ],
+      [
+        10,
+        12,
+        130,
+        170
+      ],
+      [
+        12,
+        14,
+        140,
+        180
+      ],
+      [
+        14,
+        16,
+        150,
+        190
+      ],
+      [
+        16,
+        18,
+        160,
+        200
+      ],
+      [
+        18,
+        20,
+        160,
+        200
+      ],
+      [
+        20,
+        22,
+        170,
+        210
+      ],
+      [
+        22,
+        24,
+        180,
+        220
+      ],
+      [
+        24,
+        27,
+        190,
+        230
+      ],
+      [
+        27,
+        30,
+        200,
+        240
+      ],
+      [
+        30,
+        33,
+        210,
+        250
+      ],
+      [
+        33,
+        36,
+        210,
+        250
+      ],
+      [
+        36,
+        39,
+        220,
+        260
+      ],
+      [
+        39,
+        42,
+        230,
+        270
+      ],
+      [
+        42,
+        45,
+        240,
+        280
+      ],
+      [
+        45,
+        999,
+        250,
+        290
+      ]
+    ],
+    "discounts": [
+      {
+        "label": "Пенсіонерам",
+        "pct": 10
+      },
+      {
+        "label": "Дітям",
+        "pct": 15
+      }
+    ]
+  }
 }

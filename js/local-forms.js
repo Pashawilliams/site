@@ -742,7 +742,7 @@
   // Universal: collect every meaningful field of a form into {label: value}
   var FIELD_LABELS = {
     'text-327': 'Звідки', 'text-328': 'Куди', 'text-329': 'Телефон (2)',
-    'text-449': 'Імʼя', 'tel-609': 'Телефон', 'text-direction-visible': 'Маршрут', 'text-search-time': 'Час відправлення', 'text-search-date': 'Дата рейсу',
+    'text-449': 'Імʼя', 'tel-609': 'Телефон', 'text-direction-visible': 'Маршрут', 'text-search-time': 'Час відправлення', 'et-class': 'Клас', 'et-travel-time': 'Час у дорозі', 'et-route-price': 'Ціна, грн', 'text-search-date': 'Дата рейсу',
     'text-581': 'Імʼя', 'tel-4': 'Телефон', 'textarea-12': 'Відгук',
     'text-delivery-direction': 'Маршрут', 'text-delivery-package': 'Тип посилки', 'text-delivery-date': 'Дата відправлення', 'text-delivery-name': 'Імʼя', 'text-delivery-phone': 'Телефон',
     'from': 'Звідки', 'To': 'Куди', 'Date': 'Дата', 'Passanger': 'Пасажирів',
@@ -754,7 +754,7 @@
     var els = form.querySelectorAll('input, textarea, select');
     Array.prototype.forEach.call(els, function (el) {
       var type = (el.getAttribute('type') || el.tagName).toLowerCase();
-      if (type === 'hidden' || type === 'submit' || type === 'button') return;
+      if ((type === 'hidden' && !/^et-(class|travel-time|route-price)$/.test(el.name || '')) || type === 'submit' || type === 'button') return;
       if (/^acceptance/.test(el.name || '')) return;
       var name = el.getAttribute('name') || el.id || '';
       var label = FIELD_LABELS[name] || el.getAttribute('placeholder') || el.getAttribute('aria-label') || name;
@@ -779,7 +779,7 @@
       if (d) ctx['Пошук: маршрут'] = d;
       if (dt) ctx['Пошук: дата'] = dt;
     } catch (e) {}
-    if (window.__eurotourLastPrice && window.__eurotourLastPrice.amount) ctx['Розрахована ціна'] = window.__eurotourLastPrice.amount + ' грн';
+    if (window.__eurotourLastPrice && window.__eurotourLastPrice.amount) { var _lp = window.__eurotourLastPrice; ctx['Розрахована ціна'] = _lp.amount + ' грн' + (_lp.eur ? ' (€' + _lp.eur + ', ' + (_lp.cls === 'lux' ? 'Lux' : 'Comfort') + ')' : ''); if (_lp.hours) ctx['Час у дорозі'] = '~' + _lp.hours + ' год'; }
     return ctx;
   }
   var _sentLeads = {};

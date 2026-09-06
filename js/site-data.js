@@ -56,7 +56,7 @@
       if (r.visible === false) { card.setAttribute('data-hidden-by-admin', '1'); card.style.display = 'none'; return; }
       var p = card.querySelector('.direction-element__price');
       var o = card.querySelector('.et-price-old');
-      if (p && r.price) { p.textContent = 'від ' + fmt(r.price) + ' грн'; p.setAttribute('data-original-price', 'від ' + fmt(r.price) + ' грн'); }
+      if (p && r.price && !window.__eurotourPricing) { p.textContent = 'від ' + fmt(r.price) + ' грн'; p.setAttribute('data-original-price', 'від ' + fmt(r.price) + ' грн'); }
       if (o) { if (r.old_price && r.old_price > (r.price || 0)) { o.textContent = 'від ' + fmt(r.old_price) + ' грн'; o.style.display = ''; } else o.style.display = 'none'; }
       if (r.badge) {
         var b = card.querySelector('.et-card-badge');
@@ -67,7 +67,7 @@
     // price table for the search calculator
     if (window.__eurotourRouteData && window.__eurotourRouteData.KNOWN) {
       routes.forEach(function (r) {
-        if (!r.price) return;
+        if (!r.price || window.__eurotourPricing) return;
         window.__eurotourRouteData.KNOWN[r.from + '|' + r.to] = r.price;
       });
     }

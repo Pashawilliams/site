@@ -203,7 +203,7 @@ def main_menu():
     extra = [[(f"⏹ Завершити діалог з {(st.get('chats', {}).get(dlg, {}).get('name') or 'Гість')}", f"dlg_end:{dlg}")]] if dlg else []
     return ikb(extra + [
         rows_top,
-        [("🛣 Маршрути", "routes:0"), ("⭐ Відгуки", "reviews"), ("❓ FAQ", "faq")],
+        [("🛣 Маршрути", "routes:0"), ("💶 Ціни", "pricing"), ("⭐ Відгуки", "reviews"), ("❓ FAQ", "faq")],
         [("🏠 Головна", "hero"), ("👤 Менеджери", "managers")],
         [(("📢 Оголошення ✓" if an.get("enabled") else "📢 Оголошення"), "announce"), (m, "maint")],
         [("👥 Адміни", "admins"), ("📊 Журнал", "stats"), ("🌐 Сайт", "open")],
@@ -232,7 +232,8 @@ def routes_view(page, msg_id=None):
     for i in range(page * PAGE, min(total, (page + 1) * PAGE)):
         r = rs[i]
         eye = "" if r.get("visible", True) else "🚫 "
-        rows.append([(f"{eye}{r['from']} → {r['to']} · {r.get('price') or '—'} грн", f"route:{i}")])
+        _pc = price_for(r['from'], r['to'])
+        rows.append([(f"{eye}{r['from']} → {r['to']} · {(str(_pc['uah']) + ' ₴ · ' + str(_pc['hours']) + ' год') if _pc else '—'}", f"route:{i}")])
     nav = []
     if page > 0:
         nav.append(("◀️", f"routes:{page-1}"))
@@ -240,7 +241,7 @@ def routes_view(page, msg_id=None):
     if (page + 1) * PAGE < total:
         nav.append(("▶️", f"routes:{page+1}"))
     rows.append(nav)
-    rows.append([("➕ Маршрут", "route_add"), ("💱 Усі ціни ±%", "bulk")])
+    rows.append([("➕ Маршрут", "route_add"), ("💶 Тариф / курс", "pricing")])
     rows.append([("⬅️ Меню", "main")])
     txt = f"<b>Маршрути</b> · {total}"
     if msg_id:
@@ -250,14 +251,16 @@ def routes_view(page, msg_id=None):
 
 
 def route_view(i, msg_id=None):
+    _r = store.data["routes"][i]
+    _pc = price_for(_r["from"], _r["to"], "comfort"); _pl = price_for(_r["from"], _r["to"], "lux")
+    _auto = (f"\n🕒 У дорозі ~{_pc['hours']} год · Comfort €{_pc['eur']} ≈ {_pc['uah']} ₴ · Lux €{_pl['eur']} ≈ {_pl['uah']} ₴" if _pc else "\n⚠️ Час у дорозі ще не розраховано (💶 Ціни → Перерахувати)")
     r = store.data["routes"][i]
     vis = "🚫 Сховати" if r.get("visible", True) else "✅ Показати"
     txt = (f"<b>{esc(r['from'])} → {esc(r['to'])}</b>\n"
-           f"💰 <b>{r.get('price') or '—'} грн</b>" + (f"  <s>{r['old_price']}</s>" if r.get('old_price') else "") +
-           (f"  🔖 {esc(r['badge'])}" if r.get('badge') else "") + ("" if r.get('visible', True) else "\n🚫 приховано"))
+           f"💰 Ціна: автоматично за часом у дорозі" + _auto +
+           (f"\n🔖 {esc(r['badge'])}" if r.get('badge') else "") + ("" if r.get('visible', True) else "\n🚫 приховано"))
     kb = ikb([
-        [("−200", f"radj:{i}:-200"), ("−100", f"radj:{i}:-100"), ("+100", f"radj:{i}:100"), ("+200", f"radj:{i}:200")],
-        [("💰 Ввести ціну", f"rset:{i}:price"), ("🏷 Стара ціна", f"rset:{i}:old_price")],
+        [("💶 Тариф і курс", "pricing")],
         [("🔖 Бейдж", f"rset:{i}:badge"), (vis, f"rtoggle:{i}")],
         [("🗑 Видалити", f"rdel:{i}"), ("⬅️ Назад", f"routes:{i//PAGE}")],
     ])
@@ -337,6 +340,115 @@ def _parse_manager(text, m=None):
     m["telegram"] = lines[3] if len(lines) > 3 else m.get("telegram") or f"https://t.me/+{d}"
     m["whatsapp"] = lines[4] if len(lines) > 4 else m.get("whatsapp") or f"https://wa.me/{d}"
     return m
+
+
+# ----------------------------------------------------------------- pricing (time-based)
+CITY_COORDS = {"Київ": (30.5234, 50.4501), "Львів": (24.0297, 49.8397), "Одеса": (30.7326, 46.4825), "Харків": (36.2304, 49.9935), "Дніпро": (35.0462, 48.4647), "Вінниця": (28.4682, 49.2331), "Ужгород": (22.2879, 48.6208),
+               "Варшава": (21.0122, 52.2297), "Краків": (19.9450, 50.0647), "Вроцлав": (17.0385, 51.1079), "Берлін": (13.4050, 52.5200), "Дрезден": (13.7373, 51.0504), "Прага": (14.4378, 50.0755), "Братислава": (17.1077, 48.1486),
+               "Будапешт": (19.0402, 47.4979), "Відень": (16.3738, 48.2082), "Бухарест": (26.1025, 44.4268), "Кишинів": (28.8638, 47.0105), "Амстердам": (4.9041, 52.3676), "Париж": (2.3522, 48.8566), "Мілан": (9.1900, 45.4642),
+               "Познань": (16.9252, 52.4064), "Люблін": (22.5684, 51.2465), "Катовіце": (19.0238, 50.2649), "Брно": (16.6068, 49.1951), "Мюнхен": (11.5820, 48.1351), "Гамбург": (9.9937, 53.5511), "Франкфурт": (8.6821, 50.1109)}
+
+
+def geocode(name):
+    if name in CITY_COORDS:
+        return CITY_COORDS[name]
+    try:
+        q = urllib.parse.quote(name)
+        r = http(f"https://nominatim.openstreetmap.org/search?q={q}&format=json&limit=1", headers={"User-Agent": "eurotour-admin-bot"})
+        if r:
+            return (float(r[0]["lon"]), float(r[0]["lat"]))
+    except Exception as e:
+        log.warning("geocode %s: %s", name, e)
+    return None
+
+
+def road_hours(frm, to):
+    """Driving time by road graph (OSRM / OpenStreetMap). Returns (hours, km) or None."""
+    a, b = geocode(frm), geocode(to)
+    if not a or not b:
+        return None
+    try:
+        r = http(f"https://router.project-osrm.org/route/v1/driving/{a[0]},{a[1]};{b[0]},{b[1]}?overview=false", headers={"User-Agent": "eurotour-admin-bot"})
+        rt = r["routes"][0]
+        return rt["duration"] / 3600.0, rt["distance"] / 1000.0
+    except Exception as e:
+        log.warning("osrm %s-%s: %s", frm, to, e)
+        return None
+
+
+def pricing_cfg():
+    p = store.data.setdefault("pricing", {})
+    p.setdefault("currency", "UAH"); p.setdefault("eur_rate", 51.8); p.setdefault("rate_auto", True); p.setdefault("extra_hours", 3)
+    p.setdefault("tiers", [[6,8,90,120],[8,10,100,140],[10,12,130,170],[12,14,140,180],[14,16,150,190],[16,18,160,200],[18,20,160,200],[20,22,170,210],[22,24,180,220],[24,27,190,230],[27,30,200,240],[30,33,210,250],[33,36,210,250],[36,39,220,260],[39,42,230,270],[42,45,240,280],[45,999,250,290]])
+    p.setdefault("discounts", [{"label": "Пенсіонерам", "pct": 10}, {"label": "Дітям", "pct": 15}])
+    return p
+
+
+def price_for(frm, to, cls="comfort"):
+    p = pricing_cfg()
+    dur = store.data.get("durations", {})
+    k = dur.get(f"{frm}|{to}") or dur.get(f"{to}|{frm}")
+    if not k:
+        return None
+    h = k["hours"]
+    t = None
+    for row in p["tiers"]:
+        if row[0] <= h < row[1]:
+            t = row; break
+    if t is None:
+        t = p["tiers"][0] if h < p["tiers"][0][0] else p["tiers"][-1]
+    eur = t[3] if cls == "lux" else t[2]
+    return {"hours": h, "eur": eur, "uah": int(round(eur * float(p["eur_rate"]) / 50) * 50), "open": t[1] >= 999}
+
+
+def recalc_durations(only_missing=False):
+    p = pricing_cfg()
+    dur = store.data.setdefault("durations", {})
+    pairs = sorted({(r["from"], r["to"]) for r in store.data["routes"]})
+    done = 0; failed = []
+    for f, t in pairs:
+        key = f"{f}|{t}"
+        if only_missing and key in dur:
+            continue
+        rev = dur.get(f"{t}|{f}")
+        if rev and only_missing:
+            dur[key] = dict(rev); done += 1; continue
+        res = road_hours(f, t)
+        if res:
+            dur[key] = {"hours": round(res[0] + float(p["extra_hours"]), 1), "km": int(round(res[1])), "src": "osrm"}
+            done += 1
+        else:
+            failed.append(key)
+        time.sleep(0.6)
+    return done, failed
+
+
+def fetch_eur_rate():
+    try:
+        r = http("https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=EUR&json")
+        return float(r[0]["rate"])
+    except Exception as e:
+        log.warning("nbu: %s", e)
+        return None
+
+
+def pricing_view(msg_id=None):
+    p = pricing_cfg()
+    dur = store.data.get("durations", {})
+    tiers = "\n".join(f"{a}–{'' if b >= 999 else b}{'+' if b >= 999 else ''} год: €{c} / €{d}" for a, b, c, d in p["tiers"])
+    disc = ", ".join(f"{x['label']} −{x['pct']}%" for x in p["discounts"])
+    txt = (f"<b>💶 Ціни за часом у дорозі</b>\n"
+           f"Курс: €1 = {float(p['eur_rate']):.2f} ₴ ({'авто НБУ' if p.get('rate_auto', True) else 'вручну'})\n"
+           f"Надбавка до часу з карти: +{p['extra_hours']} год\n"
+           f"Розраховано маршрутів: {len(dur)} із {len({(r['from'], r['to']) for r in store.data['routes']})}\n"
+           f"Знижки: {esc(disc)}\n\n<b>Тариф (Comfort / Lux):</b>\n<code>{tiers}</code>")
+    kb = ikb([
+        [("🔄 Перерахувати час (усі)", "pr_recalc_all"), ("➕ Лише нові", "pr_recalc_new")],
+        [("💱 Курс вручну", "pr_rate"), (("💱 Авто-курс ✓" if p.get("rate_auto", True) else "💱 Авто-курс ✗"), "pr_rate_auto")],
+        [("⏱ Надбавка годин", "pr_extra"), ("🎁 Знижки", "pr_disc")],
+        [("📋 Тариф (таблиця)", "pr_tiers"), ("⬅️ Меню", "main")],
+    ])
+    (edit if msg_id else send)(*((msg_id, txt[:4000], kb) if msg_id else (txt[:4000], kb)))
 
 
 def hero_view(msg_id=None):
@@ -791,7 +903,7 @@ def handle_callback(cq):
         names = {"price": "Ціна, грн:", "old_price": "Стара ціна (0 — прибрати):", "badge": "Бейдж (напр. ХІТ) або «-»:"}
         return ask("rset", names[field], i=int(i), field=field)
     if data == "route_add":
-        return ask("route_add", "Формат: <code>Київ - Варшава - 4200</code>")
+        return ask("route_add", "Формат: <code>Київ - Варшава</code>. Час у дорозі та ціна розрахуються автоматично.")
     if data == "bulk":
         return edit(msg_id, "Змінити <b>всі</b> ціни на:", ikb([[("−10%", "bulkp:-10"), ("−5%", "bulkp:-5"), ("+5%", "bulkp:5"), ("+10%", "bulkp:10")], [("✏️ Інший %", "bulk_ask"), ("⬅️ Назад", "routes:0")]]))
     if data == "bulk_ask":
@@ -872,6 +984,40 @@ def handle_callback(cq):
             m = ms.pop(i)
             store.save(f"delete manager {m.get('name','')}")
         return managers_view(msg_id)
+    if data == "pricing":
+        return pricing_view(msg_id)
+    if data in ("pr_recalc_all", "pr_recalc_new"):
+        edit(msg_id, "⏳ Рахую час у дорозі за дорожнім графом (OSRM)… це може зайняти до хвилини.")
+        def _job(only_new=(data == "pr_recalc_new")):
+            CTX.chat = cur_chat_val
+            try:
+                done, failed = recalc_durations(only_missing=only_new)
+                store.save(f"durations recalculated ({done})")
+                send(f"✅ Оновлено {done} маршрутів." + (f"\n⚠️ Не вдалося: {', '.join(failed)}" if failed else ""))
+                pricing_view()
+            except Exception as e:
+                log.exception("recalc")
+                send(f"❌ Помилка: {esc(str(e))}")
+        cur_chat_val = cur_chat()
+        threading.Thread(target=_job, daemon=True).start()
+        return
+    if data == "pr_rate":
+        return ask("pr_rate", "Курс євро у гривнях, напр. <code>51.8</code> (це вимкне авто-курс):")
+    if data == "pr_rate_auto":
+        p = pricing_cfg()
+        p["rate_auto"] = not p.get("rate_auto", True)
+        if p["rate_auto"]:
+            r = fetch_eur_rate()
+            if r:
+                p["eur_rate"] = round(r, 2)
+        store.save("pricing rate_auto")
+        return pricing_view(msg_id)
+    if data == "pr_extra":
+        return ask("pr_extra", "Скільки годин додавати до часу з карти (кордон, зупинки)? Напр. <code>3</code>")
+    if data == "pr_disc":
+        return ask("pr_disc", "Знижки — кожна з нового рядка у форматі <code>Назва 10</code>:\n<code>Пенсіонерам 10\nДітям 15</code>")
+    if data == "pr_tiers":
+        return ask("pr_tiers", "Тариф — кожен рядок: <code>від до comfort lux</code> (години та € без символів). Останній рядок з «до» = 999 означає «і більше».\nПриклад:\n<code>6 8 90 120\n8 10 100 140\n…\n45 999 250 290</code>")
     if data == "contacts":
         return contacts_view(msg_id)
     if data.startswith("cset:"):
@@ -1047,12 +1193,16 @@ def handle_text(text):
             return route_view(p["i"])
         if a == "route_add":
             parts = [x.strip() for x in text.replace("–", "-").replace("—", "-").split("-")]
-            if len(parts) < 3:
+            if len(parts) < 2:
                 raise ValueError("format")
-            r = {"from": parts[0], "to": parts[1], "price": num(parts[2]), "old_price": num(parts[3]) if len(parts) > 3 else None, "slug": "", "visible": True}
+            r = {"from": parts[0], "to": parts[1], "price": None, "old_price": None, "slug": "", "visible": True}
             store.data["routes"].append(r)
+            res = road_hours(r["from"], r["to"])
+            if res:
+                store.data.setdefault("durations", {})[f"{r['from']}|{r['to']}"] = {"hours": round(res[0] + float(pricing_cfg()["extra_hours"]), 1), "km": int(round(res[1])), "src": "osrm"}
             store.save(f"add route {r['from']}→{r['to']}")
-            send("✅ Додано. Ціна одразу працює в пошуку на сайті.")
+            _pc = price_for(r["from"], r["to"])
+            send(f"✅ Додано. У дорозі ~{_pc['hours']} год → Comfort {_pc['uah']} ₴" if _pc else "✅ Додано, але час у дорозі не вдалося розрахувати (перевірте назви міст).")
             return routes_view(len(store.data["routes"]) // PAGE)
         if a == "bulk":
             pct = float(text.replace("%", "").replace("+", "").strip())
@@ -1110,6 +1260,38 @@ def handle_text(text):
                 m[f] = v
             store.save(f"manager {m['name']} {f}")
             return manager_view(p["i"])
+        if a == "pr_rate":
+            v = float(text.strip().replace(",", "."))
+            if not (20 < v < 200):
+                raise ValueError("rate")
+            p = pricing_cfg(); p["eur_rate"] = round(v, 2); p["rate_auto"] = False
+            store.save("pricing rate"); return pricing_view()
+        if a == "pr_extra":
+            v = float(text.strip().replace(",", "."))
+            p = pricing_cfg(); old = float(p.get("extra_hours", 3)); p["extra_hours"] = v
+            for k, d_ in store.data.get("durations", {}).items():
+                d_["hours"] = round(d_["hours"] - old + v, 1)
+            store.save("pricing extra_hours"); return pricing_view()
+        if a == "pr_disc":
+            items = []
+            for line in text.split("\n"):
+                parts = line.strip().rsplit(" ", 1)
+                if len(parts) == 2 and parts[1].replace("%", "").isdigit():
+                    items.append({"label": parts[0].strip(), "pct": int(parts[1].replace("%", ""))})
+            if not items:
+                raise ValueError("disc")
+            pricing_cfg()["discounts"] = items
+            store.save("pricing discounts"); return pricing_view()
+        if a == "pr_tiers":
+            rows = []
+            for line in text.split("\n"):
+                nums = [float(x) for x in line.replace("€", "").replace(",", ".").split()]
+                if len(nums) == 4:
+                    rows.append([int(nums[0]) if nums[0].is_integer() else nums[0], int(nums[1]) if nums[1].is_integer() else nums[1], int(nums[2]), int(nums[3])])
+            if len(rows) < 2:
+                raise ValueError("tiers")
+            pricing_cfg()["tiers"] = rows
+            store.save("pricing tiers"); return pricing_view()
         if a == "cset":
             c = store.data["contacts"]
             v = text.strip()
