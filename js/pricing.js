@@ -82,8 +82,8 @@
     var el = d.createElement('div');
     el.className = 'et-cls'; el.setAttribute('role', 'radiogroup'); el.setAttribute('aria-label', 'Клас автобуса'); el.id = id;
     el.innerHTML = '<span class="et-cls__label">Клас</span>' +
-      '<button type="button" class="et-cls__opt" data-cls="comfort"><b>Comfort</b><small>стандарт</small></button>' +
-      '<button type="button" class="et-cls__opt" data-cls="lux"><b>Lux</b><small>підвищений комфорт</small></button>' +
+      '<button type="button" class="et-cls__opt" data-cls="comfort"><b>Comfort</b><small>виїзд 08:00</small></button>' +
+      '<button type="button" class="et-cls__opt" data-cls="lux"><b>Lux</b><small>виїзд 18:00</small></button>' +
       '<i class="et-cls__pill"></i>';
     return el;
   }
@@ -93,18 +93,34 @@
       s.querySelectorAll('.et-cls__opt').forEach(function (b) { var on = b.getAttribute('data-cls') === cls; b.classList.toggle('is-active', on); b.setAttribute('aria-pressed', String(on)); });
     });
   }
+  var CLASS_TIME = { comfort: '08:00', lux: '18:00' };
+  function timeForClass(c) { return CLASS_TIME[c === 'lux' ? 'lux' : 'comfort']; }
+  function classForTime(t) { return t === '18:00' ? 'lux' : t === '08:00' ? 'comfort' : null; }
+  function syncTimes() {
+    var t = timeForClass(cls);
+    w.__eurotourSearchTime = t;
+    d.querySelectorAll('.search__time-opt').forEach(function (b) { var on = b.getAttribute('data-time') === t; b.classList.toggle('is-active', on); b.setAttribute('aria-pressed', String(on)); });
+    d.querySelectorAll('.booking-form__time-option').forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-time') === t); });
+    d.querySelectorAll('input[name="text-search-time"], input.booking-form__time').forEach(function (i) { if (i.value !== t) { i.value = t; try { i.dispatchEvent(new Event('change', { bubbles: true })); } catch (e) {} } });
+  }
   function setClass(c, silent) {
     if (c !== 'lux') c = 'comfort';
     var changed = c !== cls; cls = c;
     try { localStorage.setItem(CLS_KEY, cls); } catch (e) {}
     w.__eurotourClass = cls;
-    syncSwitchers(); applyCards(); refreshSearchPrice();
+    syncSwitchers(); syncTimes(); applyCards(); refreshSearchPrice();
     if (changed && !silent) d.dispatchEvent(new CustomEvent('et:class', { detail: { cls: cls } }));
   }
   d.addEventListener('click', function (e) {
-    var b = e.target.closest('.et-cls__opt'); if (!b) return;
-    e.preventDefault(); setClass(b.getAttribute('data-cls'));
+    var b = e.target.closest('.et-cls__opt'); if (b) { e.preventDefault(); setClass(b.getAttribute('data-cls')); return; }
+    var t = e.target.closest('.search__time-opt, .booking-form__time-option');
+    if (t) { var c = classForTime(t.getAttribute('data-time')); if (c) setTimeout(function () { setClass(c); }, 0); }
   });
+  d.addEventListener('change', function (e) {
+    var i = e.target; if (!i || i.name !== 'text-search-time') return;
+    var c = classForTime(String(i.value || '').trim()); if (c && c !== cls) setClass(c);
+  }, true);
+  w.__eurotourTimeForClass = timeForClass;
 
   function mountSwitchers() {
     var timeRow = d.querySelector('.search__time');
@@ -115,7 +131,7 @@
       wrap.appendChild(switcher('et-cls-routes'));
       var disc = d.createElement('div'); disc.className = 'et-discounts';
       disc.innerHTML = '<span class="et-discounts__t">Знижки</span>' + P.discounts.map(function (x) { return '<span class="et-discounts__i"><b>−' + x.pct + '%</b> ' + x.label + '</span>'; }).join('') +
-        '<span class="et-discounts__note">Ціна залежить від часу в дорозі (' + P.tiers[0][0] + '–' + P.tiers[P.tiers.length - 2][1] + '+ год) · курс €1 = ' + P.eur_rate.toFixed(2) + ' ₴</span>';
+        '<span class="et-discounts__note">Comfort — виїзд 08:00 · Lux — виїзд 18:00 · Ціна залежить від часу в дорозі (' + P.tiers[0][0] + '–' + P.tiers[P.tiers.length - 2][1] + '+ год) · курс €1 = ' + P.eur_rate.toFixed(2) + ' ₴</span>';
       wrap.appendChild(disc);
       routesTitle.insertAdjacentElement('afterend', wrap);
     }

@@ -253,7 +253,7 @@ def routes_view(page, msg_id=None):
 def route_view(i, msg_id=None):
     _r = store.data["routes"][i]
     _pc = price_for(_r["from"], _r["to"], "comfort"); _pl = price_for(_r["from"], _r["to"], "lux")
-    _auto = (f"\n🕒 У дорозі ~{_pc['hours']} год · Comfort €{_pc['eur']} ≈ {_pc['uah']} ₴ · Lux €{_pl['eur']} ≈ {_pl['uah']} ₴" if _pc else "\n⚠️ Час у дорозі ще не розраховано (💶 Ціни → Перерахувати)")
+    _auto = (f"\n🕒 У дорозі ~{_pc['hours']} год · Comfort (08:00) €{_pc['eur']} ≈ {_pc['uah']} ₴ · Lux (18:00) €{_pl['eur']} ≈ {_pl['uah']} ₴" if _pc else "\n⚠️ Час у дорозі ще не розраховано (💶 Ціни → Перерахувати)")
     r = store.data["routes"][i]
     vis = "🚫 Сховати" if r.get("visible", True) else "✅ Показати"
     txt = (f"<b>{esc(r['from'])} → {esc(r['to'])}</b>\n"

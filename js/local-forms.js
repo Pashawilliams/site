@@ -1891,7 +1891,7 @@
           '<button type="button" class="booking-form__time-option" data-time="' +
           t +
           '">' +
-          t +
+          t + ' <small>' + (t === '18:00' ? 'Lux' : 'Comfort') + '</small>' +
           '</button>'
         );
       }).join('');

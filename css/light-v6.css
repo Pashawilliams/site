@@ -451,3 +451,7 @@ html.et-pick-open, html.et-pick-open body { overflow: hidden; }
   .et-routes-tools .et-cls { background: #ebe7f5; }
 }
 .et-discounts__note { color: #55527a; }
+
+/* class ↔ departure time */
+.search__time-opt small, .booking-form__time-option small { font-size: 10px; font-weight: 700; opacity: .7; margin-left: 3px; text-transform: uppercase; letter-spacing: .04em; }
+.search__time-opt.is-active small { opacity: .9; }
