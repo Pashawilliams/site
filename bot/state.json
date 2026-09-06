@@ -112,7 +112,7 @@
       "msg": "add manager Олексій"
     }
   ],
-  "offset": 124880634,
+  "offset": 124880639,
   "admins": [],
   "chats": {
     "56825ebc9c518d9f": {
@@ -436,14 +436,21 @@
       "page": "http://eurotour.pp.ua/",
       "last": "2026-09-06T17:33:21.440960",
       "closed": false
+    },
+    "205eb49be5ae6681": {
+      "msgs": [],
+      "name": "",
+      "page": "http://eurotour.pp.ua/",
+      "last": ""
     }
   },
   "banned": [
     "56825ebc9c518d9f",
     "6cd1251e5d8222f5",
-    "ebd5ebce931f2bc6"
+    "ebd5ebce931f2bc6",
+    "dcd4f925e7e8326e"
   ],
-  "bridge_since": "tHicNbOAFbaI",
+  "bridge_since": "TCjfTiEUvRoa",
   "dialogs": {
     "7906546417": "f6a201c6ace72ccf"
   },
