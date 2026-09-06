@@ -880,7 +880,7 @@
         imgBase +
         'i-telegram.png" alt="Telegram" width="36" height="36">' +
         '</a>' +
-        '<a class="manager-contact__msg-link" href="https://wa.me/380973452025" target="_blank" rel="noopener noreferrer" title="WhatsApp">' +
+        '<a class="manager-contact__msg-link" href="https://wa.me/380966973130" target="_blank" rel="noopener noreferrer" title="WhatsApp">' +
         '<img src="' +
         imgBase +
         'i-whtsap.png" alt="WhatsApp" width="36" height="36">' +

@@ -57,11 +57,13 @@
         html += '<a class="ch__file" href="' + esc(m.att.url || '#') + '" target="_blank" rel="noopener" ' + (m.att.url ? 'download' : '') + '><span class="ch__file-ic">' + esc(ext(m.att.name)) + '</span><span class="ch__file-t"><b>' + esc(m.att.name || 'Файл') + '</b><small>' + (m.att.size ? esc(fmtSize(m.att.size)) : '') + (m.att.expired ? ' · термін зберігання минув' : '') + '</small>' + (m.uploading ? '<span class="ch__progress"><i style="width:' + (m.progress || 0) + '%"></i></span>' : '') + '</span></a>';
       }
     }
-    if (m.text) html += '<div class="ch__bub">' + linkify(m.text) + '</div>';
     var tick = '';
     if (out) tick = m.failed ? '<i class="ch__tick ch__tick--fail" data-retry="' + m.id + '">не надіслано · повторити</i>' : m.seen ? '<i class="ch__tick ch__tick--seen">✓✓</i>' : m.sent ? '<i class="ch__tick">✓</i>' : '<i class="ch__tick">🕓</i>';
+    var metaHtml = '<span class="ch__meta"><span>' + fmtTime(m.ts) + '</span>' + tick + '</span>';
     var from = (!out && m.by) ? '<div class="ch__from">' + esc(m.by) + '</div>' : '';
-    return '<div class="ch__msg ch__msg--' + (out ? 'out' : 'in') + (m.auto ? ' ch__msg--auto' : '') + '" data-id="' + m.id + '">' + from + html + '<div class="ch__meta"><span>' + fmtTime(m.ts) + '</span>' + tick + '</div></div>';
+    if (m.text) html += '<div class="ch__bub">' + from + linkify(m.text) + metaHtml + '</div>';
+    else html += '<div class="ch__meta ch__meta--out">' + metaHtml + '</div>';
+    return '<div class="ch__msg ch__msg--' + (out ? 'out' : 'in') + (m.auto ? ' ch__msg--auto' : '') + '" data-id="' + m.id + '">' + html + '</div>';
   }
   function sysRow(m) {
     if (m.type === 'join') return '<div class="ch__sys ch__sys--join"><span class="ch__sys-av">' + esc((m.by || 'M').charAt(0).toUpperCase()) + '</span><span>Менеджер <b>' + esc(m.by || '') + '</b> приєднався до чату</span></div>';
@@ -321,8 +323,29 @@
   el.name.addEventListener('change', function () { visitorName = el.name.value.trim().slice(0, 40); ls(K.name, visitorName); if (visitorName) { toast('Дякуємо, ' + visitorName + '!'); el.nameRow.hidden = true; publishJson(Object.assign({ kind: 'chat_name' }, meta())); } });
   window.addEventListener('online', function () { el.offline.hidden = true; connect(); hist.forEach(function (m) { if (m.failed && m.payload) { m.failed = false; publishJson(m.payload).then(function (ok) { m.sent = ok; m.failed = !ok; if (ok) m.payload = null; save(); render(); }); } }); });
   window.addEventListener('offline', function () { el.offline.hidden = false; });
-  // keep composer visible above the on-screen keyboard (iOS)
-  if (window.visualViewport) { var vv = window.visualViewport; var fix = function () { document.documentElement.style.setProperty('--kb', Math.max(0, window.innerHeight - vv.height - vv.offsetTop) + 'px'); $('app').style.height = vv.height + 'px'; scrollBottom(); }; vv.addEventListener('resize', fix); vv.addEventListener('scroll', fix); }
+  // keep composer pinned above the on-screen keyboard (iOS/Android): size the app to the visual viewport
+  (function () {
+    var vv = window.visualViewport, root = document.documentElement, app = $('app'), raf = 0;
+    function apply() {
+      raf = 0;
+      var h = vv ? vv.height : window.innerHeight, top = vv ? vv.offsetTop : 0;
+      root.style.setProperty('--vvh', Math.round(h) + 'px');
+      root.style.setProperty('--vvt', Math.round(top) + 'px');
+      var kb = Math.max(0, window.innerHeight - h - top);
+      root.style.setProperty('--kb', kb + 'px');
+      app.classList.toggle('is-kb', kb > 80);
+      if (window.scrollY || window.scrollX) window.scrollTo(0, 0);
+      if (stick) scrollBottom(true);
+    }
+    function schedule() { if (!raf) raf = requestAnimationFrame(apply); }
+    if (vv) { vv.addEventListener('resize', schedule); vv.addEventListener('scroll', schedule); }
+    window.addEventListener('resize', schedule);
+    window.addEventListener('orientationchange', function () { setTimeout(apply, 300); });
+    window.addEventListener('scroll', function () { if (window.scrollY) window.scrollTo(0, 0); }, { passive: true });
+    el.inp.addEventListener('focus', function () { setTimeout(apply, 50); setTimeout(apply, 350); setTimeout(function () { scrollBottom(true); }, 400); });
+    el.inp.addEventListener('blur', function () { setTimeout(apply, 50); setTimeout(apply, 350); });
+    apply();
+  })();
 
   /* ---------- boot ---------- */
   applyManager(); render(); scrollBottom(true);
@@ -330,6 +353,6 @@
   if (!navigator.onLine) el.offline.hidden = false;
   connect();
   publishJson(Object.assign({ kind: 'chat_open' }, meta()));
-  el.inp.focus({ preventScroll: true });
+  if (!(window.matchMedia && matchMedia('(pointer: coarse)').matches)) el.inp.focus({ preventScroll: true });
   window.__chat = { hist: function () { return hist; }, sid: SID };
 })();

@@ -42,7 +42,7 @@
       var fromN = card ? card.getAttribute('data-from-name') : '', toN = card ? card.getAttribute('data-to-name') : '';
       var price = card ? (card.querySelector('.direction-element__price') || {}).textContent : '';
       var msg = 'Вітаю! Цікавить рейс ' + fromN + ' – ' + toN + (price ? ' (' + price.trim() + ')' : '') + '. Підкажіть, будь ласка, деталі.';
-      window.open('https://wa.me/380973452025?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+      window.open('https://wa.me/380966973130?text=' + encodeURIComponent(msg), '_blank', 'noopener');
       return;
     }
     var href = a.getAttribute('href');

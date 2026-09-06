@@ -4,7 +4,7 @@
   'use strict';
   var DEFAULT = [
     { name: 'Дмитро', role: 'Менеджер з перевезень', phone: '+380683175335', telegram: 'https://t.me/+380683175335', whatsapp: 'https://wa.me/380683175335' },
-    { name: 'Олексій', role: 'Менеджер з перевезень', phone: '+380973452025', telegram: 'https://t.me/+380973452025', whatsapp: 'https://wa.me/380973452025' },
+    { name: 'Олексій', role: 'Менеджер з перевезень', phone: '+380966973130', telegram: 'https://t.me/+380966973130', whatsapp: 'https://wa.me/380966973130' },
     { name: 'Сергій', role: 'Менеджер з перевезень', phone: '+380680813450', telegram: 'https://t.me/+380680813450', whatsapp: 'https://wa.me/380680813450' }
   ];
   var managers = DEFAULT.slice();

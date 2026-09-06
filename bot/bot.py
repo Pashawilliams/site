@@ -965,7 +965,7 @@ def handle_callback(cq):
     if data.startswith("mgr:"):
         return manager_view(int(data.split(":")[1]), msg_id)
     if data == "mgr_add":
-        return ask("mgr_add", "Надішліть дані менеджера (кожне з нового рядка):\n<code>Ім'я\n+380XXXXXXXXX\nПосада (необов'язково)\nПосилання Telegram (необов'язково)\nПосилання WhatsApp (необов'язково)</code>\n\nПриклад:\n<code>Олексій\n+380973452025\nМенеджер з перевезень\nhttps://t.me/pereviznyk_support</code>")
+        return ask("mgr_add", "Надішліть дані менеджера (кожне з нового рядка):\n<code>Ім'я\n+380XXXXXXXXX\nПосада (необов'язково)\nПосилання Telegram (необов'язково)\nПосилання WhatsApp (необов'язково)</code>\n\nПриклад:\n<code>Олексій\n+380966973130\nМенеджер з перевезень\nhttps://t.me/pereviznyk_support</code>")
     if data.startswith("mset:"):
         _, i, field = data.split(":")
         hints = {"name": "Нове ім'я:", "role": "Нова посада:", "phone": "Номер: <code>+380XXXXXXXXX</code>", "telegram": "Посилання t.me/… або «auto»", "whatsapp": "Посилання wa.me/… або «auto»"}

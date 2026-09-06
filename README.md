@@ -8,6 +8,6 @@
 - `js/theme.js` — переключатель темы, анимации, кнопка «наверх», структура карточек
 - `_archive/` — исходный zip-архив
 
-Контакты: Telegram https://t.me/pereviznyk_support · WhatsApp +380 97 345 20 25
+Контакты: Telegram https://t.me/pereviznyk_support · WhatsApp +380 96 697 31 30
 
 Деплой: GitHub Actions → GitHub Pages (`.github/workflows/deploy.yml`).

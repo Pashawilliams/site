@@ -16,7 +16,7 @@
   function applyContacts(c) {
     if (!c) return;
     var tg = c.telegram || '', wa = c.whatsapp || (c.phone ? 'https://wa.me/' + digits(c.phone) : ''), tel = c.phone ? 'tel:+' + digits(c.phone) : '';
-    var MAIN = '380973452025';
+    var MAIN = '380966973130';
     function isMain(a) { var h = a.getAttribute('href') || ''; return !/\d{9,}/.test(h) || h.indexOf(MAIN) !== -1; }
     document.querySelectorAll('a[href*="t.me/"]').forEach(function (a) { if (tg && isMain(a)) a.href = tg; });
     document.querySelectorAll('a[href*="wa.me/"], a[href*="whatsapp"]').forEach(function (a) { if (wa && isMain(a)) a.href = wa; });
