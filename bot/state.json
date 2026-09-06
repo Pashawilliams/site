@@ -457,11 +457,16 @@
           "dir": "in",
           "text": "Вот",
           "ts": "2026-09-06T18:44:46.280Z"
+        },
+        {
+          "dir": "in",
+          "text": "Лавла",
+          "ts": "2026-09-06T18:44:53.019Z"
         }
       ],
       "name": "",
       "page": "http://eurotour.pp.ua/",
-      "last": "2026-09-06T18:44:47.464952",
+      "last": "2026-09-06T18:44:53.163276",
       "closed": false
     }
   },
@@ -471,7 +476,7 @@
     "ebd5ebce931f2bc6",
     "dcd4f925e7e8326e"
   ],
-  "bridge_since": "oI2X7PC99OXC",
+  "bridge_since": "N3PPilXIcdsa",
   "dialogs": {
     "7906546417": "205eb49be5ae6681"
   },
