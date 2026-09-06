@@ -76,7 +76,7 @@
       "msg": "contacts telegram"
     }
   ],
-  "offset": 124880610,
+  "offset": 124880611,
   "admins": [],
   "chats": {
     "56825ebc9c518d9f": {
@@ -343,7 +343,8 @@
       "name": "",
       "page": "http://eurotour.pp.ua/",
       "last": "2026-09-06T13:13:32.902843",
-      "closed": false
+      "closed": false,
+      "agent": 7906546417
     }
   },
   "banned": [
@@ -352,6 +353,8 @@
     "ebd5ebce931f2bc6"
   ],
   "bridge_since": "uPm0rYju8Qco",
-  "dialogs": {},
+  "dialogs": {
+    "7906546417": "f6a201c6ace72ccf"
+  },
   "owner_name": "Дмитро Перевізник"
 }
