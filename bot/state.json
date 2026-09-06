@@ -318,8 +318,7 @@
       "name": "",
       "page": "",
       "last": "",
-      "closed": false,
-      "agent": 7906546417
+      "closed": true
     }
   },
   "banned": [
@@ -328,8 +327,6 @@
     "ebd5ebce931f2bc6"
   ],
   "bridge_since": "n076o5EwqBtE",
-  "dialogs": {
-    "7906546417": "05ffe56dfe48c812"
-  },
+  "dialogs": {},
   "owner_name": "Дмитро Перевізник"
 }
