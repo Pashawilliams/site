@@ -511,6 +511,12 @@
       "page": "http://eurotour.pp.ua/",
       "last": "2026-09-06T19:58:44.394992",
       "closed": true
+    },
+    "156f11c909d048f9": {
+      "msgs": [],
+      "name": "",
+      "page": "http://eurotour.pp.ua/",
+      "last": ""
     }
   },
   "banned": [
@@ -519,7 +525,7 @@
     "ebd5ebce931f2bc6",
     "dcd4f925e7e8326e"
   ],
-  "bridge_since": "tGiL3WM9bQ3U",
+  "bridge_since": "BYZUWSPpn8dQ",
   "dialogs": {},
   "owner_name": "Дмитро Перевізник"
 }
