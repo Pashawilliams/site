@@ -132,7 +132,7 @@
       "msg": "maintenance=True"
     }
   ],
-  "offset": 124880671,
+  "offset": 124880679,
   "admins": [],
   "chats": {
     "56825ebc9c518d9f": {
@@ -232,7 +232,8 @@
       "name": "",
       "page": "http://localhost:8765/chat.html",
       "last": "2026-09-05T11:15:45.615671",
-      "closed": false
+      "closed": false,
+      "agent": 7906546417
     },
     "ce3a51ba323038db": {
       "msgs": [
@@ -530,6 +531,8 @@
     "dcd4f925e7e8326e"
   ],
   "bridge_since": "BYZUWSPpn8dQ",
-  "dialogs": {},
+  "dialogs": {
+    "7906546417": "be475061f58b5df2"
+  },
   "owner_name": "Дмитро Перевізник"
 }
