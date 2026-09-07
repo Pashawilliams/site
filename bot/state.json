@@ -505,8 +505,7 @@
       "name": "",
       "page": "http://eurotour.pp.ua/",
       "last": "2026-09-06T19:58:44.394992",
-      "closed": false,
-      "agent": 7906546417
+      "closed": true
     }
   },
   "banned": [
@@ -516,8 +515,6 @@
     "dcd4f925e7e8326e"
   ],
   "bridge_since": "nQ52DwLAsKUf",
-  "dialogs": {
-    "7906546417": "7f8f72a18ea38511"
-  },
+  "dialogs": {},
   "owner_name": "Дмитро Перевізник"
 }
