@@ -2,7 +2,7 @@
   "_state": "public-redacted-v1",
   "_note": "Sensitive leads/chats/dialogs/logs are intentionally not stored in the public repository. Set GitHub Actions secret STATE_SECRET to persist encrypted full bot state.",
   "offset": 124880679,
-  "bridge_since": "ZqbcNtQiEOkS",
+  "bridge_since": "stwI9N3NyCx2",
   "admins": [],
   "banned": [
     "56825ebc9c518d9f",
