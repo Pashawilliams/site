@@ -107,8 +107,8 @@
   "faq":       [ 5 × { "q", "a" } ],
   "managers":  [ { "name": "Олексій", "phone": "+380966973130", "role": "Менеджер з перевезень",
                    "telegram": "https://t.me/+380966973130", "whatsapp": "https://wa.me/380966973130" },
-                 { "name": "Сергій",  "phone": "+380680813450", "role": "Менеджер з перевезень",
-                   "telegram": "https://t.me/eurotourbus1",   "whatsapp": "https://wa.me/380680813450" } ],
+                 { "name": "Сергій",  "phone": "+380987866620", "role": "Менеджер з перевезень",
+                   "telegram": "https://t.me/eurotourbus1",   "whatsapp": "https://wa.me/380987866620" } ],
   "durations": { "Київ|Варшава": 11.1, ... 50 пар },     // часы чистой дороги по OSRM (без надбавки)
   "pricing":   { см. §5 },
   "bridge":    { "inbox": "et-inbox-<32 случайных символа>" },   // имя ntfy-топика = пароль

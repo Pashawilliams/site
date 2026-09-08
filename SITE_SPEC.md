@@ -153,4 +153,4 @@ CSS‑переменные:
 
 ## Класс ↔ время выезда
 - Comfort ездит только в 08:00, Lux — только в 18:00. Переключатели класса и времени (поиск, форма бронирования) синхронизированы в обе стороны (js/pricing.js: CLASS_TIME, syncTimes, слушатель change на `text-search-time`).
-- Менеджеры (data/site.json → managers): Олексій +380 96 697 31 30; Сергій +380 68 081 34 50, Telegram https://t.me/eurotourbus1.
+- Менеджеры (data/site.json → managers): Олексій +380 96 697 31 30; Сергій +380 98 786 66 20, Telegram https://t.me/eurotourbus1.
