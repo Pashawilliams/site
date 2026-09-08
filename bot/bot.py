@@ -13,6 +13,8 @@ import os
 import sys
 import time
 import base64
+import hashlib
+import hmac
 import signal
 import logging
 import datetime as dt
@@ -32,6 +34,7 @@ DATA_PATH = "data/site.json"
 STATE_PATH = "bot/state.json"
 SITE_URL = os.environ.get("SITE_URL", "https://eurotour.pp.ua/")
 MAX_RUNTIME = int(os.environ.get("MAX_RUNTIME", str(5 * 3600 + 20 * 60)))  # 5h20m
+STATE_SECRET = os.environ.get("STATE_SECRET", "").strip()
 START = time.time()
 
 API = f"https://api.telegram.org/bot{BOT_TOKEN}/"
@@ -103,11 +106,118 @@ def esc(s):
 GH_H = {"Authorization": f"token {GH_TOKEN}", "Accept": "application/vnd.github+json"}
 
 
+def default_state():
+    return {"leads": [], "log": [], "admins": [], "chats": {}, "banned": [], "dialogs": {}}
+
+
+def _state_fallback(src=None):
+    st = default_state()
+    if isinstance(src, dict):
+        st["offset"] = src.get("offset", 0)
+        st["bridge_since"] = src.get("bridge_since") or "5m"
+        st["admins"] = src.get("admins") or []
+        st["banned"] = src.get("banned") or []
+    return st
+
+
+def _state_key():
+    return hashlib.pbkdf2_hmac(
+        "sha256",
+        STATE_SECRET.encode("utf-8"),
+        b"eurotour-bot-state-v1",
+        200_000,
+        dklen=32,
+    )
+
+
+def _xor_stream(data, key, nonce):
+    out = bytearray()
+    counter = 0
+    while len(out) < len(data):
+        out.extend(hmac.new(key, nonce + counter.to_bytes(8, "big"), hashlib.sha256).digest())
+        counter += 1
+    return bytes(a ^ b for a, b in zip(data, out))
+
+
+def encrypt_state(obj):
+    """Encrypt bot runtime state before writing it to the public repo.
+
+    This keeps leads/chats private if GitHub Actions secret STATE_SECRET is set.
+    The offset fields remain public so the bot can avoid replay storms even if
+    the secret is temporarily missing.
+    """
+    payload = json.dumps(obj, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+    key = _state_key()
+    nonce = os.urandom(16)
+    ct = _xor_stream(payload, key, nonce)
+    tag = hmac.new(key, nonce + ct, hashlib.sha256).digest()
+    return {
+        "_encrypted": "state.v1",
+        "_note": "Encrypted Telegram bot state. Do not edit manually. Secret: GitHub Actions STATE_SECRET.",
+        "offset": obj.get("offset", 0),
+        "bridge_since": obj.get("bridge_since") or "5m",
+        "nonce": base64.b64encode(nonce).decode(),
+        "ciphertext": base64.b64encode(ct).decode(),
+        "tag": base64.b64encode(tag).decode(),
+        "updated_at": dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+    }
+
+
+def decrypt_state(obj):
+    if not isinstance(obj, dict):
+        return default_state()
+    if obj.get("_encrypted") != "state.v1":
+        return obj
+    fallback = _state_fallback(obj)
+    if not STATE_SECRET:
+        log.warning("bot state is encrypted, but STATE_SECRET is not configured; using public offsets only")
+        return fallback
+    try:
+        key = _state_key()
+        nonce = base64.b64decode(obj.get("nonce") or "")
+        ct = base64.b64decode(obj.get("ciphertext") or "")
+        tag = base64.b64decode(obj.get("tag") or "")
+        expected = hmac.new(key, nonce + ct, hashlib.sha256).digest()
+        if not hmac.compare_digest(tag, expected):
+            raise ValueError("state authentication failed")
+        plain = _xor_stream(ct, key, nonce)
+        state = json.loads(plain.decode("utf-8"))
+        return state if isinstance(state, dict) else fallback
+    except Exception:
+        log.exception("cannot decrypt bot state; using public offsets only")
+        return fallback
+
+
+def public_state(obj):
+    """Redacted state safe to keep in a public repository.
+
+    Without STATE_SECRET, active leads/chats live only in bot memory until the
+    current GitHub Actions run ends. This is intentional: a public repo must not
+    contain client names, phones, messages, or attachments.
+    """
+    return {
+        "_state": "public-redacted-v1",
+        "_note": "Sensitive leads/chats/dialogs/logs are intentionally not stored in the public repository. Set GitHub Actions secret STATE_SECRET to persist encrypted full bot state.",
+        "offset": obj.get("offset", 0),
+        "bridge_since": obj.get("bridge_since") or "5m",
+        "admins": obj.get("admins") or [],
+        "banned": obj.get("banned") or [],
+        "leads": [],
+        "log": [],
+        "chats": {},
+        "dialogs": {},
+    }
+
+
+def state_for_repo(obj):
+    return encrypt_state(obj) if STATE_SECRET else public_state(obj)
+
+
 class Store:
     def __init__(self):
         self.data = None
         self.sha = None
-        self.state = {"leads": [], "log": [], "admins": [], "chats": {}, "banned": []}
+        self.state = default_state()
         self.state_sha = None
 
     def load(self):
@@ -117,10 +227,14 @@ class Store:
         try:
             r = http(f"https://api.github.com/repos/{GH_REPO}/contents/{STATE_PATH}?ref={GH_BRANCH}", headers=GH_H)
             self.state_sha = r["sha"]
-            self.state = json.loads(base64.b64decode(r["content"]).decode())
+            raw_state = json.loads(base64.b64decode(r["content"]).decode())
+            self.state = decrypt_state(raw_state)
         except urllib.error.HTTPError:
             self.state_sha = None
-        for k, v in (("leads", []), ("log", []), ("admins", []), ("chats", {}), ("banned", [])):
+            self.state = default_state()
+        if not isinstance(self.state, dict):
+            self.state = default_state()
+        for k, v in (("leads", []), ("log", []), ("admins", []), ("chats", {}), ("banned", []), ("dialogs", {})):
             self.state.setdefault(k, v)
         self.data.setdefault("managers", [])
         return self.data
@@ -156,7 +270,7 @@ class Store:
     def save_state(self, silent=False):
         try:
             with self._lock:
-                self.state_sha = self._put(STATE_PATH, self.state, self.state_sha, "admin-bot: state")
+                self.state_sha = self._put(STATE_PATH, state_for_repo(self.state), self.state_sha, "admin-bot: state")
         except Exception as e:
             log.warning("state save failed: %s", e)
             if not silent:
@@ -1381,7 +1495,9 @@ def main():
         {"command": "cancel", "description": "Скасувати ввід"},
     ])
     offset = store.state.get("offset", 0)
-    log.info("started; admin=%s repo=%s runtime=%ss", ADMIN_ID, GH_REPO, MAX_RUNTIME)
+    log.info("started; admin=%s repo=%s runtime=%ss state_mode=%s", ADMIN_ID, GH_REPO, MAX_RUNTIME, "encrypted" if STATE_SECRET else "redacted")
+    if not STATE_SECRET:
+        log.warning("STATE_SECRET is not set; leads/chats are kept only in memory and redacted in bot/state.json")
     if os.environ.get("NOTIFY_START") == "1":
         broadcast("🤖 Бот онлайн · /menu", main_menu())
     stop = {"flag": False}

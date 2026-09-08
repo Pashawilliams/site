@@ -1,1 +1,11 @@
 __pycache__/
+
+# Local secrets / operator files
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+bot/*.local.json
+bot/state.private.json

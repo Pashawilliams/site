@@ -25,9 +25,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Prepare public site artifact
+        run: |
+          rm -rf _site
+          mkdir -p _site
+          cp -a index.html chat.html CNAME robots.txt sitemap.xml css data fonts images js _site/
+          [ ! -f .nojekyll ] || cp -a .nojekyll _site/
+
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4

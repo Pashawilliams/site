@@ -6,7 +6,6 @@
     { name: 'Дмитро', role: 'Менеджер з перевезень', phone: '+380683175335', telegram: 'https://t.me/+380683175335', whatsapp: 'https://wa.me/380683175335' },
     { name: 'Олексій', role: 'Менеджер з перевезень', phone: '+380966973130', telegram: 'https://t.me/+380966973130', whatsapp: 'https://wa.me/380966973130' },
     { name: 'Сергій', role: 'Менеджер з перевезень', phone: '+380987866620', telegram: 'https://t.me/eurotourbus1', whatsapp: 'https://wa.me/380987866620' },
-    { name: 'Ярослав', role: 'Менеджер з перевезень', phone: '+380971137900', telegram: 'https://t.me/+380971137900', whatsapp: 'https://wa.me/380971137900' }
   ];
   var managers = DEFAULT.slice();
   var ICON = {
