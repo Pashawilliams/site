@@ -1,17 +1,10 @@
 {
-  "_state": "public-redacted-v1",
-  "_note": "Sensitive leads/chats/dialogs/logs are intentionally not stored in the public repository. Set GitHub Actions secret STATE_SECRET to persist encrypted full bot state.",
+  "_encrypted": "state.v1",
+  "_note": "Encrypted Telegram bot state. Do not edit manually. Secret: GitHub Actions STATE_SECRET.",
   "offset": 124880679,
   "bridge_since": "stwI9N3NyCx2",
-  "admins": [],
-  "banned": [
-    "56825ebc9c518d9f",
-    "6cd1251e5d8222f5",
-    "ebd5ebce931f2bc6",
-    "dcd4f925e7e8326e"
-  ],
-  "leads": [],
-  "log": [],
-  "chats": {},
-  "dialogs": {}
+  "nonce": "6HAMczCoIKywZpdSwlhbRg==",
+  "ciphertext": "xbRCNIMHcyqCje8aw/IjZDF4zFiapnjTXEyALq5M9+01acG8hzPF9smYP6upGE3ekSJWn0pG6gd9AjZiBMXSqhJnXCVggChmTXd0vf9uhv78TrhN//QqXcKk1VVsfJxc3PsoNEg3zOVnxUIVNQ3auRXj311RK+TjCm5zp1IZb2HoeLsqbAP6fBBvmSq7IYT+m37d8Z15SITti94dVP0QNh9BpnUURUnq0pEAc3o5GPbWRrYMhA+fcu/5gHsy7lA0XYAnBr7rsOZccKsen3bJQRSP+uBB7tcVnTH+M0h0ZbQm2dzvYSa1pxzc9L8B1bEDCU32qXE2Kh4VRviEQg3Z/em/xwPiLc9+9lWf74CK/P2jbquK80QWXLBnO9u8GbURIqO709dEx/4qVzGpJaLATyS84HPrYitprbRhg5BEXaZdv4If0ONvO0CvKTq8csWgrrS2Q3wI0uh3lc7tReSszC9Kvw6ZnHOZXS83IDdkPYrZqBrMPqzrx5AJUJ7CEd8gO18yZwj50U/Ou7IFu9a0l685YZQUzR4wXSuPunLKwDdQDnvdhewjM5c3/UGIoKH9XY2YI4g3CayTftiCrNYAgnJc5TIgXyhN0oA886JitCILUuHu0bZc5P6d9Rtouq6CueTJ1C2X/4iFz7UHzxlMzurugg80cHQTnxXGhGlVmTfg",
+  "tag": "42SW30YhLIYg7bftmPfhLjH7pdIjLafQ3s+WnqK1Rws=",
+  "updated_at": "2026-09-08T21:44:37Z"
 }
