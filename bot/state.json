@@ -3,8 +3,8 @@
   "_note": "Encrypted Telegram bot state. Do not edit manually. Secret: GitHub Actions STATE_SECRET.",
   "offset": 124880679,
   "bridge_since": "stwI9N3NyCx2",
-  "nonce": "4DSpwbLnDEa0Lu+m3K84SA==",
-  "ciphertext": "zy+WHcSDJU4LSe/ivPza/vLmGLCVm6SHp+zXS4cBGIXnw1/Ylju8TqXIgOqiOg82UjCZuGlEMOpDiZoQUkQimqCd5hR8A1n9hfjXRVZ23wTAeO5VnU1AL6HZIvGWDD41qovkM9gTbDJjkOV8uju9ZZYbuLrktiAd0EHZneA8Lxc+g2/sJBB36frjy2zOj9BnIBfPT7lsQ1xJGbIXCblRXM1gpHMtata27WNyZ+wY5y+FOsq1N+rFLZpZtDbm98bLb9vChpJvtBCdCWUgbcdTJAQAaodsSPIkItdTnH9H6MaY2fjkIFfcqxWTis/Indr2NarxuwWyquZTzaCXLMyoydKzrE0PRTzqsueRzRrw2R9+3nYjr91mvCVAZ9rqOS57GFFh6veBFkm5WDToh1G0YbwCdknUFmqRXUauaYHdiyI8oWme/XvAriAwQz9aKENmwzrLBwyF7nH7obLnSMVcd5EzIylCvL2HE/8QyUDBBopN/ZW1bdv47+VI25pTcbXcL59acA99AHBXeOzcq8OYAAsNyKacpnwiVtAPlXT6TyevYHUoTgwPSIxvZWBFnL4f7zcejA/scntah8M41BX1+Og0fs49Ef5jOTE8m+HZLPNboxfmMBSFeOR+jPUXZHI2h9t6jv8RS2nSb44FGqtc4PNFKYEGCfs50ACMOoaHjx8rw3iY7soYgDPXSzC87Yd9v1WznwEyTGUZ3Z4Kq53Wwi1g6XFPPZjnfP2MtaxrmSEnwQ==",
-  "tag": "ubTynd4kw7Ba6/1VBGF7UUQ3D+ZOiY75iaN9MFX7mSA=",
-  "updated_at": "2026-09-08T21:44:39Z"
+  "nonce": "nnQrtszseYyx8wJmo30P5w==",
+  "ciphertext": "jYPtl+hKJF7omw207OUYLMP6cMszJz7/Pxhz2yOS3oNLqrln28vEGFPtnZuhm/hFo6gcjKT1F9hNY1nqWizhiJEWy5hYDjuRWWl6qZf4S8lMQqmWcg+Z4vez3GsNyd73ddTsFpkLw+nvvCy1eAk+Gs9ilDXUPbCR6Gsgh+zFImPlRQ/31dM97xzm+zrhyKuodToXyXQ0MYHLO/Zspjj6f3HkPyAL6ApXFrln18btRh6K0U7NRdXLWooEccpYVqIuMpYWlj13ks64igIBOpgOZ0QGz8tF3M3KOKpKWh5bXUbDwOlSfoG3NYKKHlpLQWgjCakmqbd6I1HeBK76ot6H2u9NXuiuFMwQUF/PxK4NOUOt4Y/+9FcNmnpWFDSAAWPmGHYvxy1XAoZ9exC2OfqPF5Lz9o3T9ZY10AjtQUHF1qUG9JCPe0zK0JcDmE4VBiqoPfIwkrl+IQIKnm2K3GrGH4kiOYT1EmreZ7bwmUBk8tAKchg/0PKk437mtH3vyXjGw4PaFAZa6ikIJmbIZS03zgff/Afh+nBeyOQIUa5A7Z53PZpW3X64zOiCnh2H/zdHxLL07PJk2jG1jco3R0yudcHTh8rPRhLbo75wWkhtFEzJKagI3+gnyKMnfgAZQ8ueCAwwHuGfkEpLDT8ImHD9ng6Lj5gdheQFNRRA6ud9McgyVHdsFxy7fZ+4LDbFyPkxNhkKPROIchBn2ykFA5yWNRVJuWuhjJVwjY522p1R8m7mVXuXAiCYL35Fty85j3mCE8HGOfH3EDnWcXzuwzCqTGpeR2NWthdaKdPXeegi2JCi04Z+jivStA==",
+  "tag": "lMl5ony656TWjHcm/6ua4izKZqPKIE+SZcmzVKQXkdY=",
+  "updated_at": "2026-09-08T21:44:49Z"
 }
