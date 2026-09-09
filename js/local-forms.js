@@ -847,10 +847,10 @@
 
     var method = makePopup(
       'purchase-method-popup',
-      '<p class="main-form__title">Для покупки зв\'яжіться з менеджером</p>' +
-        '<p class="main-form__subtitle">Напишіть нам у месенджер — допоможемо оформити квиток</p>' +
+      '<p class="main-form__title">Бронювання очікує підтвердження</p>' +
+        '<p class="main-form__subtitle">Менеджер перевірить заявку, надасть реквізити офіційного рахунку ФОП та підтвердить бронювання після оплати</p>' +
         '<div class="purchase-method__actions">' +
-        '<button type="button" class="btnV2 purchase-method__btn" data-purchase-choice="manager">Зв\'язатися з менеджером</button>' +
+        '<button type="button" class="btnV2 purchase-method__btn" data-purchase-choice="manager">Отримати реквізити ФОП</button>' +
         '</div>'
     );
 
@@ -890,53 +890,16 @@
 
     var card = makePopup(
       'card-payment-popup',
-      '<p class="main-form__title">Оплата онлайн</p>' +
-        '<p class="main-form__subtitle">Вкажіть дані картки та email для надсилання квитків</p>' +
-        '<form class="card-payment-form" novalidate>' +
-        '<div class="inp-form">' +
-        '<div class="inp-form__icon-wrapper"><span class="inp-form__icon-text">@</span></div>' +
-        '<div class="inp-form__inp-wrapper">' +
-        '<span class="wpcf7-form-control-wrap">' +
-        '<input type="email" name="pay-email" class="wpcf7-form-control wpcf7-email inp-form__inp" placeholder="Email для квитків" required aria-required="true">' +
-        '</span></div></div>' +
-        '<div class="inp-form">' +
-        '<div class="inp-form__icon-wrapper"><span class="inp-form__icon-text">№</span></div>' +
-        '<div class="inp-form__inp-wrapper">' +
-        '<span class="wpcf7-form-control-wrap">' +
-        '<input type="text" name="pay-card" class="wpcf7-form-control inp-form__inp" inputmode="numeric" autocomplete="cc-number" placeholder="Номер картки" maxlength="19" required aria-required="true">' +
-        '</span></div></div>' +
-        '<div class="card-payment-form__row">' +
-        '<div class="inp-form">' +
-        '<div class="inp-form__icon-wrapper"><span class="inp-form__icon-text">ММ</span></div>' +
-        '<div class="inp-form__inp-wrapper">' +
-        '<span class="wpcf7-form-control-wrap">' +
-        '<input type="text" name="pay-exp" class="wpcf7-form-control inp-form__inp" inputmode="numeric" autocomplete="cc-exp" placeholder="ММ/РР" maxlength="5" required aria-required="true">' +
-        '</span></div></div>' +
-        '<div class="inp-form">' +
-        '<div class="inp-form__icon-wrapper"><span class="inp-form__icon-text">CVC</span></div>' +
-        '<div class="inp-form__inp-wrapper">' +
-        '<span class="wpcf7-form-control-wrap">' +
-        '<input type="text" name="pay-cvc" class="wpcf7-form-control inp-form__inp" inputmode="numeric" autocomplete="cc-csc" placeholder="CVC" maxlength="4" required aria-required="true">' +
-        '</span></div></div>' +
-        '</div>' +
-        '<div class="inp-form">' +
-        '<div class="inp-form__icon-wrapper"><span class="inp-form__icon-text">Aa</span></div>' +
-        '<div class="inp-form__inp-wrapper">' +
-        '<span class="wpcf7-form-control-wrap">' +
-        '<input type="text" name="pay-name" class="wpcf7-form-control inp-form__inp" autocomplete="cc-name" placeholder="Ім\'я на картці" required aria-required="true">' +
-        '</span></div></div>' +
-        '<div class="inp-form-btn-wrapper">' +
-        '<button type="submit" class="btnV2">Оплатити</button>' +
-        '</div>' +
-        '<div class="wpcf7-response-output" aria-hidden="true" style="display:none"></div>' +
-        '</form>'
+      '<p class="main-form__title">Оплата на рахунок ФОП</p>' +
+        '<p class="main-form__subtitle">Карткові дані на сайті не приймаються. Менеджер надасть реквізити офіційного рахунку ФОП після перевірки заявки та підтвердить бронювання після надходження оплати.</p>' +
+        '<div class="inp-form-btn-wrapper"><button type="button" class="btnV2" data-purchase-choice="manager">Отримати реквізити ФОП</button></div>'
     );
 
     var payOk = makePopup(
       'form-send-payment',
       '<div class="form-send__done">' + SUCCESS_SVG + '</div>' +
         '<p class="main-form__title">Успіх</p>' +
-        '<p class="main-form__subtitle">Квитки буде надіслано на вказану електронну пошту</p>' +
+        '<p class="main-form__subtitle">Бронювання підтверджується менеджером після надходження оплати на офіційний рахунок ФОП</p>' +
         '<div class="inp-form-btn-wrapper"><a href="' + homeHref() + '" class="btnV2">На головну</a></div>'
     );
 
@@ -945,7 +908,7 @@
     box.appendChild(card);
     box.appendChild(payOk);
 
-    method.querySelectorAll('[data-purchase-choice]').forEach(function (btn) {
+    box.querySelectorAll('[data-purchase-choice]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var choice = btn.getAttribute('data-purchase-choice');
         if (choice === 'manager') {
