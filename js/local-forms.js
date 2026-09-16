@@ -30,6 +30,7 @@
     { code: '+40', label: 'RO +40', iso: '40', min: 11, max: 12 },
     { code: '+373', label: 'MD +373', iso: '373', min: 11, max: 11 },
     { code: '+33', label: 'FR +33', iso: '33', min: 11, max: 12 },
+    { code: '+34', label: 'ES +34', iso: '34', min: 11, max: 11 },
     { code: '+39', label: 'IT +39', iso: '39', min: 11, max: 13 },
     { code: '+31', label: 'NL +31', iso: '31', min: 11, max: 12 },
     { code: '+32', label: 'BE +32', iso: '32', min: 11, max: 12 },

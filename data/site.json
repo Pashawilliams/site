@@ -432,6 +432,38 @@
       "old_price": null,
       "slug": "ads/amsterdam-lviv",
       "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Мадрид",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/kyyiv-madryd",
+      "visible": true
+    },
+    {
+      "from": "Мадрид",
+      "to": "Київ",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/madryd-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Мадрид",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lviv-madryd",
+      "visible": true
+    },
+    {
+      "from": "Мадрид",
+      "to": "Львів",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/madryd-lviv",
+      "visible": true
     }
   ],
   "reviews": [
@@ -476,7 +508,7 @@
       "a": "Час перетину кордону залежить від вибраного пропускного пункту, сезону та завантаженості у конкретний час. Наші менеджери намагаються вибрати оптимальний час поїздки, щоб якомога швидше пройти перевірку."
     }
   ],
-  "updated_at": "2026-09-13T17:41:24Z",
+  "updated_at": "2026-09-16T12:00:00Z",
   "bridge": {
     "inbox": "et-inbox-zL0NL7gvzQJtWq3ZwnWNqAkiYp9fKrOYYx1d"
   },
@@ -644,6 +676,11 @@
       "km": 864,
       "src": "osrm"
     },
+    "Київ|Мадрид": {
+      "hours": 42.5,
+      "km": 3635,
+      "src": "osrm"
+    },
     "Київ|Мілан": {
       "hours": 28.2,
       "km": 2153,
@@ -709,6 +746,11 @@
       "km": 325,
       "src": "osrm"
     },
+    "Львів|Мадрид": {
+      "hours": 34.6,
+      "km": 3096,
+      "src": "osrm"
+    },
     "Львів|Мілан": {
       "hours": 20.4,
       "km": 1615,
@@ -717,6 +759,16 @@
     "Львів|Прага": {
       "hours": 11.9,
       "km": 858,
+      "src": "osrm"
+    },
+    "Мадрид|Київ": {
+      "hours": 42.4,
+      "km": 3631,
+      "src": "osrm"
+    },
+    "Мадрид|Львів": {
+      "hours": 34.6,
+      "km": 3093,
       "src": "osrm"
     },
     "Мілан|Київ": {
