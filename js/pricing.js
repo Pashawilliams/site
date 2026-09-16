@@ -4,7 +4,7 @@
 (function (w, d) {
   'use strict';
   var P = {
-    currency: 'UAH', eur_rate: 51.8, extra_hours: 3,
+    currency: 'UAH', eur_rate: 51.449, extra_hours: 3,
     tiers: [[6,8,90,120],[8,10,100,140],[10,12,130,170],[12,14,140,180],[14,16,150,190],[16,18,160,200],[18,20,160,200],[20,22,170,210],[22,24,180,220],[24,27,190,230],[27,30,200,240],[30,33,210,250],[33,36,210,250],[36,39,220,260],[39,42,230,270],[42,45,240,280],[45,999,250,290]],
     discounts: [{ label: 'Пенсіонерам', pct: 10 }, { label: 'Дітям', pct: 15 }]
   };
@@ -65,7 +65,7 @@
       var note = card.querySelector('.et-card-door-note');
       var info = card.querySelector('.et-card-trip');
       if (!info) { info = d.createElement('div'); info.className = 'et-card-trip'; if (note) note.insertAdjacentElement('beforebegin', info); else if (p) p.parentElement.appendChild(info); }
-      info.innerHTML = '<span class="et-card-trip__time" title="Час у дорозі за дорожнім маршрутом + ' + P.extra_hours + ' год на кордон і зупинки">🕒 ~' + fmtHours(q.hours) + '</span>' +
+      info.innerHTML = '<span class="et-card-trip__time" title="Час у дорозі за дорожнім маршрутом + ' + P.extra_hours + ' год на кордон і зупинки">~' + fmtHours(q.hours) + '</span>' +
         '<span class="et-card-trip__cls et-card-trip__cls--' + q.cls + '">' + classLabel(q.cls) + ' · €' + q.eur + (q.open ? '+' : '') + '</span>';
       card.setAttribute('data-price-uah', q.amount); card.setAttribute('data-hours', q.hours);
     });
@@ -151,7 +151,7 @@
     w.__eurotourLastPrice = { amount: q.amount, hours: q.hours, cls: q.cls, eur: q.eur, from: q.from, to: q.to };
     box.innerHTML = '<div class="et-search-price__inner et-sp">' +
       '<div class="et-sp__row"><span class="et-search-price__label">Ціна квитка · ' + classLabel(q.cls) + '</span><span class="et-search-price__now"><strong>' + fmt(q.amount) + '</strong> <span class="et-search-price__currency">грн</span> <em class="et-sp__eur">≈ €' + q.eur + (q.open ? '+' : '') + '</em></span></div>' +
-      '<div class="et-sp__meta">🕒 у дорозі ~' + fmtHours(q.hours) + ' · ' + (q.cls === 'lux' ? 'Comfort: ' + fmt(q.uah_comfort) : 'Lux: ' + fmt(q.uah_lux)) + ' грн · знижки: пенсіонерам −10%, дітям −15%</div></div>';
+      '<div class="et-sp__meta">У дорозі ~' + fmtHours(q.hours) + ' · ' + (q.cls === 'lux' ? 'Comfort: ' + fmt(q.uah_comfort) : 'Lux: ' + fmt(q.uah_lux)) + ' грн · знижки: пенсіонерам −10%, дітям −15%</div></div>';
   }
   // observe the price box created by local-forms.js and enrich it
   var moBusy = false;
@@ -170,7 +170,7 @@
       if (wrap.querySelector('.et-cls--booking')) return;
       var price = wrap.querySelector('.et-booking-price');
       var s = switcher('et-cls-booking-' + Math.random().toString(36).slice(2, 6)); s.classList.add('et-cls--booking');
-      var disc = d.createElement('div'); disc.className = 'et-booking-disc'; disc.textContent = '🎁 Знижки: пенсіонерам −10%, дітям −15% — повідомте менеджеру';
+      var disc = d.createElement('div'); disc.className = 'et-booking-disc'; disc.textContent = 'Знижки: пенсіонерам −10%, дітям −15% — сума в бронюванні рахується автоматично';
       if (price) { price.insertAdjacentElement('afterend', s); s.insertAdjacentElement('afterend', disc); }
       else { var summary = wrap.querySelector('.et-booking-summary'); if (!summary) return; summary.appendChild(s); summary.appendChild(disc); }
       syncSwitchers();
@@ -198,6 +198,7 @@
     d.querySelectorAll('input[name="et-route-price"]').forEach(function (i) { i.value = String(q.amount); });
     d.querySelectorAll('input[name="et-travel-time"]').forEach(function (i) { i.value = '~' + fmtHours(q.hours); });
     d.querySelectorAll('.et-booking-price__label').forEach(function (l) { l.textContent = 'Ціна квитка · ' + classLabel(q.cls); });
+    try { d.dispatchEvent(new CustomEvent('et:booking-price', { detail: q })); } catch (e) {}
   }
   var busy = false, bmoT = null;
   var bmo = new MutationObserver(function (muts) {
@@ -225,7 +226,7 @@
       if (data.pricing.discounts) P.discounts = data.pricing.discounts;
     }
     if (data.durations) DUR = data.durations;
-    applyCards(); refreshSearchPrice(); syncSwitchers();
+    applyCards(); refreshSearchPrice(); syncSwitchers(); reinjectBooking();
     var note = d.querySelector('.et-discounts__note'); if (note) note.textContent = 'Ціна залежить від часу в дорозі · курс €1 = ' + P.eur_rate.toFixed(2) + ' ₴';
     if (data.pricing && data.pricing.rate_auto !== false) fetchRate();
   }
@@ -233,7 +234,7 @@
   function fetchRate() {
     if (rateFetched || !w.fetch) return; rateFetched = true;
     fetch('https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?valcode=EUR&json').then(function (r) { return r.json(); }).then(function (j) {
-      var r = j && j[0] && +j[0].rate; if (r && r > 20 && r < 200 && Math.abs(r - P.eur_rate) > 0.01) { P.eur_rate = r; applyCards(); refreshSearchPrice(); var note = d.querySelector('.et-discounts__note'); if (note) note.textContent = 'Ціна залежить від часу в дорозі · курс НБУ €1 = ' + r.toFixed(2) + ' ₴'; }
+      var r = j && j[0] && +j[0].rate; if (r && r > 20 && r < 200 && Math.abs(r - P.eur_rate) > 0.01) { P.eur_rate = r; applyCards(); refreshSearchPrice(); reinjectBooking(); var note = d.querySelector('.et-discounts__note'); if (note) note.textContent = 'Ціна залежить від часу в дорозі · курс НБУ €1 = ' + r.toFixed(2) + ' ₴'; }
     }).catch(function () {});
   }
 

@@ -464,6 +464,454 @@
       "old_price": null,
       "slug": "ads/madryd-lviv",
       "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Барселона",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/kyyiv-barselona",
+      "visible": true
+    },
+    {
+      "from": "Барселона",
+      "to": "Київ",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/barselona-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Валенсія",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/kyyiv-valensiya",
+      "visible": true
+    },
+    {
+      "from": "Валенсія",
+      "to": "Київ",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/valensiya-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Аліканте",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/kyyiv-alikante",
+      "visible": true
+    },
+    {
+      "from": "Аліканте",
+      "to": "Київ",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/alikante-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Ліон",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/kyyiv-lion",
+      "visible": true
+    },
+    {
+      "from": "Ліон",
+      "to": "Київ",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lion-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Марсель",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/kyyiv-marsel",
+      "visible": true
+    },
+    {
+      "from": "Марсель",
+      "to": "Київ",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/marsel-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Ніцца",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/kyyiv-nitstsa",
+      "visible": true
+    },
+    {
+      "from": "Ніцца",
+      "to": "Київ",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/nitstsa-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Страсбург",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/kyyiv-strasburh",
+      "visible": true
+    },
+    {
+      "from": "Страсбург",
+      "to": "Київ",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/strasburh-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Лісабон",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/kyyiv-lisabon",
+      "visible": true
+    },
+    {
+      "from": "Лісабон",
+      "to": "Київ",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lisabon-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Порту",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/kyyiv-portu",
+      "visible": true
+    },
+    {
+      "from": "Порту",
+      "to": "Київ",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/portu-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Рим",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/kyyiv-rym",
+      "visible": true
+    },
+    {
+      "from": "Рим",
+      "to": "Київ",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/rym-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Венеція",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/kyyiv-venetsiya",
+      "visible": true
+    },
+    {
+      "from": "Венеція",
+      "to": "Київ",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/venetsiya-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Болонья",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/kyyiv-bolonya",
+      "visible": true
+    },
+    {
+      "from": "Болонья",
+      "to": "Київ",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/bolonya-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Турин",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/kyyiv-turyn",
+      "visible": true
+    },
+    {
+      "from": "Турин",
+      "to": "Київ",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/turyn-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Київ",
+      "to": "Неаполь",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/kyyiv-neapol",
+      "visible": true
+    },
+    {
+      "from": "Неаполь",
+      "to": "Київ",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/neapol-kyyiv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Барселона",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lviv-barselona",
+      "visible": true
+    },
+    {
+      "from": "Барселона",
+      "to": "Львів",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/barselona-lviv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Валенсія",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lviv-valensiya",
+      "visible": true
+    },
+    {
+      "from": "Валенсія",
+      "to": "Львів",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/valensiya-lviv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Аліканте",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lviv-alikante",
+      "visible": true
+    },
+    {
+      "from": "Аліканте",
+      "to": "Львів",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/alikante-lviv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Ліон",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lviv-lion",
+      "visible": true
+    },
+    {
+      "from": "Ліон",
+      "to": "Львів",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lion-lviv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Марсель",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lviv-marsel",
+      "visible": true
+    },
+    {
+      "from": "Марсель",
+      "to": "Львів",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/marsel-lviv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Ніцца",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lviv-nitstsa",
+      "visible": true
+    },
+    {
+      "from": "Ніцца",
+      "to": "Львів",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/nitstsa-lviv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Страсбург",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lviv-strasburh",
+      "visible": true
+    },
+    {
+      "from": "Страсбург",
+      "to": "Львів",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/strasburh-lviv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Лісабон",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lviv-lisabon",
+      "visible": true
+    },
+    {
+      "from": "Лісабон",
+      "to": "Львів",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lisabon-lviv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Порту",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lviv-portu",
+      "visible": true
+    },
+    {
+      "from": "Порту",
+      "to": "Львів",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/portu-lviv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Рим",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lviv-rym",
+      "visible": true
+    },
+    {
+      "from": "Рим",
+      "to": "Львів",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/rym-lviv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Венеція",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lviv-venetsiya",
+      "visible": true
+    },
+    {
+      "from": "Венеція",
+      "to": "Львів",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/venetsiya-lviv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Болонья",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lviv-bolonya",
+      "visible": true
+    },
+    {
+      "from": "Болонья",
+      "to": "Львів",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/bolonya-lviv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Турин",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lviv-turyn",
+      "visible": true
+    },
+    {
+      "from": "Турин",
+      "to": "Львів",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/turyn-lviv",
+      "visible": true
+    },
+    {
+      "from": "Львів",
+      "to": "Неаполь",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/lviv-neapol",
+      "visible": true
+    },
+    {
+      "from": "Неаполь",
+      "to": "Львів",
+      "price": null,
+      "old_price": null,
+      "slug": "ads/neapol-lviv",
+      "visible": true
     }
   ],
   "reviews": [
@@ -508,7 +956,7 @@
       "a": "Час перетину кордону залежить від вибраного пропускного пункту, сезону та завантаженості у конкретний час. Наші менеджери намагаються вибрати оптимальний час поїздки, щоб якомога швидше пройти перевірку."
     }
   ],
-  "updated_at": "2026-09-16T12:00:00Z",
+  "updated_at": "2026-09-16T13:30:00Z",
   "bridge": {
     "inbox": "et-inbox-zL0NL7gvzQJtWq3ZwnWNqAkiYp9fKrOYYx1d"
   },
@@ -536,9 +984,29 @@
     }
   ],
   "durations": {
+    "Аліканте|Київ": {
+      "hours": 42.2,
+      "km": 3639,
+      "src": "osrm"
+    },
+    "Аліканте|Львів": {
+      "hours": 34.4,
+      "km": 3101,
+      "src": "osrm"
+    },
     "Амстердам|Львів": {
       "hours": 18.8,
       "km": 1547,
+      "src": "osrm"
+    },
+    "Барселона|Київ": {
+      "hours": 36.7,
+      "km": 3112,
+      "src": "osrm"
+    },
+    "Барселона|Львів": {
+      "hours": 28.9,
+      "km": 2575,
       "src": "osrm"
     },
     "Берлін|Київ": {
@@ -549,6 +1017,16 @@
     "Берлін|Львів": {
       "hours": 12.6,
       "km": 922,
+      "src": "osrm"
+    },
+    "Болонья|Київ": {
+      "hours": 27.1,
+      "km": 2041,
+      "src": "osrm"
+    },
+    "Болонья|Львів": {
+      "hours": 19.3,
+      "km": 1504,
       "src": "osrm"
     },
     "Братислава|Київ": {
@@ -581,6 +1059,16 @@
       "km": 542,
       "src": "osrm"
     },
+    "Валенсія|Київ": {
+      "hours": 40.3,
+      "km": 3453,
+      "src": "osrm"
+    },
+    "Валенсія|Львів": {
+      "hours": 32.5,
+      "km": 2916,
+      "src": "osrm"
+    },
     "Варшава|Київ": {
       "hours": 14.1,
       "km": 777,
@@ -589,6 +1077,16 @@
     "Варшава|Львів": {
       "hours": 8.7,
       "km": 395,
+      "src": "osrm"
+    },
+    "Венеція|Київ": {
+      "hours": 25.7,
+      "km": 1899,
+      "src": "osrm"
+    },
+    "Венеція|Львів": {
+      "hours": 17.9,
+      "km": 1362,
       "src": "osrm"
     },
     "Вроцлав|Київ": {
@@ -626,9 +1124,24 @@
       "km": 196,
       "src": "osrm"
     },
+    "Київ|Аліканте": {
+      "hours": 42.4,
+      "km": 3638,
+      "src": "osrm"
+    },
+    "Київ|Барселона": {
+      "hours": 36.8,
+      "km": 3110,
+      "src": "osrm"
+    },
     "Київ|Берлін": {
       "hours": 19.5,
       "km": 1344,
+      "src": "osrm"
+    },
+    "Київ|Болонья": {
+      "hours": 27.0,
+      "km": 2041,
       "src": "osrm"
     },
     "Київ|Братислава": {
@@ -646,9 +1159,19 @@
       "km": 999,
       "src": "osrm"
     },
+    "Київ|Валенсія": {
+      "hours": 40.4,
+      "km": 3451,
+      "src": "osrm"
+    },
     "Київ|Варшава": {
       "hours": 14.1,
       "km": 775,
+      "src": "osrm"
+    },
+    "Київ|Венеція": {
+      "hours": 25.7,
+      "km": 1901,
       "src": "osrm"
     },
     "Київ|Вроцлав": {
@@ -676,9 +1199,24 @@
       "km": 864,
       "src": "osrm"
     },
+    "Київ|Ліон": {
+      "hours": 30.2,
+      "km": 2474,
+      "src": "osrm"
+    },
+    "Київ|Лісабон": {
+      "hours": 47.3,
+      "km": 4102,
+      "src": "osrm"
+    },
     "Київ|Мадрид": {
       "hours": 42.5,
       "km": 3635,
+      "src": "osrm"
+    },
+    "Київ|Марсель": {
+      "hours": 33.5,
+      "km": 2784,
       "src": "osrm"
     },
     "Київ|Мілан": {
@@ -686,14 +1224,44 @@
       "km": 2153,
       "src": "osrm"
     },
+    "Київ|Неаполь": {
+      "hours": 32.6,
+      "km": 2611,
+      "src": "osrm"
+    },
+    "Київ|Ніцца": {
+      "hours": 31.5,
+      "km": 2460,
+      "src": "osrm"
+    },
     "Київ|Париж": {
       "hours": 29.4,
       "km": 2364,
       "src": "osrm"
     },
+    "Київ|Порту": {
+      "hours": 45.5,
+      "km": 3919,
+      "src": "osrm"
+    },
     "Київ|Прага": {
       "hours": 19.7,
       "km": 1397,
+      "src": "osrm"
+    },
+    "Київ|Рим": {
+      "hours": 30.8,
+      "km": 2414,
+      "src": "osrm"
+    },
+    "Київ|Страсбург": {
+      "hours": 25.6,
+      "km": 1999,
+      "src": "osrm"
+    },
+    "Київ|Турин": {
+      "hours": 29.5,
+      "km": 2291,
       "src": "osrm"
     },
     "Краків|Київ": {
@@ -706,14 +1274,29 @@
       "km": 326,
       "src": "osrm"
     },
+    "Львів|Аліканте": {
+      "hours": 34.6,
+      "km": 3099,
+      "src": "osrm"
+    },
     "Львів|Амстердам": {
       "hours": 18.8,
       "km": 1546,
       "src": "osrm"
     },
+    "Львів|Барселона": {
+      "hours": 28.9,
+      "km": 2571,
+      "src": "osrm"
+    },
     "Львів|Берлін": {
       "hours": 12.7,
       "km": 921,
+      "src": "osrm"
+    },
+    "Львів|Болонья": {
+      "hours": 19.2,
+      "km": 1502,
       "src": "osrm"
     },
     "Львів|Братислава": {
@@ -726,9 +1309,19 @@
       "km": 577,
       "src": "osrm"
     },
+    "Львів|Валенсія": {
+      "hours": 32.6,
+      "km": 2913,
+      "src": "osrm"
+    },
     "Львів|Варшава": {
       "hours": 8.7,
       "km": 391,
+      "src": "osrm"
+    },
+    "Львів|Венеція": {
+      "hours": 17.8,
+      "km": 1363,
       "src": "osrm"
     },
     "Львів|Вроцлав": {
@@ -746,9 +1339,24 @@
       "km": 325,
       "src": "osrm"
     },
+    "Львів|Ліон": {
+      "hours": 22.4,
+      "km": 1936,
+      "src": "osrm"
+    },
+    "Львів|Лісабон": {
+      "hours": 39.5,
+      "km": 3563,
+      "src": "osrm"
+    },
     "Львів|Мадрид": {
       "hours": 34.6,
       "km": 3096,
+      "src": "osrm"
+    },
+    "Львів|Марсель": {
+      "hours": 25.6,
+      "km": 2246,
       "src": "osrm"
     },
     "Львів|Мілан": {
@@ -756,9 +1364,59 @@
       "km": 1615,
       "src": "osrm"
     },
+    "Львів|Неаполь": {
+      "hours": 24.8,
+      "km": 2073,
+      "src": "osrm"
+    },
+    "Львів|Ніцца": {
+      "hours": 23.6,
+      "km": 1921,
+      "src": "osrm"
+    },
+    "Львів|Порту": {
+      "hours": 37.7,
+      "km": 3380,
+      "src": "osrm"
+    },
     "Львів|Прага": {
       "hours": 11.9,
       "km": 858,
+      "src": "osrm"
+    },
+    "Львів|Рим": {
+      "hours": 23.0,
+      "km": 1875,
+      "src": "osrm"
+    },
+    "Львів|Страсбург": {
+      "hours": 17.7,
+      "km": 1461,
+      "src": "osrm"
+    },
+    "Львів|Турин": {
+      "hours": 21.7,
+      "km": 1753,
+      "src": "osrm"
+    },
+    "Ліон|Київ": {
+      "hours": 30.1,
+      "km": 2471,
+      "src": "osrm"
+    },
+    "Ліон|Львів": {
+      "hours": 22.3,
+      "km": 1933,
+      "src": "osrm"
+    },
+    "Лісабон|Київ": {
+      "hours": 47.2,
+      "km": 4098,
+      "src": "osrm"
+    },
+    "Лісабон|Львів": {
+      "hours": 39.4,
+      "km": 3560,
       "src": "osrm"
     },
     "Мадрид|Київ": {
@@ -771,6 +1429,16 @@
       "km": 3093,
       "src": "osrm"
     },
+    "Марсель|Київ": {
+      "hours": 33.4,
+      "km": 2786,
+      "src": "osrm"
+    },
+    "Марсель|Львів": {
+      "hours": 25.6,
+      "km": 2249,
+      "src": "osrm"
+    },
     "Мілан|Київ": {
       "hours": 28.3,
       "km": 2153,
@@ -779,6 +1447,26 @@
     "Мілан|Львів": {
       "hours": 20.5,
       "km": 1616,
+      "src": "osrm"
+    },
+    "Неаполь|Київ": {
+      "hours": 32.7,
+      "km": 2611,
+      "src": "osrm"
+    },
+    "Неаполь|Львів": {
+      "hours": 24.9,
+      "km": 2073,
+      "src": "osrm"
+    },
+    "Ніцца|Київ": {
+      "hours": 31.5,
+      "km": 2457,
+      "src": "osrm"
+    },
+    "Ніцца|Львів": {
+      "hours": 23.6,
+      "km": 1920,
       "src": "osrm"
     },
     "Одеса|Бухарест": {
@@ -796,6 +1484,16 @@
       "km": 2361,
       "src": "osrm"
     },
+    "Порту|Київ": {
+      "hours": 45.4,
+      "km": 3913,
+      "src": "osrm"
+    },
+    "Порту|Львів": {
+      "hours": 37.6,
+      "km": 3375,
+      "src": "osrm"
+    },
     "Прага|Київ": {
       "hours": 19.7,
       "km": 1397,
@@ -805,13 +1503,43 @@
       "hours": 11.9,
       "km": 860,
       "src": "osrm"
+    },
+    "Рим|Київ": {
+      "hours": 30.8,
+      "km": 2413,
+      "src": "osrm"
+    },
+    "Рим|Львів": {
+      "hours": 23.0,
+      "km": 1876,
+      "src": "osrm"
+    },
+    "Страсбург|Київ": {
+      "hours": 25.5,
+      "km": 1997,
+      "src": "osrm"
+    },
+    "Страсбург|Львів": {
+      "hours": 17.7,
+      "km": 1460,
+      "src": "osrm"
+    },
+    "Турин|Київ": {
+      "hours": 29.5,
+      "km": 2290,
+      "src": "osrm"
+    },
+    "Турин|Львів": {
+      "hours": 21.7,
+      "km": 1752,
+      "src": "osrm"
     }
   },
   "pricing": {
     "currency": "UAH",
-    "eur_rate": 51.79,
+    "eur_rate": 51.449,
     "rate_auto": true,
-    "rate_updated": "2026-09-07",
+    "rate_updated": "2026-09-17",
     "extra_hours": 3.0,
     "tiers": [
       [

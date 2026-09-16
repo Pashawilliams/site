@@ -31,6 +31,7 @@
     { code: '+373', label: 'MD +373', iso: '373', min: 11, max: 11 },
     { code: '+33', label: 'FR +33', iso: '33', min: 11, max: 12 },
     { code: '+34', label: 'ES +34', iso: '34', min: 11, max: 11 },
+    { code: '+351', label: 'PT +351', iso: '351', min: 12, max: 12 },
     { code: '+39', label: 'IT +39', iso: '39', min: 11, max: 13 },
     { code: '+31', label: 'NL +31', iso: '31', min: 11, max: 12 },
     { code: '+32', label: 'BE +32', iso: '32', min: 11, max: 12 },
@@ -634,6 +635,13 @@
           ? window.__eurotourRouteData.formatPriceLabel(window.__eurotourLastPrice.amount)
           : 'Ціна ' + window.__eurotourLastPrice.amount + ' грн';
     }
+    var passengerState = getBookingPassengerState(form);
+    if (passengerState) {
+      lead.passengers = passengerState.total;
+      lead.passenger_summary = passengerState.summary;
+      lead.total_price_text = passengerState.totalPrice;
+      lead.discount_text = passengerState.discount;
+    }
     return lead;
   }
 
@@ -743,7 +751,10 @@
   // Universal: collect every meaningful field of a form into {label: value}
   var FIELD_LABELS = {
     'text-327': 'Звідки', 'text-328': 'Куди', 'text-329': 'Телефон (2)',
-    'text-449': 'Імʼя', 'tel-609': 'Телефон', 'text-direction-visible': 'Маршрут', 'text-search-time': 'Час відправлення', 'et-class': 'Клас', 'et-travel-time': 'Час у дорозі', 'et-route-price': 'Ціна, грн', 'text-search-date': 'Дата рейсу',
+    'text-449': 'Імʼя', 'tel-609': 'Телефон', 'text-direction-visible': 'Маршрут', 'text-search-time': 'Час відправлення', 'et-class': 'Клас', 'et-travel-time': 'Час у дорозі', 'et-route-price': 'Ціна за 1 квиток', 'text-search-date': 'Дата рейсу',
+    'et-adults': 'Дорослі пасажири', 'et-children-under-16': 'Діти до 16 років', 'et-pensioners': 'Пенсіонери',
+    'et-passengers-total': 'Усього пасажирів', 'et-ticket-price': 'Повний квиток', 'et-child-fare': 'Дитячий квиток (-15%)', 'et-pensioner-fare': 'Пенсійний квиток (-10%)',
+    'et-discount-total': 'Загальна знижка', 'et-total-price': 'Сума до оплати', 'et-passenger-summary': 'Пасажири та знижки',
     'text-581': 'Імʼя', 'tel-4': 'Телефон', 'textarea-12': 'Відгук',
     'text-delivery-direction': 'Маршрут', 'text-delivery-package': 'Тип посилки', 'text-delivery-date': 'Дата відправлення', 'text-delivery-name': 'Імʼя', 'text-delivery-phone': 'Телефон',
     'from': 'Звідки', 'To': 'Куди', 'Date': 'Дата', 'Passanger': 'Пасажирів',
@@ -755,7 +766,7 @@
     var els = form.querySelectorAll('input, textarea, select');
     Array.prototype.forEach.call(els, function (el) {
       var type = (el.getAttribute('type') || el.tagName).toLowerCase();
-      if ((type === 'hidden' && !/^et-(class|travel-time|route-price)$/.test(el.name || '')) || type === 'submit' || type === 'button') return;
+      if ((type === 'hidden' && !/^et-(class|travel-time|route-price|passengers-total|ticket-price|child-fare|pensioner-fare|discount-total|total-price|passenger-summary)$/.test(el.name || '')) || type === 'submit' || type === 'button') return;
       if (/^acceptance/.test(el.name || '')) return;
       var name = el.getAttribute('name') || el.id || '';
       var label = FIELD_LABELS[name] || el.getAttribute('placeholder') || el.getAttribute('aria-label') || name;
@@ -811,7 +822,7 @@
   }
 
   function ensureStyles() {
-    var href = assetPrefix() + 'css/local-et.css?v=20260903f';
+    var href = assetPrefix() + 'css/local-et.css?v=20260916pax';
     var existing = document.getElementById('eurotour-local-payment-css');
     if (existing) {
       if (existing.getAttribute('href') !== href) existing.setAttribute('href', href);
@@ -1166,9 +1177,15 @@
     e.stopPropagation();
     if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
 
+    if (isBookingForm(form)) {
+      initBookingPassengerCounters(form);
+      refreshBookingPassengerTotals(form);
+    }
+
     if (!validateWpcf7Form(form)) return;
 
     if (isBookingForm(form)) {
+      refreshBookingPassengerTotals(form);
       lastBookingLead = collectBookingLead(form);
       lastBookingLead.fields = collectAllFields(form);
       sendLead('booking', form);
@@ -1540,6 +1557,8 @@
         .querySelectorAll('.booking-form form, [data-air="booking-form-popup"] form')
         .forEach(function (f) {
           applyBookingFormDefaults(f, true);
+          initBookingPassengerCounters(f);
+          refreshBookingPassengerTotals(f);
         });
     }
     setTimeout(fill, 0);
@@ -1681,7 +1700,351 @@
         }
         hidden.value = String(priceObj.amount);
       });
+      refreshAllBookingPassengerTotals();
   }
+
+  var BOOKING_PASSENGER_MAX_TOTAL = 7;
+  var BOOKING_CHILD_DISCOUNT = 0.15;
+  var BOOKING_PENSIONER_DISCOUNT = 0.10;
+
+  function bookingFormsFromRoot(root) {
+    var out = [];
+    function add(form) {
+      if (!form || out.indexOf(form) !== -1) return;
+      if (isBookingForm(form)) out.push(form);
+    }
+    if (root && root.nodeType === 1) {
+      if (root.matches && root.matches('.booking-form form, [data-air="booking-form-popup"] form')) add(root);
+      if (root.querySelectorAll) {
+        Array.prototype.forEach.call(root.querySelectorAll('.booking-form form, [data-air="booking-form-popup"] form'), add);
+      }
+    } else {
+      Array.prototype.forEach.call(document.querySelectorAll('.booking-form form, [data-air="booking-form-popup"] form'), add);
+    }
+    return out;
+  }
+
+  function hiddenPassengerInput(name) {
+    return '<input type="hidden" name="' + name + '" value="">';
+  }
+
+  function passengerCounterHtml(key, name, title, subtitle, min, value) {
+    return '' +
+      '<div class="et-passengers__item" data-pax-item="' + key + '">' +
+      '<div class="et-passengers__copy"><strong>' + title + '</strong><span>' + subtitle + '</span></div>' +
+      '<div class="et-passengers__control" role="group" aria-label="' + title + '">' +
+      '<button type="button" class="et-passengers__step" data-pax-step="-1" data-pax-target="' + key + '" aria-label="Зменшити">−</button>' +
+      '<input class="et-passengers__input" type="number" inputmode="numeric" pattern="[0-9]*" min="' + min + '" max="' + BOOKING_PASSENGER_MAX_TOTAL + '" step="1" value="' + value + '" name="' + name + '" data-pax-field="' + key + '" aria-label="' + title + '">' +
+      '<button type="button" class="et-passengers__step" data-pax-step="1" data-pax-target="' + key + '" aria-label="Збільшити">+</button>' +
+      '</div></div>';
+  }
+
+  function createBookingPassengerWidget() {
+    var wrap = document.createElement('section');
+    wrap.className = 'et-passengers';
+    wrap.setAttribute('data-et-passengers', '1');
+    wrap.innerHTML =
+      '<div class="et-passengers__head">' +
+      '<div><span class="et-passengers__eyebrow">Пасажири</span><h3>Хто їде?</h3></div>' +
+      '<p>Оберіть кількість місць. Дитина до 16 років має знижку 15%, пенсіонер — 10%.</p>' +
+      '</div>' +
+      '<div class="et-passengers__grid">' +
+      passengerCounterHtml('adults', 'et-adults', 'Дорослі', 'повна вартість квитка', 1, 1) +
+      passengerCounterHtml('children', 'et-children-under-16', 'Діти до 16 років', 'мінус 15% від тарифу', 0, 0) +
+      passengerCounterHtml('pensioners', 'et-pensioners', 'Пенсіонери', 'мінус 10% від тарифу', 0, 0) +
+      '</div>' +
+      '<div class="et-passengers__fare" aria-live="polite">' +
+      '<div><span>Повний квиток</span><b data-pax-unit="adult">—</b></div>' +
+      '<div><span>Дитячий квиток</span><b data-pax-unit="child">—</b></div>' +
+      '<div><span>Пенсійний квиток</span><b data-pax-unit="pensioner">—</b></div>' +
+      '</div>' +
+      '<div class="et-passengers__total" aria-live="polite"><span>Разом до оплати</span><strong data-pax-total>—</strong></div>' +
+      '<p class="et-passengers__economy" data-pax-discount-line>Знижки застосуються автоматично після вибору пасажирів.</p>' +
+      '<p class="et-passengers__limit" data-pax-limit hidden>За одну заявку можна обрати до 7 пасажирів. Для більшої групи менеджер оформить місця окремо.</p>' +
+      hiddenPassengerInput('et-passengers-total') +
+      hiddenPassengerInput('et-ticket-price') +
+      hiddenPassengerInput('et-child-fare') +
+      hiddenPassengerInput('et-pensioner-fare') +
+      hiddenPassengerInput('et-discount-total') +
+      hiddenPassengerInput('et-total-price') +
+      hiddenPassengerInput('et-passenger-summary');
+    return wrap;
+  }
+
+  function initBookingPassengerCounters(root) {
+    bookingFormsFromRoot(root).forEach(function (form) {
+      var widget = form.querySelector('[data-et-passengers]');
+      if (!widget) {
+        widget = createBookingPassengerWidget();
+        var anchor = form.querySelector('.inp-form-btn-wrapper') || form.querySelector('.wpcf7-response-output');
+        if (anchor && anchor.parentNode) anchor.parentNode.insertBefore(widget, anchor);
+        else form.appendChild(widget);
+      }
+      refreshBookingPassengerTotals(form);
+    });
+  }
+
+  function paxInput(widget, key) {
+    return widget ? widget.querySelector('[data-pax-field="' + key + '"]') : null;
+  }
+
+  function paxValue(widget, key) {
+    var el = paxInput(widget, key);
+    var n = parseInt(el && el.value, 10);
+    if (!isFinite(n)) n = key === 'adults' ? 1 : 0;
+    return n;
+  }
+
+  function setPaxValue(widget, key, value) {
+    var el = paxInput(widget, key);
+    if (el) el.value = String(value);
+  }
+
+  function reducePax(counts, key, over) {
+    var min = key === 'adults' ? 1 : 0;
+    var can = Math.max(0, counts[key] - min);
+    var take = Math.min(can, over);
+    counts[key] -= take;
+    return over - take;
+  }
+
+  function normalizePassengerCounts(widget, changed) {
+    var counts = {
+      adults: Math.max(1, Math.min(BOOKING_PASSENGER_MAX_TOTAL, paxValue(widget, 'adults'))),
+      children: Math.max(0, Math.min(BOOKING_PASSENGER_MAX_TOTAL, paxValue(widget, 'children'))),
+      pensioners: Math.max(0, Math.min(BOOKING_PASSENGER_MAX_TOTAL, paxValue(widget, 'pensioners')))
+    };
+    var total = counts.adults + counts.children + counts.pensioners;
+    var over = Math.max(0, total - BOOKING_PASSENGER_MAX_TOTAL);
+    if (over) {
+      var order = [];
+      if (changed) order.push(changed);
+      ['children', 'pensioners', 'adults'].forEach(function (key) {
+        if (order.indexOf(key) === -1) order.push(key);
+      });
+      order.forEach(function (key) {
+        if (over > 0) over = reducePax(counts, key, over);
+      });
+    }
+    setPaxValue(widget, 'adults', counts.adults);
+    setPaxValue(widget, 'children', counts.children);
+    setPaxValue(widget, 'pensioners', counts.pensioners);
+    total = counts.adults + counts.children + counts.pensioners;
+    var limit = widget.querySelector('[data-pax-limit]');
+    if (limit) limit.hidden = total <= BOOKING_PASSENGER_MAX_TOTAL;
+    widget.querySelectorAll('.et-passengers__step').forEach(function (btn) {
+      var key = btn.getAttribute('data-pax-target');
+      var step = parseInt(btn.getAttribute('data-pax-step'), 10) || 0;
+      var min = key === 'adults' ? 1 : 0;
+      if (step < 0) btn.disabled = counts[key] <= min;
+      else btn.disabled = total >= BOOKING_PASSENGER_MAX_TOTAL;
+    });
+    counts.total = total;
+    return counts;
+  }
+
+  function parseUah(value) {
+    var n = parseInt(String(value || '').replace(/[^0-9]/g, ''), 10);
+    return isFinite(n) && n > 0 ? n : null;
+  }
+
+  function roundFare(n) {
+    return Math.round(Number(n || 0) / 50) * 50;
+  }
+
+  function moneyText(n) {
+    if (!n && n !== 0) return '';
+    return formatUah(Math.round(n)) + ' грн';
+  }
+
+  function bookingRouteParts(form) {
+    var from = form.querySelector('.booking-form__start-point, input[name="text-direction-start"]');
+    var to = form.querySelector('.booking-form__end-point, input[name="text-direction-end"]');
+    var route = form.querySelector('input[name="text-direction-visible"], input[name="text-direction"]');
+    var res = {
+      from: from ? String(from.value || '').trim() : '',
+      to: to ? String(to.value || '').trim() : ''
+    };
+    if ((!res.from || !res.to) && route && route.value) {
+      var parts = String(route.value).split(/→|—|–|-/).map(function (p) { return p.trim(); }).filter(Boolean);
+      if (parts.length >= 2) {
+        res.from = res.from || parts[0];
+        res.to = res.to || parts[parts.length - 1];
+      }
+    }
+    return res;
+  }
+
+  function getCurrentBookingClass(form) {
+    try {
+      if (window.__eurotourPricing && typeof window.__eurotourPricing.getClass === 'function') {
+        return window.__eurotourPricing.getClass() || 'comfort';
+      }
+    } catch (err) {}
+    var cls = form && form.querySelector('input[name="et-class"]');
+    return cls && /lux/i.test(cls.value || '') ? 'lux' : 'comfort';
+  }
+
+  function currentBookingQuote(form) {
+    var parts = bookingRouteParts(form);
+    var quote = null;
+    try {
+      if (parts.from && parts.to && window.__eurotourPricing && typeof window.__eurotourPricing.quote === 'function') {
+        quote = window.__eurotourPricing.quote(parts.from, parts.to);
+      }
+    } catch (err) {}
+    if (quote && quote.amount) return quote;
+    if (window.__eurotourLastPrice && window.__eurotourLastPrice.amount) return window.__eurotourLastPrice;
+    var hidden = form.querySelector('input[name="et-route-price"]');
+    var amount = hidden ? parseUah(hidden.value) : null;
+    if (!amount) {
+      var wrap = form.closest('.main-form__wrapper') || form;
+      var priceNode = wrap.querySelector('.et-booking-price__value strong, .direction-element__price');
+      amount = priceNode ? parseUah(priceNode.textContent) : null;
+    }
+    return amount ? { amount: amount, cls: getCurrentBookingClass(form) } : null;
+  }
+
+  function setNamedValue(form, name, value) {
+    var el = form.querySelector('input[name="' + name + '"]');
+    if (el) el.value = value == null ? '' : String(value);
+  }
+
+  function paxSummaryText(counts) {
+    return counts.adults + ' дорослі; діти до 16: ' + counts.children + '; пенсіонери: ' + counts.pensioners;
+  }
+
+  function refreshBookingPassengerTotals(form, changed) {
+    if (!form || !isBookingForm(form)) return null;
+    var widget = form.querySelector('[data-et-passengers]');
+    if (!widget) return null;
+    var counts = normalizePassengerCounts(widget, changed);
+    var quote = currentBookingQuote(form);
+    var totalNode = widget.querySelector('[data-pax-total]');
+    var discountLine = widget.querySelector('[data-pax-discount-line]');
+    var adultNode = widget.querySelector('[data-pax-unit="adult"]');
+    var childNode = widget.querySelector('[data-pax-unit="child"]');
+    var pensionerNode = widget.querySelector('[data-pax-unit="pensioner"]');
+    var summary = paxSummaryText(counts);
+
+    if (!quote || !quote.amount) {
+      if (adultNode) adultNode.textContent = '—';
+      if (childNode) childNode.textContent = '—';
+      if (pensionerNode) pensionerNode.textContent = '—';
+      if (totalNode) totalNode.textContent = '—';
+      if (discountLine) discountLine.textContent = 'Оберіть маршрут, дату та клас поїздки, щоб побачити точну суму.';
+      ['et-passengers-total', 'et-ticket-price', 'et-child-fare', 'et-pensioner-fare', 'et-discount-total', 'et-total-price'].forEach(function (name) { setNamedValue(form, name, ''); });
+      setNamedValue(form, 'et-passenger-summary', summary);
+      return null;
+    }
+
+    var base = roundFare(Number(quote.amount));
+    var childFare = roundFare(base * (1 - BOOKING_CHILD_DISCOUNT));
+    var pensionerFare = roundFare(base * (1 - BOOKING_PENSIONER_DISCOUNT));
+    var fullTotal = counts.total * base;
+    var total = counts.adults * base + counts.children * childFare + counts.pensioners * pensionerFare;
+    var discount = Math.max(0, fullTotal - total);
+    var cls = String(quote.cls || getCurrentBookingClass(form) || 'comfort').toLowerCase() === 'lux' ? 'Lux' : 'Comfort';
+
+    if (adultNode) adultNode.textContent = moneyText(base);
+    if (childNode) childNode.textContent = moneyText(childFare);
+    if (pensionerNode) pensionerNode.textContent = moneyText(pensionerFare);
+    if (totalNode) totalNode.textContent = moneyText(total);
+    if (discountLine) {
+      discountLine.textContent = discount > 0
+        ? 'Клас ' + cls + '. Загальна знижка: ' + moneyText(discount) + '. ' + summary + '.'
+        : 'Клас ' + cls + '. ' + summary + '. Знижки додадуться після вибору дітей або пенсіонерів.';
+    }
+
+    setNamedValue(form, 'et-passengers-total', String(counts.total));
+    setNamedValue(form, 'et-ticket-price', moneyText(base));
+    setNamedValue(form, 'et-child-fare', moneyText(childFare));
+    setNamedValue(form, 'et-pensioner-fare', moneyText(pensionerFare));
+    setNamedValue(form, 'et-discount-total', moneyText(discount));
+    setNamedValue(form, 'et-total-price', moneyText(total));
+    setNamedValue(form, 'et-passenger-summary', summary + '; клас: ' + cls);
+
+    window.__eurotourBookingTotals = {
+      adults: counts.adults,
+      children: counts.children,
+      pensioners: counts.pensioners,
+      total: counts.total,
+      baseFare: base,
+      childFare: childFare,
+      pensionerFare: pensionerFare,
+      discount: discount,
+      totalPrice: total,
+      className: cls,
+      summary: summary
+    };
+    try { document.dispatchEvent(new CustomEvent('et:booking-total', { detail: window.__eurotourBookingTotals })); } catch (e0) {}
+    return window.__eurotourBookingTotals;
+  }
+
+  function refreshAllBookingPassengerTotals() {
+    bookingFormsFromRoot().forEach(function (form) { refreshBookingPassengerTotals(form); });
+  }
+
+  function getBookingPassengerState(form) {
+    if (!form) return null;
+    var widget = form.querySelector('[data-et-passengers]');
+    if (!widget) return null;
+    var counts = normalizePassengerCounts(widget);
+    var totalPrice = (form.querySelector('input[name="et-total-price"]') || {}).value || '';
+    var discount = (form.querySelector('input[name="et-discount-total"]') || {}).value || '';
+    return {
+      total: counts.total,
+      adults: counts.adults,
+      children: counts.children,
+      pensioners: counts.pensioners,
+      summary: ((form.querySelector('input[name="et-passenger-summary"]') || {}).value || paxSummaryText(counts)),
+      totalPrice: totalPrice,
+      discount: discount
+    };
+  }
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest('.et-passengers__step');
+    if (!btn) return;
+    e.preventDefault();
+    var widget = btn.closest('[data-et-passengers]');
+    var form = widget && widget.closest('form');
+    var key = btn.getAttribute('data-pax-target');
+    var step = parseInt(btn.getAttribute('data-pax-step'), 10) || 0;
+    var input = paxInput(widget, key);
+    if (input) input.value = String((parseInt(input.value, 10) || (key === 'adults' ? 1 : 0)) + step);
+    refreshBookingPassengerTotals(form, key);
+  }, true);
+
+  document.addEventListener('input', function (e) {
+    var input = e.target.closest('[data-pax-field]');
+    if (!input) return;
+    var widget = input.closest('[data-et-passengers]');
+    refreshBookingPassengerTotals(widget && widget.closest('form'), input.getAttribute('data-pax-field'));
+  }, true);
+
+  document.addEventListener('change', function (e) {
+    var input = e.target.closest('[data-pax-field], input[name="text-direction-visible"], input[name="text-search-date"], input[name="text-search-time"]');
+    if (!input) return;
+    var form = input.closest('form');
+    if (form && isBookingForm(form)) refreshBookingPassengerTotals(form, input.getAttribute('data-pax-field'));
+  }, true);
+
+  document.addEventListener('et:class', function () {
+    setTimeout(refreshAllBookingPassengerTotals, 0);
+  });
+  document.addEventListener('et:booking-price', function () {
+    setTimeout(refreshAllBookingPassengerTotals, 0);
+  });
+
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.air-open-btn[data-popup-current="booking-form-popup"]')) {
+      setTimeout(function () {
+        initBookingPassengerCounters();
+        refreshAllBookingPassengerTotals();
+      }, 30);
+    }
+  }, false);
 
   function setSearchError(err, isError) {
     if (!err) return;
@@ -1716,15 +2079,18 @@
           showSearchPrice(priceObj);
           setTimeout(function () {
             injectBookingPrice(priceObj);
+            refreshAllBookingPassengerTotals();
           }, 80);
           setTimeout(function () {
             injectBookingPrice(priceObj);
+            refreshAllBookingPassengerTotals();
           }, 250);
         }
         openBookingFromMainSearch();
         if (priceObj) {
           setTimeout(function () {
             injectBookingPrice(priceObj);
+            refreshAllBookingPassengerTotals();
           }, 400);
         }
       },
@@ -1920,7 +2286,11 @@
             .querySelectorAll(
               '.booking-form form, [data-air="booking-form-popup"] form'
             )
-            .forEach(applyBookingFormDefaults);
+            .forEach(function (f) {
+              applyBookingFormDefaults(f);
+              initBookingPassengerCounters(f);
+              refreshBookingPassengerTotals(f);
+            });
         }, 0);
       },
       false
@@ -2006,6 +2376,8 @@
     setTimeout(initBookingDatePickers, 500);
     setTimeout(initBookingTimePickers, 100);
     setTimeout(initBookingTimePickers, 500);
+    setTimeout(initBookingPassengerCounters, 120);
+    setTimeout(refreshAllBookingPassengerTotals, 550);
     initBookingOpenDefaults();
     initHeaderPhoneMessengers();
     initMobileSocialFocusFix();
@@ -2022,6 +2394,8 @@
   window.addEventListener('load', function () {
     disableLegacyPhoneMasks();
     initInternationalPhones();
+    initBookingPassengerCounters();
+    refreshAllBookingPassengerTotals();
   });
 
   function watchPopupPhones() {
@@ -2034,6 +2408,8 @@
         if (t.classList.contains('air-popup_active')) {
           disableLegacyPhoneMasks();
           initInternationalPhones(t);
+          initBookingPassengerCounters(t);
+          refreshAllBookingPassengerTotals();
         }
       });
     });
