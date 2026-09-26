@@ -262,6 +262,12 @@ class Store:
         self.data["updated_at"] = dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         with self._lock:
             self.sha = self._put(DATA_PATH, self.data, self.sha, f"admin-bot: {msg}")
+        # tell the admin the change is committed and when it becomes visible
+        try:
+            if cur_chat():
+                send("💾 Збережено. Сайт підхопить зміни протягом ~60 сек (або одразу після оновлення сторінки).")
+        except Exception:
+            pass
         self.state.setdefault("log", []).append({"t": self.data["updated_at"], "msg": msg})
         self.state["log"] = self.state["log"][-200:]
         self.save_state(silent=True)
