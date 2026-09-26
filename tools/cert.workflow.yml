@@ -1,0 +1,106 @@
+name: HTTPS certificate (Let's Encrypt via Pages)
+
+# Issues / re-issues the free Let's Encrypt certificate that GitHub Pages
+# provisions for the custom domain, then turns on Enforce HTTPS.
+# Run it from the Actions tab: "HTTPS certificate" -> Run workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      retrigger:
+        description: "Re-apply the custom domain to restart the ACME order (short blip on the domain)"
+        type: boolean
+        default: true
+      enforce_https:
+        description: "Turn on Enforce HTTPS once the certificate is approved"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  cert:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_PAT }}          # needs the classic `repo` scope
+      REPO: ${{ github.repository }}
+      DOMAIN: eurotour.pp.ua
+    steps:
+      - name: Check DNS (the usual reason the order never completes)
+        run: |
+          set -u
+          PAGES_IPS="185.199.108.153 185.199.109.153 185.199.110.153 185.199.111.153"
+          echo "### DNS for $DOMAIN" >> "$GITHUB_STEP_SUMMARY"
+
+          A=$(dig +short "$DOMAIN" A | sort | tr '\n' ' ')
+          echo "A records: ${A:-<none>}"
+          echo "- A: \`${A:-none}\`" >> "$GITHUB_STEP_SUMMARY"
+          OK=1
+          for ip in $PAGES_IPS; do
+            case " $A " in *" $ip "*) ;; *) echo "::error::missing GitHub Pages A record $ip"; OK=0;; esac
+          done
+          for ip in $A; do
+            case " $PAGES_IPS " in *" $ip "*) ;; *) echo "::error::foreign A record $ip - remove it, it breaks the ACME check"; OK=0;; esac
+          done
+
+          AAAA=$(dig +short "$DOMAIN" AAAA | tr '\n' ' ')
+          if [ -n "$AAAA" ]; then
+            echo "::warning::AAAA records present ($AAAA). GitHub Pages IPv6 is 2606:50c0:8000::153 … - anything else must go."
+            echo "- AAAA: \`$AAAA\`" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          WWW=$(dig +short www."$DOMAIN" CNAME | tr '\n' ' ')
+          echo "- www CNAME: \`${WWW:-none}\`" >> "$GITHUB_STEP_SUMMARY"
+          [ -n "$WWW" ] || echo "::warning::www.$DOMAIN has no CNAME to <user>.github.io. - the cert will cover the apex only"
+
+          CAA=$(dig +short "$DOMAIN" CAA; dig +short pp.ua CAA)
+          if [ -n "$CAA" ] && ! echo "$CAA" | grep -qi "letsencrypt.org"; then
+            echo "::error::CAA records exist but do not allow letsencrypt.org: $CAA"
+            OK=0
+          fi
+
+          [ "$OK" = "1" ] || { echo "::error::Fix DNS first - Let's Encrypt cannot validate the domain."; exit 1; }
+          echo "DNS looks correct."
+
+      - name: Show current certificate state
+        run: |
+          gh api "repos/$REPO/pages" --jq '{cname:.cname,state:.https_certificate.state,desc:.https_certificate.description,domains:.https_certificate.domains,enforced:.https_enforced}'
+
+      - name: Re-apply custom domain (restarts the Let's Encrypt order)
+        if: ${{ inputs.retrigger }}
+        run: |
+          set -e
+          gh api -X PUT "repos/$REPO/pages" -f cname="" >/dev/null || true
+          sleep 10
+          gh api -X PUT "repos/$REPO/pages" -f cname="$DOMAIN" >/dev/null
+          echo "Custom domain re-applied; GitHub asked Let's Encrypt for a new certificate."
+
+      - name: Wait for the certificate (up to 30 min)
+        id: wait
+        run: |
+          for i in $(seq 1 60); do
+            S=$(gh api "repos/$REPO/pages" --jq '.https_certificate.state')
+            echo "[$i/60] state=$S"
+            case "$S" in
+              approved) echo "state=approved" >> "$GITHUB_OUTPUT"; exit 0;;
+              errored|bad_authz|destroy_pending) echo "::error::certificate state: $S"; exit 1;;
+            esac
+            sleep 30
+          done
+          echo "::warning::still pending after 30 min - DNS propagation can take longer; re-run this workflow later."
+          echo "state=pending" >> "$GITHUB_OUTPUT"
+
+      - name: Enforce HTTPS
+        if: ${{ inputs.enforce_https && steps.wait.outputs.state == 'approved' }}
+        run: |
+          gh api -X PUT "repos/$REPO/pages" -F https_enforced=true >/dev/null
+          echo "Enforce HTTPS is on."
+
+      - name: Verify
+        if: always()
+        run: |
+          gh api "repos/$REPO/pages" --jq '{state:.https_certificate.state,domains:.https_certificate.domains,enforced:.https_enforced,url:.html_url}' | tee -a "$GITHUB_STEP_SUMMARY"
+          curl -sSI --max-time 20 "https://$DOMAIN/" | head -1 || true
+          echo | openssl s_client -servername "$DOMAIN" -connect "$DOMAIN:443" 2>/dev/null \
+            | openssl x509 -noout -issuer -subject -dates || true
