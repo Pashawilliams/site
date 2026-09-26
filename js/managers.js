@@ -7,6 +7,7 @@
     { name: 'Олексій', role: 'Менеджер з перевезень', phone: '+380966973130', telegram: 'https://t.me/+380966973130', whatsapp: 'https://wa.me/380966973130' },
     { name: 'Сергій', role: 'Менеджер з перевезень', phone: '+380987866620', telegram: 'https://t.me/eurotourbus1', whatsapp: 'https://wa.me/380987866620' },
   ];
+  // shown only until data/site.json arrives; real data (incl. an empty list) always wins
   var managers = DEFAULT.slice();
   var ICON = {
     ph: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1L6.6 10.8z"/></svg>',
@@ -74,7 +75,19 @@
         }).join('') + '</span></div>';
     }).join('');
   }
-  function renderAll() { renderCards(); renderFooter(); renderMobile(); }
+  function toggle(el, show) {
+    if (!el) return;
+    el.style.display = show ? '' : 'none';
+    el.setAttribute('aria-hidden', show ? 'false' : 'true');
+  }
+  function renderAll() {
+    renderCards(); renderFooter(); renderMobile();
+    // no managers left -> hide their blocks instead of leaving stale markup
+    var has = managers.length > 0;
+    toggle(document.querySelector('.et-managers'), has);
+    document.querySelectorAll('.et-footer-mgrs').forEach(function (b) { toggle(b, has); });
+    toggle(document.querySelector('.et-mobile-mgrs'), has);
+  }
 
   /* ---------- chooser sheet ---------- */
   var sheet, lastFocus, closeTimer;
@@ -140,10 +153,15 @@
   }, true);
 
   /* ---------- data ---------- */
+  var gotData = false;
   document.addEventListener('site:data', function (e) {
     var d = e.detail || {};
-    var list = normalize(d.managers);
-    if (list.length) { managers = list; renderAll(); }
+    // An admin can delete every manager - an empty array must clear the site too,
+    // so apply the list whenever the bot actually sent one (even if it is empty).
+    if (!d.managers || !Array.isArray(d.managers)) return;
+    gotData = true;
+    managers = normalize(d.managers);
+    renderAll();
   });
   window.__eurotourManagers = { open: openSheet, close: closeSheet, list: function () { return managers.slice(); } };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderAll); else renderAll();

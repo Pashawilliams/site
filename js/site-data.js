@@ -13,14 +13,27 @@
   function fmt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
   function digits(s) { return String(s || '').replace(/\D+/g, ''); }
 
+  var prevPhone = '';
   function applyContacts(c) {
     if (!c) return;
     var tg = c.telegram || '', wa = c.whatsapp || (c.phone ? 'https://wa.me/' + digits(c.phone) : ''), tel = c.phone ? 'tel:+' + digits(c.phone) : '';
-    var MAIN = '380966973130';
-    function isMain(a) { var h = a.getAttribute('href') || ''; return !/\d{9,}/.test(h) || h.indexOf(MAIN) !== -1; }
-    document.querySelectorAll('a[href*="t.me/"]').forEach(function (a) { if (tg && isMain(a)) a.href = tg; });
+    var now = digits(c.phone);
+    // Numbers the markup may still carry: the one shipped in index.html, the one we
+    // applied on a previous refresh, and the current one. Manager links are owned by
+    // js/managers.js ([data-mgr-direct]) and must not be rewritten here.
+    var known = ['380966973130'];
+    if (prevPhone) known.push(prevPhone);
+    if (now) known.push(now);
+    function isMain(a) {
+      if (a.hasAttribute('data-mgr-direct') || a.closest('.et-managers, .et-footer-mgrs, .et-mobile-mgrs, .et-pick')) return false;
+      var h = a.getAttribute('href') || '';
+      if (!/\d{9,}/.test(h)) return true;
+      return known.some(function (d) { return d && h.indexOf(d) !== -1; });
+    }
+    document.querySelectorAll('a[href*="t.me/"]').forEach(function (a) { if (tg && isMain(a) && !/t\.me\/[\w_]*bot(\b|$)/i.test(a.href)) a.href = tg; });
     document.querySelectorAll('a[href*="wa.me/"], a[href*="whatsapp"]').forEach(function (a) { if (wa && isMain(a)) a.href = wa; });
     document.querySelectorAll('a[href^="tel:"]').forEach(function (a) { if (tel && isMain(a)) a.href = tel; });
+    if (now) prevPhone = now;
     document.querySelectorAll('.et-header-phone, .et-footer-phone, .et-mobile-contact--ph span, .et-ccard--ph .et-ccard__value, .et-ccard--wa .et-ccard__value').forEach(function (el) { if (c.phone_display) el.textContent = c.phone_display; });
     var tgv = document.querySelector('.et-ccard--tg .et-ccard__value'); if (tgv && tg) { var m = /t\.me\/([\w_]+)/.exec(tg); if (m) tgv.textContent = '@' + m[1]; }
     document.querySelectorAll('.header__phone-subtitle').forEach(function (el) { if (c.support_note) el.textContent = c.support_note; });
@@ -36,7 +49,7 @@
   }
 
   function applyAdvantages(list) {
-    if (!list || !list.length) return;
+    if (!list || !Array.isArray(list)) return;
     var items = document.querySelectorAll('.advantages-sec__icon-container');
     items.forEach(function (el, i) {
       var txt = el.querySelector('.advantages-sec__icon-text');
@@ -46,7 +59,7 @@
   }
 
   function applyRoutes(routes) {
-    if (!routes || !routes.length) return;
+    if (!routes || !Array.isArray(routes)) return;
     var map = {};
     routes.forEach(function (r) { map[r.from + '|' + r.to] = r; });
     document.querySelectorAll('.direction-element').forEach(function (card) {
@@ -54,20 +67,24 @@
       var r = map[key];
       if (!r) return;
       if (r.visible === false) { card.setAttribute('data-hidden-by-admin', '1'); card.style.display = 'none'; return; }
+      // route was un-hidden in the bot -> bring the card back
+      if (card.getAttribute('data-hidden-by-admin')) { card.removeAttribute('data-hidden-by-admin'); card.style.display = ''; }
       var p = card.querySelector('.direction-element__price');
       var o = card.querySelector('.et-price-old');
-      if (p && r.price && !window.__eurotourPricing) { p.textContent = 'від ' + fmt(r.price) + ' грн'; p.setAttribute('data-original-price', 'від ' + fmt(r.price) + ' грн'); }
+      // a price typed by the admin always wins over the automatic time-based engine
+      if (r.price) card.setAttribute('data-admin-price', r.price); else card.removeAttribute('data-admin-price');
+      if (p && r.price) { p.textContent = 'від ' + fmt(r.price) + ' грн'; p.setAttribute('data-original-price', 'від ' + fmt(r.price) + ' грн'); }
       if (o) { if (r.old_price && r.old_price > (r.price || 0)) { o.textContent = 'від ' + fmt(r.old_price) + ' грн'; o.style.display = ''; } else o.style.display = 'none'; }
+      var b = card.querySelector('.et-card-badge');
       if (r.badge) {
-        var b = card.querySelector('.et-card-badge');
         if (!b) { b = document.createElement('span'); b.className = 'et-card-badge'; card.appendChild(b); }
         b.textContent = r.badge;
-      }
+      } else if (b) { b.remove(); }
     });
     // price table for the search calculator
     if (window.__eurotourRouteData && window.__eurotourRouteData.KNOWN) {
       routes.forEach(function (r) {
-        if (!r.price || window.__eurotourPricing) return;
+        if (!r.price) return;
         window.__eurotourRouteData.KNOWN[r.from + '|' + r.to] = r.price;
       });
     }
@@ -79,9 +96,15 @@
 
   var lastReviews = '';
   function applyReviews(list) {
-    if (!list || !list.length) return;
+    if (!list || !Array.isArray(list)) return;
     var slider = document.querySelector('.reviews-sec__slider');
     if (!slider) return;
+    var sec = slider.closest('.reviews-sec');
+    if (sec) sec.style.display = list.length ? '' : 'none';
+    if (!list.length) {
+      if (slider.classList.contains('slick-initialized') && window.jQuery && window.jQuery.fn.slick) { try { window.jQuery(slider).slick('unslick'); } catch (e) {} }
+      slider.innerHTML = ''; lastReviews = '[]'; return;
+    }
     var sig = JSON.stringify(list);
     if (sig === lastReviews && slider.classList.contains('slick-initialized')) return;
     lastReviews = sig;
@@ -106,7 +129,10 @@
   }
 
   function applyFaq(list) {
-    if (!list || !list.length) return;
+    if (!list || !Array.isArray(list)) return;
+    var sec = document.querySelector('.faq-sec');
+    if (sec) sec.style.display = list.length ? '' : 'none';
+    if (!list.length) return;
     var first = list[0], rest = list.slice(1);
     var t1 = document.querySelector('.faq-sec__elementV1 .faq-sec__title');
     var a1 = document.querySelector('.faq-sec__elementV1 .faq-sec__text');

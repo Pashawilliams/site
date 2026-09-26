@@ -58,6 +58,9 @@
     d.querySelectorAll('.direction-element').forEach(function (card) {
       var q = quote(card.getAttribute('data-from-name'), card.getAttribute('data-to-name'));
       if (!q) return;
+      // price set by hand in the admin bot (site.json -> routes[].price) overrides the engine
+      var manual = +card.getAttribute('data-admin-price') || 0;
+      if (manual) { q = Object.assign({}, q, { amount: manual, eur: Math.round(manual / P.eur_rate), open: false }); }
       var p = card.querySelector('.direction-element__price');
       var o = card.querySelector('.et-price-old');
       if (p) { p.textContent = label(q); p.setAttribute('data-original-price', label(q)); p.classList.remove('is-bump'); void p.offsetWidth; p.classList.add('is-bump'); }

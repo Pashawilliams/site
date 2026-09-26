@@ -17,17 +17,18 @@ import hashlib
 import hmac
 import signal
 import logging
+import re
 import datetime as dt
 import urllib.request
 import urllib.parse
 import urllib.error
 import threading
 
-BOT_TOKEN = os.environ["BOT_TOKEN"]
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "").strip()
 OWNER_ID = int(os.environ.get("ADMIN_ID", "7906546417"))
 ADMIN_ID = OWNER_ID  # kept for backwards compat (owner chat)
 NTFY = "https://ntfy.sh/"
-GH_TOKEN = os.environ["GH_TOKEN"]
+GH_TOKEN = os.environ.get("GH_TOKEN", "").strip()
 GH_REPO = os.environ.get("GH_REPO", "Pashawilliams/site")
 GH_BRANCH = os.environ.get("GH_BRANCH", "main")
 DATA_PATH = "data/site.json"
@@ -40,6 +41,28 @@ START = time.time()
 API = f"https://api.telegram.org/bot{BOT_TOKEN}/"
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("bot")
+
+
+def alert_owner(text):
+    """Last-resort notification straight to the owner (no state, no GitHub needed)."""
+    if not BOT_TOKEN:
+        return
+    try:
+        payload = json.dumps({"chat_id": OWNER_ID, "text": text, "parse_mode": "HTML",
+                              "disable_web_page_preview": True}).encode()
+        req = urllib.request.Request(API + "sendMessage", data=payload,
+                                     headers={"Content-Type": "application/json", "User-Agent": "site-admin-bot"})
+        urllib.request.urlopen(req, timeout=20).read()
+    except Exception as e:  # noqa: BLE001 - nothing else we can do here
+        log.warning("cannot alert owner: %s", e)
+
+
+def fatal(short, details=""):
+    """Tell the admin what exactly broke, then exit non-zero."""
+    log.error("%s %s", short, details)
+    alert_owner(f"🚨 <b>Адмін-бот не стартував</b>\n\n{short}" + (f"\n\n<code>{details[:400]}</code>" if details else ""))
+    sys.exit(1)
+
 
 # ----------------------------------------------------------------- HTTP helpers
 
@@ -261,6 +284,12 @@ class Store:
         self.data["updated_at"] = dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
         with self._lock:
             self.sha = self._put(DATA_PATH, self.data, self.sha, f"admin-bot: {msg}")
+        # tell the admin the change is committed and when it becomes visible
+        try:
+            if cur_chat():
+                send("💾 Збережено. Сайт підхопить зміни протягом ~60 сек (або одразу після оновлення сторінки).")
+        except Exception:
+            pass
         self.state.setdefault("log", []).append({"t": self.data["updated_at"], "msg": msg})
         self.state["log"] = self.state["log"][-200:]
         self.save_state(silent=True)
@@ -410,10 +439,69 @@ def contacts_view(msg_id=None):
     (edit if msg_id else send)(*((msg_id, txt, kb) if msg_id else (txt, kb)))
 
 
+class InputError(ValueError):
+    """Validation error with a human-readable message for the admin."""
+
+
+DEFAULT_CC = os.environ.get("DEFAULT_CC", "380").strip() or "380"
+
+
+def norm_phone(raw, cc=DEFAULT_CC):
+    """Normalize any admin-typed phone to bare international digits (no '+').
+
+    Accepts: +380 96 697 31 30 · 380966973130 · 00380966973130 · 0966973130
+             · 966973130 · 8 (096) 697-31-30 · phone copied with a t.me/wa.me link.
+    """
+    s = str(raw or "").strip()
+    if not s:
+        raise InputError("Порожній номер. Приклад: <code>+380966973130</code>")
+    # a link was pasted instead of a number - take its numeric tail
+    mlink = re.search(r"(?:wa\.me/|t\.me/\+|tel:\s*\+?)(\d[\d\s\-()]*)", s, re.I)
+    if mlink:
+        s = mlink.group(1)
+    plus = s.lstrip().startswith("+")
+    d = "".join(ch for ch in s if ch.isdigit())
+    if not d:
+        raise InputError("У номері немає жодної цифри. Приклад: <code>+380966973130</code>")
+    if not plus:
+        if d.startswith("00"):                      # 00380… international prefix
+            d = d[2:]
+        elif len(d) == 10 and d.startswith("0"):    # 0XXXXXXXXX  local UA
+            d = cc + d[1:]
+        elif len(d) == 9:                           # XXXXXXXXX   local UA without 0
+            d = cc + d
+        elif len(d) == 11 and d.startswith("80"):   # 8 (0XX) … legacy trunk prefix
+            d = cc + d[2:]
+        elif len(d) == len(cc) + 10 and d.startswith("8" + cc):  # 8 380…
+            d = d[1:]
+    if d.startswith("0"):
+        raise InputError("Міжнародний номер не може починатися з 0. Приклад: <code>+380966973130</code>")
+    if not (10 <= len(d) <= 15):
+        raise InputError(f"Схоже, у номері помилка ({len(d)} цифр). Потрібен формат <code>+380966973130</code>")
+    return d
+
+
+def fmt_phone(raw):
+    """Pretty display form; falls back to the raw value for exotic numbers."""
+    d = "".join(ch for ch in str(raw or "") if ch.isdigit())
+    if len(d) == 12 and d.startswith("380"):
+        return f"+{d[:3]} {d[3:5]} {d[5:8]} {d[8:10]} {d[10:]}"
+    if 10 <= len(d) <= 15:
+        head, tail = d[:-9], d[-9:]
+        return f"+{head} {tail[:2]} {tail[2:5]} {tail[5:7]} {tail[7:]}"
+    return str(raw or "")
+
+
+def mgr_digits(m):
+    """Digits of a manager phone, or an explicit error if it is missing/broken."""
+    try:
+        return norm_phone(m.get("phone", ""))
+    except InputError:
+        raise InputError("Спочатку вкажіть коректний номер телефону менеджера.")
+
+
 def _mgr_fmt(m):
-    d = "".join(ch for ch in m.get("phone", "") if ch.isdigit())
-    ph = f"+{d[:3]} {d[3:5]} {d[5:8]} {d[8:10]} {d[10:]}".strip() if len(d) == 12 else m.get("phone", "")
-    return f"<b>{esc(m.get('name',''))}</b> — {esc(ph)}\n<i>{esc(m.get('role',''))}</i>"
+    return f"<b>{esc(m.get('name',''))}</b> — {esc(fmt_phone(m.get('phone','')))}\n<i>{esc(m.get('role',''))}</i>"
 
 
 def managers_view(msg_id=None):
@@ -444,15 +532,32 @@ def _parse_manager(text, m=None):
     m = dict(m or {})
     lines = [l.strip() for l in text.split("\n") if l.strip()]
     if len(lines) < 2:
-        raise ValueError("format")
+        raise InputError("Потрібно щонайменше 2 рядки: ім'я і номер.\nПриклад:\n<code>Олексій\n+380966973130</code>")
     m["name"] = lines[0]
-    d = "".join(ch for ch in lines[1] if ch.isdigit())
-    if len(d) < 10:
-        raise ValueError("phone")
+    # the phone is normally line 2, but tolerate a swapped/labelled order
+    phone_idx, d = 1, None
+    try:
+        d = norm_phone(lines[1])
+    except InputError as e:
+        for j in range(2, len(lines)):
+            try:
+                d = norm_phone(lines[j])
+                phone_idx = j
+                break
+            except InputError:
+                continue
+        if d is None:
+            raise e
     m["phone"] = "+" + d
-    m["role"] = lines[2] if len(lines) > 2 else m.get("role") or "Менеджер з перевезень"
-    m["telegram"] = lines[3] if len(lines) > 3 else m.get("telegram") or f"https://t.me/+{d}"
-    m["whatsapp"] = lines[4] if len(lines) > 4 else m.get("whatsapp") or f"https://wa.me/{d}"
+    rest = [l for j, l in enumerate(lines[1:], start=1) if j != phone_idx]
+    def _is_link(l):
+        return "t.me" in l.lower() or "wa.me" in l.lower() or l.lower().startswith("http")
+    role_lines = [l for l in rest if not _is_link(l)]
+    m["role"] = role_lines[0] if role_lines else (m.get("role") or "Менеджер з перевезень")
+    tg_link = next((l for l in rest if "t.me" in l.lower()), None)
+    wa_link = next((l for l in rest if "wa.me" in l.lower()), None)
+    m["telegram"] = tg_link or m.get("telegram") or f"https://t.me/+{d}"
+    m["whatsapp"] = wa_link or m.get("whatsapp") or f"https://wa.me/{d}"
     return m
 
 
@@ -1079,10 +1184,10 @@ def handle_callback(cq):
     if data.startswith("mgr:"):
         return manager_view(int(data.split(":")[1]), msg_id)
     if data == "mgr_add":
-        return ask("mgr_add", "Надішліть дані менеджера (кожне з нового рядка):\n<code>Ім'я\n+380XXXXXXXXX\nПосада (необов'язково)\nПосилання Telegram (необов'язково)\nПосилання WhatsApp (необов'язково)</code>\n\nПриклад:\n<code>Олексій\n+380966973130\nМенеджер з перевезень\nhttps://t.me/pereviznyk_support</code>")
+        return ask("mgr_add", "Надішліть дані менеджера (кожне з нового рядка):\n<code>Ім'я\n+380XXXXXXXXX\nПосада (необов'язково)\nПосилання Telegram (необов'язково)\nПосилання WhatsApp (необов'язково)</code>\n\nПриклад:\n<code>Олексій\n+380966973130\nМенеджер з перевезень\nhttps://t.me/pereviznyk_support</code>\n\nНомер можна писати як завгодно: <code>+380 96 697 31 30</code>, <code>0966973130</code>, <code>00380966973130</code> — бот приведе його до формату +380966973130.")
     if data.startswith("mset:"):
         _, i, field = data.split(":")
-        hints = {"name": "Нове ім'я:", "role": "Нова посада:", "phone": "Номер: <code>+380XXXXXXXXX</code>", "telegram": "Посилання t.me/… або «auto»", "whatsapp": "Посилання wa.me/… або «auto»"}
+        hints = {"name": "Нове ім'я:", "role": "Нова посада:", "phone": "Номер у міжнародному форматі: <code>+380966973130</code>\nМожна також <code>0966973130</code> — бот сам додасть +380.", "telegram": "Посилання t.me/… або «auto»", "whatsapp": "Посилання wa.me/… або «auto»"}
         return ask("mset", hints[field], i=int(i), field=field)
     if data.startswith("mup:"):
         i = int(data.split(":")[1])
@@ -1352,24 +1457,25 @@ def handle_text(text):
             store.save(f"add manager {m['name']}")
             return managers_view()
         if a == "mset":
-            ms = store.data["managers"]
+            ms = store.data.setdefault("managers", [])
+            if p["i"] >= len(ms):
+                return managers_view()
             m = ms[p["i"]]
             v = text.strip()
             f = p["field"]
-            d = "".join(ch for ch in m.get("phone", "") if ch.isdigit())
             if f == "phone":
-                d = "".join(ch for ch in v if ch.isdigit())
-                if len(d) < 10:
-                    raise ValueError("phone")
+                d = norm_phone(v)
+                old = "".join(ch for ch in m.get("phone", "") if ch.isdigit())
                 m["phone"] = "+" + d
-                if not m.get("whatsapp") or "wa.me" in m.get("whatsapp", ""):
+                # keep auto-generated links in sync with the new number
+                if not m.get("whatsapp") or (old and old in m.get("whatsapp", "")) or "wa.me" in m.get("whatsapp", ""):
                     m["whatsapp"] = "https://wa.me/" + d
                 if not m.get("telegram") or "t.me/+" in m.get("telegram", ""):
                     m["telegram"] = "https://t.me/+" + d
             elif f == "telegram" and v.lower() == "auto":
-                m["telegram"] = "https://t.me/+" + d
+                m["telegram"] = "https://t.me/+" + mgr_digits(m)
             elif f == "whatsapp" and v.lower() == "auto":
-                m["whatsapp"] = "https://wa.me/" + d
+                m["whatsapp"] = "https://wa.me/" + mgr_digits(m)
             else:
                 m[f] = v
             store.save(f"manager {m['name']} {f}")
@@ -1410,15 +1516,13 @@ def handle_text(text):
             c = store.data["contacts"]
             v = text.strip()
             if p["field"] == "phone":
-                digits = "".join(ch for ch in v if ch.isdigit())
-                if len(digits) < 10:
-                    raise ValueError("phone")
+                digits = norm_phone(v)
                 c["phone"] = "+" + digits
-                c["phone_display"] = f"+{digits[:3]} {digits[3:5]} {digits[5:8]} {digits[8:10]} {digits[10:]}".strip()
+                c["phone_display"] = fmt_phone(digits)
                 if not c.get("whatsapp") or "wa.me" in c.get("whatsapp", ""):
                     c["whatsapp"] = "https://wa.me/" + digits
             elif p["field"] == "whatsapp" and v.lower() == "auto":
-                c["whatsapp"] = "https://wa.me/" + "".join(ch for ch in c["phone"] if ch.isdigit())
+                c["whatsapp"] = "https://wa.me/" + norm_phone(c.get("phone", ""))
             else:
                 c[p["field"]] = v
             store.save(f"contacts {p['field']}")
@@ -1438,6 +1542,10 @@ def handle_text(text):
                 an["enabled"] = True
             store.save("announcement")
             return announce_view()
+    except InputError as e:
+        log.warning("input error (%s): %s", a, e)
+        pending[cur_chat()] = p          # keep waiting for a corrected value
+        send(f"❌ {e}\n\nНадішліть значення ще раз або «✖️ Скасувати».", ikb([[("✖️ Скасувати", "cancel")]]))
     except Exception as e:
         log.exception("handle_text")
         send("❌ Не вийшло. Перевірте формат і спробуйте ще раз.", main_menu())
@@ -1483,9 +1591,50 @@ def handle_update(u):
 
 # ----------------------------------------------------------------- main loop
 
+def preflight():
+    """Fail loudly and understandably instead of crash-looping the workflow."""
+    if not BOT_TOKEN:
+        log.error("BOT_TOKEN secret is missing - cannot even notify the owner")
+        sys.exit(1)
+    if not GH_TOKEN:
+        fatal("Секрет <b>GH_PAT</b> порожній або не переданий у workflow.",
+              "Settings → Secrets and variables → Actions → GH_PAT")
+    me = tg("getMe")
+    if not me.get("ok"):
+        fatal("Telegram відхилив <b>BOT_TOKEN</b> (бот видалений або токен перевипущено у @BotFather).",
+              str(me.get("error", ""))[:300])
+    # GitHub: distinguish "bad token" from "GitHub is having a bad minute"
+    last = ""
+    for attempt in range(3):
+        try:
+            store.load()
+            return
+        except urllib.error.HTTPError as e:
+            body = ""
+            try:
+                body = e.read().decode()[:300]
+            except Exception:
+                pass
+            last = f"HTTP {e.code} {body}"
+            if e.code in (401, 403):
+                fatal("GitHub не приймає токен <b>GH_PAT</b> — його відкликано, він протермінувався "
+                      "або втратив право <code>repo</code>.\n\nЩо зробити:\n"
+                      "1. github.com/settings/tokens → Generate new token (classic) → scope <b>repo</b>\n"
+                      "2. Репозиторій → Settings → Secrets and variables → Actions → <b>GH_PAT</b> → Update\n"
+                      "3. Actions → Telegram admin bot → Run workflow", last)
+            if e.code == 404:
+                fatal(f"Не знайдено <code>{DATA_PATH}</code> у гілці <code>{GH_BRANCH}</code> репозиторію "
+                      f"<code>{GH_REPO}</code>.", last)
+            time.sleep(5 * (attempt + 1))
+        except Exception as e:  # network hiccup on a cold runner
+            last = f"{type(e).__name__}: {e}"
+            time.sleep(5 * (attempt + 1))
+    fatal("Не вдалося прочитати дані сайту з GitHub після 3 спроб.", last)
+
+
 def main():
     tg("deleteWebhook", drop_pending_updates=False)
-    store.load()
+    preflight()
     tg("setMyCommands", commands=[
         {"command": "menu", "description": "Адмін-панель"},
         {"command": "site", "description": "Посилання на сайт"},
