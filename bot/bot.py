@@ -24,11 +24,11 @@ import urllib.parse
 import urllib.error
 import threading
 
-BOT_TOKEN = os.environ["BOT_TOKEN"]
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "").strip()
 OWNER_ID = int(os.environ.get("ADMIN_ID", "7906546417"))
 ADMIN_ID = OWNER_ID  # kept for backwards compat (owner chat)
 NTFY = "https://ntfy.sh/"
-GH_TOKEN = os.environ["GH_TOKEN"]
+GH_TOKEN = os.environ.get("GH_TOKEN", "").strip()
 GH_REPO = os.environ.get("GH_REPO", "Pashawilliams/site")
 GH_BRANCH = os.environ.get("GH_BRANCH", "main")
 DATA_PATH = "data/site.json"
@@ -41,6 +41,28 @@ START = time.time()
 API = f"https://api.telegram.org/bot{BOT_TOKEN}/"
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger("bot")
+
+
+def alert_owner(text):
+    """Last-resort notification straight to the owner (no state, no GitHub needed)."""
+    if not BOT_TOKEN:
+        return
+    try:
+        payload = json.dumps({"chat_id": OWNER_ID, "text": text, "parse_mode": "HTML",
+                              "disable_web_page_preview": True}).encode()
+        req = urllib.request.Request(API + "sendMessage", data=payload,
+                                     headers={"Content-Type": "application/json", "User-Agent": "site-admin-bot"})
+        urllib.request.urlopen(req, timeout=20).read()
+    except Exception as e:  # noqa: BLE001 - nothing else we can do here
+        log.warning("cannot alert owner: %s", e)
+
+
+def fatal(short, details=""):
+    """Tell the admin what exactly broke, then exit non-zero."""
+    log.error("%s %s", short, details)
+    alert_owner(f"🚨 <b>Адмін-бот не стартував</b>\n\n{short}" + (f"\n\n<code>{details[:400]}</code>" if details else ""))
+    sys.exit(1)
+
 
 # ----------------------------------------------------------------- HTTP helpers
 
@@ -1569,9 +1591,50 @@ def handle_update(u):
 
 # ----------------------------------------------------------------- main loop
 
+def preflight():
+    """Fail loudly and understandably instead of crash-looping the workflow."""
+    if not BOT_TOKEN:
+        log.error("BOT_TOKEN secret is missing - cannot even notify the owner")
+        sys.exit(1)
+    if not GH_TOKEN:
+        fatal("Секрет <b>GH_PAT</b> порожній або не переданий у workflow.",
+              "Settings → Secrets and variables → Actions → GH_PAT")
+    me = tg("getMe")
+    if not me.get("ok"):
+        fatal("Telegram відхилив <b>BOT_TOKEN</b> (бот видалений або токен перевипущено у @BotFather).",
+              str(me.get("error", ""))[:300])
+    # GitHub: distinguish "bad token" from "GitHub is having a bad minute"
+    last = ""
+    for attempt in range(3):
+        try:
+            store.load()
+            return
+        except urllib.error.HTTPError as e:
+            body = ""
+            try:
+                body = e.read().decode()[:300]
+            except Exception:
+                pass
+            last = f"HTTP {e.code} {body}"
+            if e.code in (401, 403):
+                fatal("GitHub не приймає токен <b>GH_PAT</b> — його відкликано, він протермінувався "
+                      "або втратив право <code>repo</code>.\n\nЩо зробити:\n"
+                      "1. github.com/settings/tokens → Generate new token (classic) → scope <b>repo</b>\n"
+                      "2. Репозиторій → Settings → Secrets and variables → Actions → <b>GH_PAT</b> → Update\n"
+                      "3. Actions → Telegram admin bot → Run workflow", last)
+            if e.code == 404:
+                fatal(f"Не знайдено <code>{DATA_PATH}</code> у гілці <code>{GH_BRANCH}</code> репозиторію "
+                      f"<code>{GH_REPO}</code>.", last)
+            time.sleep(5 * (attempt + 1))
+        except Exception as e:  # network hiccup on a cold runner
+            last = f"{type(e).__name__}: {e}"
+            time.sleep(5 * (attempt + 1))
+    fatal("Не вдалося прочитати дані сайту з GitHub після 3 спроб.", last)
+
+
 def main():
     tg("deleteWebhook", drop_pending_updates=False)
-    store.load()
+    preflight()
     tg("setMyCommands", commands=[
         {"command": "menu", "description": "Адмін-панель"},
         {"command": "site", "description": "Посилання на сайт"},
