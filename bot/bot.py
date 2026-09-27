@@ -221,15 +221,23 @@ class Store:
         self.state_sha = None
 
     def load(self):
-        r = http(f"https://api.github.com/repos/{GH_REPO}/contents/{DATA_PATH}?ref={GH_BRANCH}", headers=GH_H)
-        self.sha = r["sha"]
-        self.data = json.loads(base64.b64decode(r["content"]).decode())
+        for attempt in range(4):
+            try:
+                r = http(f"https://api.github.com/repos/{GH_REPO}/contents/{DATA_PATH}?ref={GH_BRANCH}", headers=GH_H)
+                self.sha = r["sha"]
+                self.data = json.loads(base64.b64decode(r["content"]).decode())
+                break
+            except Exception as e:
+                if attempt < 3:
+                    time.sleep(2 + attempt)
+                    continue
+                raise
         try:
             r = http(f"https://api.github.com/repos/{GH_REPO}/contents/{STATE_PATH}?ref={GH_BRANCH}", headers=GH_H)
             self.state_sha = r["sha"]
             raw_state = json.loads(base64.b64decode(r["content"]).decode())
             self.state = decrypt_state(raw_state)
-        except urllib.error.HTTPError:
+        except Exception:
             self.state_sha = None
             self.state = default_state()
         if not isinstance(self.state, dict):
