@@ -963,24 +963,24 @@
   "managers": [
     {
       "name": "Дмитро",
-      "phone": "+380683175335",
+      "phone": "+380634460657",
       "role": "Менеджер з перевезень",
-      "telegram": "https://t.me/+380683175335",
-      "whatsapp": "https://wa.me/380683175335"
+      "telegram": "https://t.me/+380634460657",
+      "whatsapp": "https://wa.me/380634460657"
     },
     {
       "name": "Олексій",
-      "phone": "+380737898642",
+      "phone": "+380636881604",
       "role": "Менеджер з перевезень",
-      "telegram": "https://t.me/+380737898642",
-      "whatsapp": "https://wa.me/380737898642"
+      "telegram": "https://t.me/+380636881604",
+      "whatsapp": "https://wa.me/380636881604"
     },
     {
-      "name": "Андрій",
-      "phone": "+380973452025",
+      "name": "Ярослав",
+      "phone": "+380971137900",
       "role": "Менеджер з перевезень",
-      "telegram": "https://t.me/+380973452025",
-      "whatsapp": "https://wa.me/380973452025"
+      "telegram": "https://t.me/+380971137900",
+      "whatsapp": "https://wa.me/380971137900"
     }
   ],
   "durations": {

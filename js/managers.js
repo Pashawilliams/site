@@ -3,9 +3,9 @@
 (function () {
   'use strict';
   var DEFAULT = [
-    { name: 'Дмитро', role: 'Менеджер з перевезень', phone: '+380683175335', telegram: 'https://t.me/+380683175335', whatsapp: 'https://wa.me/380683175335' },
-    { name: 'Олексій', role: 'Менеджер з перевезень', phone: '+380737898642', telegram: 'https://t.me/+380737898642', whatsapp: 'https://wa.me/380737898642' },
-    { name: 'Сергій', role: 'Менеджер з перевезень', phone: '+380987866620', telegram: 'https://t.me/eurotourbus1', whatsapp: 'https://wa.me/380987866620' },
+    { name: 'Дмитро', role: 'Менеджер з перевезень', phone: '+380634460657', telegram: 'https://t.me/+380634460657', whatsapp: 'https://wa.me/380634460657' },
+    { name: 'Олексій', role: 'Менеджер з перевезень', phone: '+380636881604', telegram: 'https://t.me/+380636881604', whatsapp: 'https://wa.me/380636881604' },
+    { name: 'Ярослав', role: 'Менеджер з перевезень', phone: '+380971137900', telegram: 'https://t.me/+380971137900', whatsapp: 'https://wa.me/380971137900' },
   ];
   var managers = DEFAULT.slice();
   var ICON = {
