@@ -10,10 +10,10 @@
     }
   },
   "contacts": {
-    "phone": "+380966973130",
-    "phone_display": "+380 96 697 31 30",
+    "phone": "+380636881604",
+    "phone_display": "+380 63 688 16 04",
     "telegram": "https://t.me/pereviznyk001",
-    "whatsapp": "https://wa.me/380966973130",
+    "whatsapp": "https://wa.me/380636881604",
     "support_note": "Цілодобова підтримка"
   },
   "hero": {
@@ -971,6 +971,7 @@
     {
       "name": "Олексій",
       "phone": "+380636881604",
+      "phone2": "+380737898642",
       "role": "Менеджер з перевезень",
       "telegram": "https://t.me/+380636881604",
       "whatsapp": "https://wa.me/380636881604"

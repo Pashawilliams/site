@@ -96,8 +96,8 @@
 ```jsonc
 {
   "site":      { "title", "maintenance": false, "announcement": {"enabled": false, "text": ""} , ... },
-  "contacts":  { "phone": "+380966973130", "phone_display": "+380 96 697 31 30",
-                 "telegram": "https://t.me/pereviznyk001", "whatsapp": "https://wa.me/380966973130",
+  "contacts":  { "phone": "+380636881604", "phone_display": "+380 63 688 16 04",
+                 "telegram": "https://t.me/pereviznyk001", "whatsapp": "https://wa.me/380636881604",
                  "support_note": "Цілодобова підтримка" },
   "hero":      { "title", "subtitle" },
   "advantages": [ 10 × {icon, text} ],
@@ -105,8 +105,8 @@
                         "slug": "ads/kyyiv-varshava", "visible": true } ],   // price=null → авторасчёт
   "reviews":   [ 3 × { "name", "text", "date", "stars": 5 } ],
   "faq":       [ 5 × { "q", "a" } ],
-  "managers":  [ { "name": "Олексій", "phone": "+380966973130", "role": "Менеджер з перевезень",
-                   "telegram": "https://t.me/+380966973130", "whatsapp": "https://wa.me/380966973130" },
+  "managers":  [ { "name": "Олексій", "phone": "+380636881604", "phone2": "+380737898642", "role": "Менеджер з перевезень",
+                   "telegram": "https://t.me/+380636881604", "whatsapp": "https://wa.me/380636881604" },
                  { "name": "Сергій",  "phone": "+380987866620", "role": "Менеджер з перевезень",
                    "telegram": "https://t.me/eurotourbus1",   "whatsapp": "https://wa.me/380987866620" } ],
   "durations": { "Київ|Варшава": 11.1, ... 110 пар },     // часы поездки по OSRM + extra_hours на границу/остановки

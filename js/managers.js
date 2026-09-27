@@ -4,14 +4,14 @@
   'use strict';
   var DEFAULT = [
     { name: 'Дмитро', role: 'Менеджер з перевезень', phone: '+380634460657', telegram: 'https://t.me/+380634460657', whatsapp: 'https://wa.me/380634460657' },
-    { name: 'Олексій', role: 'Менеджер з перевезень', phone: '+380636881604', telegram: 'https://t.me/+380636881604', whatsapp: 'https://wa.me/380636881604' },
+    { name: 'Олексій', role: 'Менеджер з перевезень', phone: '+380636881604', phone2: '+380737898642', telegram: 'https://t.me/+380636881604', whatsapp: 'https://wa.me/380636881604' },
     { name: 'Ярослав', role: 'Менеджер з перевезень', phone: '+380971137900', telegram: 'https://t.me/+380971137900', whatsapp: 'https://wa.me/380971137900' },
   ];
   var managers = DEFAULT.slice();
   var ICON = {
     ph: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1L6.6 10.8z"/></svg>',
     tg: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.9 4.6 18.9 19c-.2 1-.8 1.2-1.6.8l-4.5-3.3-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.6 8.4-7.6c.4-.3-.1-.5-.6-.2L7.5 13.1 3 11.7c-1-.3-1-1 .2-1.4l17.4-6.7c.8-.3 1.5.2 1.3 1z"/></svg>',
-    wa: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2c0 1.3.9 2.5 1.1 2.7.1.2 1.9 2.9 4.6 4 1.7.7 2.4.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.5-.3z"/></svg>'
+    wa: '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.6 1.1 2.7c.1.2 1.9 2.9 4.6 4 1.7.7 2.4.8 3.2.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>'
   };
   var TITLE = { ph: 'Кому зателефонувати?', tg: 'Кому написати в Telegram?', wa: 'Кому написати у WhatsApp?' };
   var LABEL = { ph: 'Дзвінок', tg: 'Telegram', wa: 'WhatsApp' };
@@ -27,7 +27,14 @@
   function initial(n) { return (n || '?').trim().charAt(0).toUpperCase(); }
   function normalize(list) {
     return (list || []).filter(function (m) { return m && m.name && m.phone; }).map(function (m) {
-      return { name: m.name, role: m.role || 'Менеджер', phone: '+' + digits(m.phone), telegram: m.telegram || '', whatsapp: m.whatsapp || '' };
+      return {
+        name: m.name,
+        role: m.role || 'Менеджер',
+        phone: '+' + digits(m.phone),
+        phone2: m.phone2 ? '+' + digits(m.phone2) : '',
+        telegram: m.telegram || '',
+        whatsapp: m.whatsapp || ''
+      };
     });
   }
 
@@ -40,11 +47,15 @@
     var box = document.querySelector('.et-managers__list');
     if (!box) return;
     box.innerHTML = managers.map(function (m, i) {
+      var phoneHtml = '<a class="et-mgr__phone" data-mgr-direct="1" href="tel:' + esc(m.phone) + '">' + esc(fmtPhone(m.phone)) + '</a>';
+      if (m.phone2) {
+        phoneHtml += '<a class="et-mgr__phone" data-mgr-direct="1" href="tel:' + esc(m.phone2) + '">' + esc(fmtPhone(m.phone2)) + '</a>';
+      }
       return '<div class="et-mgr" style="--i:' + i + '">' +
         '<div class="et-mgr__avatar">' + esc(initial(m.name)) + '<i class="et-mgr__dot"></i></div>' +
         '<div class="et-mgr__info"><span class="et-mgr__name">' + esc(m.name) + ' <em>менеджер</em></span>' +
         '<span class="et-mgr__role">' + esc(m.role) + '</span>' +
-        '<a class="et-mgr__phone" data-mgr-direct="1" href="tel:' + esc(m.phone) + '">' + esc(fmtPhone(m.phone)) + '</a></div>' +
+        phoneHtml + '</div>' +
         '<div class="et-mgr__actions">' + btn(m, 'ph') + btn(m, 'tg') + btn(m, 'wa') + '</div></div>';
     }).join('');
     var sec = box.closest('.et-managers');
@@ -58,7 +69,11 @@
   function renderFooter() {
     document.querySelectorAll('.et-footer-mgrs').forEach(function (box) {
       box.innerHTML = managers.map(function (m) {
-        return '<div class="et-footer-mgr"><a class="et-footer-phone et-footer-phone--sm" data-mgr-direct="1" href="tel:' + esc(m.phone) + '">' + esc(fmtPhone(m.phone)) + '</a>' +
+        var phoneHtml = '<a class="et-footer-phone et-footer-phone--sm" data-mgr-direct="1" href="tel:' + esc(m.phone) + '">' + esc(fmtPhone(m.phone)) + '</a>';
+        if (m.phone2) {
+          phoneHtml += ' · <a class="et-footer-phone et-footer-phone--sm" data-mgr-direct="1" href="tel:' + esc(m.phone2) + '">' + esc(fmtPhone(m.phone2)) + '</a>';
+        }
+        return '<div class="et-footer-mgr">' + phoneHtml +
           '<span class="footer__contacts-note">' + esc(m.name) + ' · менеджер · <a data-mgr-direct="1" href="' + esc(link(m, 'tg')) + '" target="_blank" rel="noopener noreferrer">Telegram</a> · <a data-mgr-direct="1" href="' + esc(link(m, 'wa')) + '" target="_blank" rel="noopener noreferrer">WhatsApp</a></span></div>';
       }).join('');
     });
@@ -67,8 +82,12 @@
     var box = document.querySelector('.et-mobile-mgrs');
     if (!box) return;
     box.innerHTML = managers.map(function (m) {
+      var phoneHtml = '<a class="et-mobile-mgr__phone" data-mgr-direct="1" href="tel:' + esc(m.phone) + '">' + esc(fmtPhone(m.phone)) + '</a>';
+      if (m.phone2) {
+        phoneHtml += '<a class="et-mobile-mgr__phone" data-mgr-direct="1" href="tel:' + esc(m.phone2) + '">' + esc(fmtPhone(m.phone2)) + '</a>';
+      }
       return '<div class="et-mobile-mgr"><span class="et-mobile-mgr__name">' + esc(m.name) + ' · менеджер</span>' +
-        '<a class="et-mobile-mgr__phone" data-mgr-direct="1" href="tel:' + esc(m.phone) + '">' + esc(fmtPhone(m.phone)) + '</a>' +
+        phoneHtml +
         '<span class="et-mobile-mgr__links">' + ['ph', 'tg', 'wa'].map(function (ch) {
           return '<a data-mgr-direct="1" href="' + esc(link(m, ch)) + '"' + (ch === 'ph' ? '' : ' target="_blank" rel="noopener noreferrer"') + ' aria-label="' + esc(LABEL[ch] + ' — ' + m.name) + '">' + ICON[ch] + '</a>';
         }).join('') + '</span></div>';
@@ -102,9 +121,10 @@
     var ico = sheet.querySelector('.et-pick__ico'); ico.className = 'et-pick__ico et-pick__ico--' + ch; ico.innerHTML = ICON[ch];
     sheet.querySelector('.et-pick__list').innerHTML = managers.map(function (m, i) {
       var ext = ch === 'ph' ? '' : ' target="_blank" rel="noopener noreferrer"';
+      var phonesText = esc(fmtPhone(m.phone)) + (m.phone2 ? ' · ' + esc(fmtPhone(m.phone2)) : '');
       return '<a class="et-pick__item" style="--i:' + i + '" href="' + esc(link(m, ch)) + '"' + ext + '>' +
         '<span class="et-pick__av">' + esc(initial(m.name)) + '<i></i></span>' +
-        '<span class="et-pick__txt"><b>Менеджер ' + esc(m.name) + '</b><small>' + esc(fmtPhone(m.phone)) + ' · ' + esc(m.role) + '</small></span>' +
+        '<span class="et-pick__txt"><b>Менеджер ' + esc(m.name) + '</b><small>' + phonesText + ' · ' + esc(m.role) + '</small></span>' +
         '<span class="et-pick__go et-pick__go--' + ch + '">' + ICON[ch] + '</span></a>';
     }).join('');
     lastFocus = document.activeElement;
