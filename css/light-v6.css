@@ -318,7 +318,9 @@ html body #main-search-route .front-sec__banner-sec .front-sec__bg { filter: blu
 .et-mgr__name em { font-style: normal; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #6e137d; background: var(--dt-accent-3); padding: 3px 8px; border-radius: 999px; }
 .et-mgr__role { font-size: 13px; color: var(--dt-text-3); }
 .et-mgr__phone { font-size: 20px; font-weight: 800; color: #130c5a; text-decoration: none; margin-top: 4px; letter-spacing: .01em; white-space: nowrap; }
+.et-mgr__phone + .et-mgr__phone { font-size: 17px; margin-top: 2px; color: #4a457a; font-weight: 700; }
 .et-mgr__phone:hover { color: #6e137d; }
+.et-mgr__phone + .et-mgr__phone:hover { color: #6e137d; }
 .et-mgr__actions { grid-column: 1 / -1; display: flex; gap: 8px; margin-top: 8px; }
 .et-mgr__btn { flex: 1 1 0; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 11px 10px; border-radius: 14px; color: #fff; font-size: 14px; font-weight: 700; text-decoration: none; transition: transform .15s, box-shadow .15s; }
 .et-mgr__btn svg { width: 18px; height: 18px; flex: 0 0 auto; }
