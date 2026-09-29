@@ -925,19 +925,59 @@ def on_bridge_event(ev):
 
 
 def _send_attachment(uid, att, caption):
-    """Mirror a visitor attachment into Telegram (photo/document by URL)."""
+    """Mirror a visitor attachment into Telegram (photo/document by direct download & upload or URL)."""
     url = att.get("url")
     if not url:
         return
     cap = (caption or "")[:1000]
     typ = att.get("type") or ""
-    if typ.startswith("image/") and (att.get("size") or 0) < 10 * 1024 * 1024:
-        r = tg("sendPhoto", chat_id=uid, photo=url, caption=cap)
+    fname = att.get("name") or ("image.jpg" if typ.startswith("image/") else "file.bin")
+    is_img = typ.startswith("image/") or fname.lower().endswith((".jpg", ".jpeg", ".png", ".webp", ".gif"))
+
+    # 1. Try direct download & multipart upload to Telegram
+    try:
+        req_dl = urllib.request.Request(url, headers={"User-Agent": "eurotour-admin-bot"})
+        with urllib.request.urlopen(req_dl, timeout=30) as r:
+            file_bytes = r.read()
+        
+        if file_bytes and len(file_bytes) > 0:
+            method = "sendPhoto" if (is_img and len(file_bytes) <= 10 * 1024 * 1024) else "sendDocument"
+            field_name = "photo" if method == "sendPhoto" else "document"
+            
+            boundary = "----tgfile" + str(int(time.time()))
+            body = bytearray()
+            body.extend(f"--{boundary}\r\nContent-Disposition: form-data; name=\"chat_id\"\r\n\r\n{uid}\r\n".encode())
+            if cap:
+                body.extend(f"--{boundary}\r\nContent-Disposition: form-data; name=\"caption\"\r\n\r\n{cap}\r\n".encode())
+            body.extend(f"--{boundary}\r\nContent-Disposition: form-data; name=\"{field_name}\"; filename=\"{fname}\"\r\nContent-Type: {typ or 'application/octet-stream'}\r\n\r\n".encode())
+            body.extend(file_bytes)
+            body.extend(f"\r\n--{boundary}--\r\n".encode())
+            
+            req_tg = urllib.request.Request(
+                API + method,
+                data=bytes(body),
+                headers={"Content-Type": f"multipart/form-data; boundary={boundary}"}
+            )
+            res = json.loads(urllib.request.urlopen(req_tg, timeout=60).read().decode() or "{}")
+            if res.get("ok"):
+                return
+    except Exception as e:
+        log.warning("direct attachment download/upload failed: %s", e)
+
+    # 2. Fallback: ask Telegram to fetch via URL
+    try:
+        if is_img and (att.get("size") or 0) < 10 * 1024 * 1024:
+            r = tg("sendPhoto", chat_id=uid, photo=url, caption=cap)
+            if r.get("ok"):
+                return
+        r = tg("sendDocument", chat_id=uid, document=url, caption=cap)
         if r.get("ok"):
             return
-    r = tg("sendDocument", chat_id=uid, document=url, caption=cap)
-    if not r.get("ok"):
-        send(f"📎 <a href=\"{esc(url)}\">{esc(att.get('name') or 'файл')}</a>" + (f"\n{esc(cap)}" if cap else ""), chat_id=uid)
+    except Exception as e:
+        log.warning("url attachment send failed: %s", e)
+
+    # 3. Fallback: send as clickable HTML link
+    send(f"📎 <a href=\"{esc(url)}\">{esc(fname)}</a>" + (f"\n{esc(cap)}" if cap else ""), chat_id=uid)
 
 
 def bridge_listener(stop):
@@ -969,6 +1009,8 @@ def bridge_listener(stop):
                         ev = json.loads(d.get("message") or "{}")
                     except Exception:
                         ev = {"kind": "raw", "text": d.get("message")}
+                    if d.get("attachment") and not ev.get("attachment"):
+                        ev["attachment"] = d["attachment"]
                     try:
                         on_bridge_event(ev)
                     except Exception:
