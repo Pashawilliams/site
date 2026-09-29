@@ -33,7 +33,7 @@
     <button type="button" class="ch__close" id="closeBtn">Закрити чат</button>
     <div class="ch__menu" id="menu" hidden>
       <button type="button" data-act="tg"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.9 4.6 18.9 19c-.2 1-.8 1.2-1.6.8l-4.5-3.3-2.2 2.1c-.2.2-.4.4-.9.4l.3-4.6 8.4-7.6c.4-.3-.1-.5-.6-.2L7.5 13.1 3 11.7c-1-.3-1-1 .2-1.4l17.4-6.7c.8-.3 1.5.2 1.3 1z"/></svg>Написати в Telegram</button>
-      <button type="button" data-act="name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Змінити імʼя</button>
+      <button type="button" data-act="name"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Змінити контакт (@юзер / телефон)</button>
       <button type="button" data-act="end"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9 9h6v6H9z"/></svg>Завершити діалог</button>
       <button type="button" data-act="clear" class="is-danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>Очистити історію</button>
     </div>
@@ -58,8 +58,8 @@
 
   <footer class="ch__composer">
     <div class="ch__name-row" id="nameRow">
-      <label for="name">Як до вас звертатись?</label>
-      <input id="name" type="text" maxlength="40" autocomplete="name" placeholder="Ваше імʼя (необовʼязково)">
+      <label for="name">Ваш Telegram @username або телефон <span style="color:#f87171;">*</span></label>
+      <input id="name" type="text" maxlength="60" placeholder="Вкажіть @username або +380..." required>
     </div>
     <div class="ch__attach-strip" id="strip" hidden></div>
     <form class="ch__form" id="form" novalidate>

@@ -674,6 +674,22 @@ def chats_view(msg_id=None):
     (edit if msg_id else send)(*((msg_id, txt, ikb(rows)) if msg_id else (txt, ikb(rows))))
 
 
+def fmt_contact(val):
+    if not val:
+        return "Гість"
+    s = str(val).strip()
+    if s.startswith("@"):
+        uname = s[1:]
+        return f'<a href="https://t.me/{uname}">@{uname}</a>'
+    if s.startswith("https://t.me/") or s.startswith("t.me/"):
+        uname = s.split("/")[-1].lstrip("@")
+        return f'<a href="https://t.me/{uname}">@{uname}</a>'
+    digits = "".join(ch for ch in s if ch.isdigit())
+    if len(digits) >= 10:
+        return f'<code>+{digits}</code> (<a href="https://t.me/+{digits}">TG</a> · <a href="https://wa.me/{digits}">WA</a>)'
+    return esc(s)
+
+
 def chat_view(sidv, msg_id=None):
     c = store.state.get("chats", {}).get(sidv)
     if not c:
@@ -682,7 +698,7 @@ def chat_view(sidv, msg_id=None):
     lines = [("👤 " if m["dir"] == "in" else "🧑‍💼 ") + esc(m.get("text") or "") for m in hist]
     if c.get("agent"):
         lines.insert(0, f"<i>у діалозі з {esc(admin_name(c['agent']))}</i>\n")
-    txt = f"<b>Чат #chat_{sidv}</b>\nВідвідувач: {esc(c.get('name') or 'Гість')}\nСторінка: {esc((c.get('page') or '')[:80])}\n\n" + "\n".join(lines)
+    txt = f"<b>Чат #chat_{sidv}</b>\nВідвідувач: {fmt_contact(c.get('name'))}\nСторінка: {esc((c.get('page') or '')[:80])}\n\n" + "\n".join(lines)
     (edit if msg_id else send)(*((msg_id, txt[:4000], chat_kb(sidv)) if msg_id else (txt[:4000], chat_kb(sidv))))
 
 
@@ -741,9 +757,9 @@ def dialog_start(sidv, msg_id=None, cq=None):
     c["agent"] = uid
     mark_dirty()
     if prev != sidv:
-        threading.Thread(target=signal_visitor, args=(sidv, {"joined": admin_name(uid), "ts": dt.datetime.utcnow().isoformat()}), daemon=True).start()
-    name = c.get("name") or "Гість"
-    txt = (f"▶️ <b>Діалог з {esc(name)}</b> · #chat_{sidv}\n"
+        threading.Thread(target=signal_visitor, args=(sidv, {"joined": admin_name(uid), "typing": True, "ts": dt.datetime.utcnow().isoformat()}), daemon=True).start()
+    name = c.get("name")
+    txt = (f"▶️ <b>Діалог з {fmt_contact(name)}</b> · #chat_{sidv}\n"
            f"Тепер просто пишіть сюди — текст, фото, файли підуть відвідувачу. "
            f"Його повідомлення приходитимуть звичайним текстом.\n<i>Завершити: кнопка нижче або /end</i>")
     send(txt, dialog_bar(sidv))
@@ -769,9 +785,11 @@ def dialog_end(sidv=None, notify_visitor=True):
 
 def relay_admin_message(msg):
     """Admin is in dialog mode: forward text / photo / document / video / voice to the visitor."""
-    sidv = dialog_of(cur_chat())
+    uid = cur_chat()
+    sidv = dialog_of(uid)
     if not sidv:
         return False
+    threading.Thread(target=signal_visitor, args=(sidv, {"typing": True, "by": admin_name(uid)}), daemon=True).start()
     cap = msg.get("caption") or ""
     file = None
     try:
@@ -868,7 +886,7 @@ def on_bridge_event(ev):
         chats = store.state.setdefault("chats", {})
         c = chats.setdefault(sidv, {"msgs": [], "name": "", "page": "", "last": ""})
         if ev.get("name"):
-            c["name"] = str(ev["name"])[:40]
+            c["name"] = str(ev["name"])[:60]
         if ev.get("page"):
             c["page"] = ev.get("page")
         agents = [int(u) for u, sv in store.state.get("dialogs", {}).items() if sv == sidv]
@@ -884,15 +902,15 @@ def on_bridge_event(ev):
             return
         if kind == "chat_name":
             mark_dirty()
-            for uid in agents:
-                send(f"👤 Відвідувач представився: <b>{esc(name)}</b>", chat_id=uid)
+            for uid in admin_ids():
+                send(f"👤 Відвідувач надав контакт: <b>{fmt_contact(name)}</b> · #chat_{sidv}", chat_id=uid)
             return
         if kind == "chat_end":
             c["closed"] = True
             mark_dirty()
             for uid in agents:
                 store.state.get("dialogs", {}).pop(str(uid), None)
-                send(f"⏹ <b>{esc(name)}</b> завершив діалог.", ikb([[("💬 Чати", "chats"), ("⬅️ Меню", "main")]]), chat_id=uid)
+                send(f"⏹ <b>{fmt_contact(name)}</b> завершив діалог.", ikb([[("💬 Чати", "chats"), ("⬅️ Меню", "main")]]), chat_id=uid)
             return
         att = ev.get("attachment") or {}
         text = str(ev.get("text") or "")[:2000]
@@ -913,7 +931,7 @@ def on_bridge_event(ev):
                     send(esc(text), chat_id=uid)
                 return
             head = "💬 <b>Нове повідомлення з сайту</b>" if not ev.get("first") else "💬 <b>Новий чат з сайту</b>"
-            body = f"{head}\n<b>{esc(name)}</b> · #chat_{sidv}\n\n{esc(text)}"
+            body = f"{head}\n<b>{fmt_contact(name)}</b> · #chat_{sidv}\n\n{esc(text)}"
             if att:
                 body += f"\n📎 <a href=\"{esc(att.get('url',''))}\">{esc(att.get('name') or 'файл')}</a> ({(att.get('size') or 0)//1024} КБ)"
             send(body, chat_kb(sidv, in_dialog=False), chat_id=uid)
@@ -1234,6 +1252,8 @@ def handle_callback(cq):
         return dialog_end(data.split(":")[1])
     if data.startswith("canned:"):
         _, sidv, i = data.split(":")
+        threading.Thread(target=signal_visitor, args=(sidv, {"typing": True, "by": admin_name(cur_chat())}), daemon=True).start()
+        time.sleep(0.3)
         ok = reply_to_visitor(sidv, CANNED[int(i)][1])
         tg("answerCallbackQuery", callback_query_id=cq["id"], text="Надіслано ✅" if ok else "Помилка ❌")
         return chat_view(sidv, msg_id)

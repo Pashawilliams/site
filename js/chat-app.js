@@ -22,12 +22,22 @@
   // migrate from old widget history
   if (!hist.length) { try { var old = JSON.parse(ls('et_chat_hist') || '[]'); if (old.length) { hist = old.map(function (m) { return { id: rid(4), dir: m.dir, text: m.text, ts: m.ts, sent: true, seen: !!m.seen, auto: !!m.auto }; }); } } catch (e) {} }
   var visitorName = ls(K.name) || '';
+  if (visitorName && !isValidContact(visitorName)) { visitorName = ''; ls(K.name, null); }
   var lastId = ls(K.last) || '';
   var manager = null; try { manager = JSON.parse(ls(K.mgr) || 'null'); } catch (e) {}
   var ended = false;
   function save() { ls(K.hist, JSON.stringify(hist.slice(-150))); }
 
   /* ---------- helpers ---------- */
+  function isValidContact(val) {
+    var s = String(val || '').trim();
+    if (!s || s.length < 3) return false;
+    if (/^@?[a-zA-Z0-9_]{3,32}$/.test(s) && !/^\d{1,6}$/.test(s)) return true;
+    if (/t\.me\/[a-zA-Z0-9_]{3,32}/i.test(s)) return true;
+    var d = s.replace(/\D/g, '');
+    if (d.length >= 7) return true;
+    return false;
+  }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function linkify(s) { return esc(s).replace(/(https?:\/\/[^\s<]+)/g, function (u) { return '<a href="' + u + '" target="_blank" rel="noopener noreferrer">' + u + '</a>'; }); }
   function pad(n) { return ('0' + n).slice(-2); }
@@ -87,7 +97,7 @@
     el.list.innerHTML = html;
     if (t) el.list.appendChild(t);
     el.quick.hidden = hist.some(function (m) { return m.dir === 'out'; });
-    if (!nameEditing) el.nameRow.hidden = !!visitorName;
+    if (!nameEditing) el.nameRow.hidden = !!(visitorName && isValidContact(visitorName));
   }
   function appendMsg(m) {
     hist.push(m); save();
@@ -149,7 +159,7 @@
   }
   function markId(id) { if (id) { lastId = id; ls(K.last, id); } }
   function handleIncoming(p, id, ts) {
-    if (p.typing) { showTyping(true); return; }
+    if (p.typing) { showTyping(true, p.by); return; }
     if (p.seen) { hist.forEach(function (m) { if (m.dir === 'out') m.seen = true; }); save(); render(); return; }
     markId(id);
     if (p.joined) {
@@ -182,12 +192,34 @@
     img.src = url;
   }
   var typingT = null;
-  function showTyping(on) {
+  function showTyping(on, by) {
     var t = el.list.querySelector('.ch__typing');
-    if (!on) { if (t) t.remove(); if (typingT) { clearTimeout(typingT); typingT = null; } applyManager(); return; }
-    if (!t) { t = document.createElement('div'); t.className = 'ch__msg ch__msg--in ch__typing'; t.innerHTML = '<div class="ch__bub"><span></span><span></span><span></span></div>'; el.list.appendChild(t); scrollBottom(); }
-    setStatus('друкує…', true);
-    clearTimeout(typingT); typingT = setTimeout(function () { showTyping(false); }, 12000);
+    if (!on) {
+      if (t) t.remove();
+      if (typingT) { clearTimeout(typingT); typingT = null; }
+      applyManager();
+      return;
+    }
+    var who = by || (manager && manager.name) || 'Менеджер';
+    if (!t) {
+      t = document.createElement('div');
+      t.className = 'ch__msg ch__msg--in ch__typing';
+      t.innerHTML = (who ? '<div class="ch__from">' + esc(who) + '</div>' : '') + '<div class="ch__bub"><span></span><span></span><span></span></div>';
+      el.list.appendChild(t);
+      scrollBottom();
+    } else {
+      var from = t.querySelector('.ch__from');
+      if (from) from.textContent = who;
+      else if (who) {
+        var d = document.createElement('div');
+        d.className = 'ch__from';
+        d.textContent = who;
+        t.insertBefore(d, t.firstChild);
+      }
+    }
+    setStatus(who + ' друкує…', true);
+    clearTimeout(typingT);
+    typingT = setTimeout(function () { showTyping(false); }, 12000);
   }
   function notify(title, body) {
     try { if ('Notification' in window && Notification.permission === 'granted') new Notification(title, { body: body, icon: 'images/cropped-apple-touch-icon-192x192.png' }); } catch (e) {}
@@ -270,9 +302,29 @@
     });
   }
   function submit() {
+    var contactVal = el.name ? el.name.value.trim() : '';
+    if (!visitorName || !isValidContact(visitorName)) {
+      if (isValidContact(contactVal)) {
+        visitorName = contactVal.slice(0, 60);
+        ls(K.name, visitorName);
+        nameEditing = false;
+        if (el.nameRow) el.nameRow.hidden = true;
+      } else {
+        nameEditing = true;
+        if (el.nameRow) el.nameRow.hidden = false;
+        if (el.name) el.name.focus();
+        toast('Вкажіть ваш Telegram @username або телефон');
+        return;
+      }
+    }
     var text = el.inp.value.trim();
     if (!text && !pendingFiles.length) return;
-    if (el.name && el.name.value.trim() && el.name.value.trim() !== visitorName) { visitorName = el.name.value.trim().slice(0, 40); ls(K.name, visitorName); nameEditing = false; el.nameRow.hidden = true; }
+    if (el.name && el.name.value.trim() && el.name.value.trim() !== visitorName && isValidContact(el.name.value.trim())) {
+      visitorName = el.name.value.trim().slice(0, 60);
+      ls(K.name, visitorName);
+      nameEditing = false;
+      el.nameRow.hidden = true;
+    }
     el.inp.value = ''; el.inp.style.height = ''; updateSend(); stick = true;
     if (!(window.matchMedia && matchMedia('(pointer: coarse)').matches)) el.inp.focus();
     var files = pendingFiles.slice(); pendingFiles = []; renderStrip();
@@ -321,7 +373,15 @@
     if (act === 'end') { if (confirm('Завершити діалог з менеджером?')) { publishJson(Object.assign({ kind: 'chat_end' }, meta())); ended = true; appendMsg({ id: rid(4), sys: true, type: 'end', ts: Date.now() }); applyManager(); } }
     if (act === 'clear') { if (confirm('Очистити історію чату на цьому пристрої?')) { hist = []; save(); manager = null; ls(K.mgr, null); ended = false; applyManager(); render(); scrollBottom(true); } }
   });
-  function commitName() { var v = el.name.value.trim().slice(0, 40); if (v === visitorName) { if (v) { nameEditing = false; el.nameRow.hidden = true; } return; } visitorName = v; ls(K.name, visitorName); if (visitorName) { toast('Дякуємо, ' + visitorName + '!'); nameEditing = false; el.nameRow.hidden = true; publishJson(Object.assign({ kind: 'chat_name' }, meta())); } }
+  function commitName() {
+    var v = el.name.value.trim().slice(0, 60);
+    if (!v) { toast('Вкажіть ваш Telegram @username або телефон'); return; }
+    if (!isValidContact(v)) { toast('Введіть коректний @username або номер телефону'); el.name.focus(); return; }
+    if (v === visitorName) { nameEditing = false; el.nameRow.hidden = true; return; }
+    visitorName = v; ls(K.name, visitorName);
+    toast('Дякуємо! Контакт збережено.'); nameEditing = false; el.nameRow.hidden = true;
+    publishJson(Object.assign({ kind: 'chat_name' }, meta()));
+  }
   el.name.addEventListener('change', commitName);
   el.name.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); commitName(); el.inp.focus(); } });
   window.addEventListener('online', function () { el.offline.hidden = true; connect(); hist.forEach(function (m) { if (m.failed && m.payload) { m.failed = false; publishJson(m.payload).then(function (ok) { m.sent = ok; m.failed = !ok; if (ok) m.payload = null; save(); render(); }); } }); });
