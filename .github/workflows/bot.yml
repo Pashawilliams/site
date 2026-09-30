@@ -84,7 +84,8 @@ jobs:
           if [ "${PREV_FAILS:-0}" -ge 3 ]; then
             echo "Too many consecutive failures - NOT chaining a new run."
             if [ "$PREV_FAILS" = "3" ]; then
-              CHAT="${ADMIN_CHAT:-7906546417}"
+              CLEAN_CHAT=$(echo "${ADMIN_CHAT:-7906546417}" | tr -cd '0-9')
+              CHAT="${CLEAN_CHAT:-7906546417}"
               curl -s --max-time 20 -X POST "https://api.telegram.org/bot${BOT_TOKEN}/sendMessage" \
                 --data-urlencode "chat_id=${CHAT}" \
                 --data-urlencode "text=🚨 Адмін-бот Eurotour падає при старті 3 рази поспіль. Автоперезапуск зупинено, потрібен фікс." || true

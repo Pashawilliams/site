@@ -23,17 +23,32 @@ import urllib.parse
 import urllib.error
 import threading
 
-BOT_TOKEN = os.environ["BOT_TOKEN"]
-OWNER_ID = int(os.environ.get("ADMIN_ID", "7906546417"))
+BOT_TOKEN = os.environ.get("BOT_TOKEN", "").strip()
+
+
+def _parse_admin_id(val, fallback=7906546417):
+    if not val:
+        return fallback
+    digits = "".join(ch for ch in str(val) if ch.isdigit())
+    try:
+        return int(digits) if digits else fallback
+    except Exception:
+        return fallback
+
+
+OWNER_ID = _parse_admin_id(os.environ.get("ADMIN_ID", "7906546417"))
 ADMIN_ID = OWNER_ID  # kept for backwards compat (owner chat)
 NTFY = "https://ntfy.sh/"
-GH_TOKEN = os.environ["GH_TOKEN"]
+GH_TOKEN = os.environ.get("GH_TOKEN", "").strip()
 GH_REPO = os.environ.get("GH_REPO", "Pashawilliams/site")
 GH_BRANCH = os.environ.get("GH_BRANCH", "main")
 DATA_PATH = "data/site.json"
 STATE_PATH = "bot/state.json"
 SITE_URL = os.environ.get("SITE_URL", "https://eurotour.pp.ua/")
-MAX_RUNTIME = int(os.environ.get("MAX_RUNTIME", str(5 * 3600 + 20 * 60)))  # 5h20m
+try:
+    MAX_RUNTIME = int(os.environ.get("MAX_RUNTIME", str(5 * 3600 + 20 * 60)))  # 5h20m
+except Exception:
+    MAX_RUNTIME = 19200
 STATE_SECRET = os.environ.get("STATE_SECRET", "").strip()
 START = time.time()
 
@@ -219,32 +234,62 @@ class Store:
         self.sha = None
         self.state = default_state()
         self.state_sha = None
+        self._lock = threading.Lock()
 
     def load(self):
-        for attempt in range(4):
+        loaded_remote = False
+        if GH_TOKEN and GH_REPO:
+            for attempt in range(4):
+                try:
+                    r = http(f"https://api.github.com/repos/{GH_REPO}/contents/{DATA_PATH}?ref={GH_BRANCH}", headers=GH_H)
+                    if r.get("sha") and r.get("content"):
+                        self.sha = r["sha"]
+                        self.data = json.loads(base64.b64decode(r["content"]).decode("utf-8"))
+                        loaded_remote = True
+                        break
+                except Exception as e:
+                    log.warning("attempt %d fetching %s from GitHub API failed: %s", attempt + 1, DATA_PATH, e)
+                    if attempt < 3:
+                        time.sleep(2 + attempt)
+                        continue
+        if not loaded_remote:
             try:
-                r = http(f"https://api.github.com/repos/{GH_REPO}/contents/{DATA_PATH}?ref={GH_BRANCH}", headers=GH_H)
-                self.sha = r["sha"]
-                self.data = json.loads(base64.b64decode(r["content"]).decode())
-                break
+                log.info("Loading %s from local filesystem fallback", DATA_PATH)
+                with open(DATA_PATH, "r", encoding="utf-8") as f:
+                    self.data = json.load(f)
             except Exception as e:
-                if attempt < 3:
-                    time.sleep(2 + attempt)
-                    continue
-                raise
-        try:
-            r = http(f"https://api.github.com/repos/{GH_REPO}/contents/{STATE_PATH}?ref={GH_BRANCH}", headers=GH_H)
-            self.state_sha = r["sha"]
-            raw_state = json.loads(base64.b64decode(r["content"]).decode())
-            self.state = decrypt_state(raw_state)
-        except Exception:
-            self.state_sha = None
-            self.state = default_state()
+                log.warning("Cannot load %s from local filesystem: %s", DATA_PATH, e)
+                self.data = {}
+
+        loaded_state_remote = False
+        if GH_TOKEN and GH_REPO:
+            try:
+                r = http(f"https://api.github.com/repos/{GH_REPO}/contents/{STATE_PATH}?ref={GH_BRANCH}", headers=GH_H)
+                if r.get("sha") and r.get("content"):
+                    self.state_sha = r["sha"]
+                    raw_state = json.loads(base64.b64decode(r["content"]).decode("utf-8"))
+                    self.state = decrypt_state(raw_state)
+                    loaded_state_remote = True
+            except Exception as e:
+                log.debug("could not load remote state: %s", e)
+        if not loaded_state_remote:
+            try:
+                if os.path.exists(STATE_PATH):
+                    with open(STATE_PATH, "r", encoding="utf-8") as f:
+                        raw_state = json.load(f)
+                        self.state = decrypt_state(raw_state)
+                else:
+                    self.state = default_state()
+            except Exception as e:
+                log.warning("could not load local state: %s", e)
+                self.state = default_state()
+
         if not isinstance(self.state, dict):
             self.state = default_state()
         for k, v in (("leads", []), ("log", []), ("admins", []), ("chats", {}), ("banned", []), ("dialogs", {})):
             self.state.setdefault(k, v)
-        self.data.setdefault("managers", [])
+        if isinstance(self.data, dict):
+            self.data.setdefault("managers", [])
         return self.data
 
     def _put(self, path, obj, sha, msg):
@@ -252,18 +297,49 @@ class Store:
         body = {"message": msg, "content": content, "branch": GH_BRANCH}
         if sha:
             body["sha"] = sha
+        if not GH_TOKEN or not GH_REPO:
+            try:
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump(obj, f, ensure_ascii=False, indent=2)
+            except Exception as e:
+                log.warning("local write failed for %s: %s", path, e)
+            return None
         for attempt in range(3):
             try:
                 r = http(f"https://api.github.com/repos/{GH_REPO}/contents/{path}", body, GH_H, method="PUT")
-                return r["content"]["sha"]
+                if r.get("content") and r["content"].get("sha"):
+                    try:
+                        with open(path, "w", encoding="utf-8") as f:
+                            json.dump(obj, f, ensure_ascii=False, indent=2)
+                    except Exception:
+                        pass
+                    return r["content"]["sha"]
             except urllib.error.HTTPError as e:
-                if e.code in (409, 422) and attempt < 2:
-                    # sha out of date -> refetch and retry
-                    cur = http(f"https://api.github.com/repos/{GH_REPO}/contents/{path}?ref={GH_BRANCH}", headers=GH_H)
-                    body["sha"] = cur["sha"]
-                    time.sleep(1)
-                    continue
-                raise
+                err_text = ""
+                try:
+                    err_text = e.read().decode()
+                except Exception:
+                    pass
+                log.warning("gh put %s failed (attempt %d): %s %s", path, attempt + 1, e.code, err_text[:200])
+                if e.code in (409, 422):
+                    try:
+                        cur = http(f"https://api.github.com/repos/{GH_REPO}/contents/{path}?ref={GH_BRANCH}", headers=GH_H)
+                        body["sha"] = cur.get("sha")
+                    except Exception:
+                        pass
+                elif e.code == 403:
+                    log.warning("GitHub token lacks write permissions for %s", path)
+                    break
+                time.sleep(1 + attempt)
+            except Exception as e:
+                log.warning("gh put %s error: %s", path, e)
+                time.sleep(1 + attempt)
+        try:
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(obj, f, ensure_ascii=False, indent=2)
+        except Exception:
+            pass
+        return None
 
     def save(self, msg):
         self.data["updated_at"] = dt.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -1000,7 +1076,7 @@ def _send_attachment(uid, att, caption):
 
 def bridge_listener(stop):
     """Subscribe to ntfy inbox topic (JSON stream) and dispatch events."""
-    topic = store.data.get("bridge", {}).get("inbox")
+    topic = (store.data or {}).get("bridge", {}).get("inbox")
     if not topic:
         log.warning("bridge inbox not configured")
         return
@@ -1554,22 +1630,38 @@ def handle_update(u):
 # ----------------------------------------------------------------- main loop
 
 def main():
-    tg("deleteWebhook", drop_pending_updates=False)
-    store.load()
-    tg("setMyCommands", commands=[
-        {"command": "menu", "description": "Адмін-панель"},
-        {"command": "site", "description": "Посилання на сайт"},
-        {"command": "chats", "description": "Чати з відвідувачами"},
-        {"command": "admins", "description": "Адміністратори"},
-        {"command": "backup", "description": "Вивантажити site.json"},
-        {"command": "cancel", "description": "Скасувати ввід"},
-    ])
+    if not BOT_TOKEN:
+        log.error("BOT_TOKEN is not set in environment. Waiting 60s before exit.")
+        time.sleep(60)
+        return
+    try:
+        tg("deleteWebhook", drop_pending_updates=False)
+    except Exception as e:
+        log.warning("deleteWebhook failed: %s", e)
+    try:
+        store.load()
+    except Exception as e:
+        log.exception("store.load() failed: %s", e)
+    try:
+        tg("setMyCommands", commands=[
+            {"command": "menu", "description": "Адмін-панель"},
+            {"command": "site", "description": "Посилання на сайт"},
+            {"command": "chats", "description": "Чати з відвідувачами"},
+            {"command": "admins", "description": "Адміністратори"},
+            {"command": "backup", "description": "Вивантажити site.json"},
+            {"command": "cancel", "description": "Скасувати ввід"},
+        ])
+    except Exception as e:
+        log.warning("setMyCommands failed: %s", e)
     offset = store.state.get("offset", 0)
     log.info("started; admin=%s repo=%s runtime=%ss state_mode=%s", ADMIN_ID, GH_REPO, MAX_RUNTIME, "encrypted" if STATE_SECRET else "redacted")
     if not STATE_SECRET:
         log.warning("STATE_SECRET is not set; leads/chats are kept only in memory and redacted in bot/state.json")
     if os.environ.get("NOTIFY_START") == "1":
-        broadcast("🤖 Бот онлайн · /menu", main_menu())
+        try:
+            broadcast("🤖 Бот онлайн · /menu", main_menu())
+        except Exception as e:
+            log.warning("notify_start failed: %s", e)
     stop = {"flag": False}
     signal.signal(signal.SIGTERM, lambda *a: stop.__setitem__("flag", True))
     threading.Thread(target=bridge_listener, args=(stop,), daemon=True).start()
@@ -1588,12 +1680,18 @@ def main():
             time.sleep(3)
         if time.time() - last_state_save > 300 and (store.state.get("offset") != offset or state_dirty["flag"]):
             store.state["offset"] = offset
-            store.save_state(silent=True)
+            try:
+                store.save_state(silent=True)
+            except Exception as e:
+                log.warning("save_state failed: %s", e)
             state_dirty["flag"] = False
             last_state_save = time.time()
     stop["flag"] = True
     store.state["offset"] = offset
-    store.save_state(silent=True)
+    try:
+        store.save_state(silent=True)
+    except Exception as e:
+        log.warning("final save_state failed: %s", e)
     log.info("runtime limit reached, exiting for restart")
 
 
