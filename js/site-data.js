@@ -156,6 +156,7 @@
     try { applyFaq(data.faq); } catch (e) {}
     try { applyAnnouncement(data.site); } catch (e) {}
     try { applyMaintenance(data.site); } catch (e) {}
+    window.__siteData = data;
     document.documentElement.setAttribute('data-site-loaded', '1');
     document.dispatchEvent(new CustomEvent('site:data', { detail: data }));
   }

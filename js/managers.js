@@ -161,6 +161,10 @@
   }, true);
 
   /* ---------- data ---------- */
+  if (window.__siteData && window.__siteData.managers) {
+    var initList = normalize(window.__siteData.managers);
+    if (initList.length) managers = initList;
+  }
   document.addEventListener('site:data', function (e) {
     var d = e.detail || {};
     var list = normalize(d.managers);
